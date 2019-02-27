@@ -90,7 +90,7 @@ def generate(p_top, masses, n_events=None):
         p_top = tf.expand_dims(p_top, axis=-1)
     # Check masses
     top_mass = kin.mass(p_top)
-    available_mass = debug_print(top_mass - tf.reduce_sum(masses, axis=0))
+    available_mass = top_mass - tf.reduce_sum(masses, axis=0)
     mass_check = tf.assert_greater_equal(available_mass, zero,
                                          message="Forbidden decay",
                                          name="mass_check")
