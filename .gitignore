@@ -102,4 +102,4 @@ ENV/
 .mypy_cache/
 
 # specific
-scripts/prepare_test_samples_cxx*
+*/*_cxx*
