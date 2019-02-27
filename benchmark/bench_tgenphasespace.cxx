@@ -5,7 +5,7 @@
 #include "TLorentzVector.h"
 #include "TGenPhaseSpace.h"
 
-Int_t N_EVENTS = 100000000;
+Int_t N_EVENTS = 100000;
 
 int bench_tgenphasespace()
 {
