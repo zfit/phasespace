@@ -21,7 +21,9 @@ import tensorflow as tf
 from tfphasespace import tfphasespace
 
 
-REF_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'bto3pi.root')
+BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+REF_FILE = os.path.join(BASE_PATH, 'data', 'bto3pi.root')
+PLOT_DIR = os.path.join(BASE_PATH, 'tests', 'plots')
 
 B_MASS = 5279.0
 B_AT_REST = tf.stack((0.0, 0.0, 0.0, B_MASS), axis=-1)
@@ -38,10 +40,9 @@ def create_ref_histos():
         return tuple(histo/np.sum(histo) for histo in histos)
 
     if not os.path.exists(REF_FILE):
-        script = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                              '..',
-                                              'scripts',
-                                              'prepare_test_samples.cxx'))
+        script = os.path.join(BASE_PATH,
+                              'scripts',
+                              'prepare_test_samples.cxx')
         os.system('root -qb {}+'.format(script))
     events = uproot.open(REF_FILE)['events']
     pions = events.arrays(['pion_1', 'pion_2', 'pion_3'])
@@ -76,12 +77,15 @@ def test_three_body():
     import matplotlib.pyplot as plt
 
     x = np.linspace(-3000, 3000, 100)
+    if not os.path.exists(PLOT_DIR):
+        os.mkdir(PLOT_DIR)
     for coord, _ in enumerate(histos):
         plt.hist(x, weights=histos[coord], alpha=0.5, label='tfphasespace', bins=100)
         plt.hist(x, weights=ref_histos[coord], alpha=0.5, label='TGenPhasespace', bins=100)
         plt.legend(loc='upper right')
-        plt.savefig("pion_{}_{}.png".format(int(coord / 4) + 1,
-                                            ['x', 'y', 'z', 'e'][coord % 4]))
+        plt.savefig(os.path.join(PLOT_DIR,
+                                 "three_body_pion_{}_{}.png".format(int(coord / 4) + 1,
+                                                                    ['x', 'y', 'z', 'e'][coord % 4])))
         plt.clf()
     assert np.all(p_values > 0.05)
 
