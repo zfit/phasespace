@@ -79,5 +79,8 @@ def test_input_inconsistencies():
                                                 [PION_MASS, PION_MASS, PION_MASS],
                                                 [PION_MASS, PION_MASS, PION_MASS]],
                                                n_events=5))
+    with pytest.raises(tf.errors.InvalidArgumentError):
+        tf.Session().run(tfphasespace.generate(B_AT_REST,
+                                               [B_MASS, PION_MASS, PION_MASS]))
 
 # EOF

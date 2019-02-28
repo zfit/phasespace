@@ -21,7 +21,7 @@ import tensorflow as tf
 from tfphasespace import tfphasespace
 
 
-REF_FILE = '../data/bto3pi.root'
+REF_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'bto3pi.root')
 
 B_MASS = 5279.0
 B_AT_REST = tf.stack((0.0, 0.0, 0.0, B_MASS), axis=-1)
@@ -38,7 +38,11 @@ def create_ref_histos():
         return tuple(histo/np.sum(histo) for histo in histos)
 
     if not os.path.exists(REF_FILE):
-        os.system('root -q ../scripts/prepare_test_samples.cxx+')
+        script = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                              '..',
+                                              'scripts',
+                                              'prepare_test_samples.cxx'))
+        os.system('root -qb {}+'.format(script))
     events = uproot.open(REF_FILE)['events']
     pions = events.arrays(['pion_1', 'pion_2', 'pion_3'])
     weights = np.histogram(events.array('weight'), 100, range=(0, 1))[0]

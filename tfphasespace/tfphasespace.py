@@ -181,20 +181,4 @@ def generate(p_top, masses, n_events=None):
     # tf.concat(generated_particles, axis=0))
     return tf.reshape(weights, (n_events,)), generated_particles
 
-
-if __name__ == "__main__":
-    session = tf.Session()
-    try:
-        res = session.run(generate(b_at_rest, [134.4, 134.4, 134.4]))
-        print(res)
-        res = session.run(generate(b_at_rest, [134.4, 134.4, 134.4], 5))
-        print(res)
-        res = session.run(generate([b_at_rest, bs_at_rest], [134.4, 134.4, 134.4]))
-        print(res)
-    except tf.errors.InvalidArgumentError as exc:
-        if exc.op.name.startswith("mass_check"):
-            print("Forbidden decay")
-        else:
-            print(exc.message)
-
 # EOF
