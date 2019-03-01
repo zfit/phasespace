@@ -123,17 +123,19 @@ def generate(p_top, masses, n_events=None):
     for i in range(n_particles-1):
         pds.append(pdk(inv_masses[i+1], inv_masses[i], masses_unstacked[i+1]))
     weights = w_max * tf.reduce_prod(pds, axis=0)
-    generated_particles = [tf.concat([tf.zeros((1, n_events), dtype=tf.float64),
+    zero_component = tf.zeros_like(pds[0], dtype=tf.float64)
+    generated_particles = [tf.concat([zero_component,
                                       pds[0],
-                                      tf.zeros((1, n_events), dtype=tf.float64),
+                                      zero_component,
                                       tf.sqrt(pds[0] * pds[0] + masses_unstacked[0] * masses_unstacked[0])],
                                      axis=0)]
     part_num = 1
     while True:
-        generated_particles.append(tf.concat([tf.zeros((1, n_events), dtype=tf.float64),
+        generated_particles.append(tf.concat([zero_component,
                                               -pds[part_num-1],
-                                              tf.zeros((1, n_events), dtype=tf.float64),
-                                              tf.sqrt(pds[part_num-1] * pds[part_num-1] + masses_unstacked[part_num] * masses_unstacked[part_num])],
+                                              zero_component,
+                                              tf.sqrt(pds[part_num-1] * pds[part_num-1]
+                                                      + masses_unstacked[part_num] * masses_unstacked[part_num])],
                                              axis=0))
         cos_z = two * tf.random.uniform((1, n_events), dtype=tf.float64) - one
         sin_z = tf.sqrt(one - cos_z * cos_z)
@@ -164,11 +166,11 @@ def generate(p_top, masses, n_events=None):
                                                axis=0)
         if part_num == (n_particles - 1):
             break
-        betas = (pds[i] / tf.sqrt(pds[i] * pds[i] + inv_masses[i] * inv_masses[i]))
+        betas = (pds[part_num] / tf.sqrt(pds[part_num] * pds[part_num] + inv_masses[part_num] * inv_masses[part_num]))
         generated_particles = [kin.lorentz_boost(part,
-                                                 tf.concat([tf.zeros_like(betas),
+                                                 tf.concat([zero_component,
                                                             betas,
-                                                            tf.zeros_like(betas)],
+                                                            zero_component],
                                                            axis=0),
                                                  dim_axis=0)
                                for part in generated_particles]
@@ -180,6 +182,4 @@ def generate(p_top, masses, n_events=None):
     # tf.concat(generated_particles, axis=0))
     return tf.reshape(weights, (n_events,)), generated_particles
 
-
 # EOF
-

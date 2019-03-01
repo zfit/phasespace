@@ -111,9 +111,11 @@ def test_two_body():
     """Test B->pipi decay."""
     run_test(2, "two_body")
 
+
 def test_three_body():
     """Test B -> pi pi pi decay."""
     run_test(3, "three_body")
+
 
 def test_four_body():
     """Test B -> pi pi pi pi decay."""
