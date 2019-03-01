@@ -30,43 +30,87 @@ B_AT_REST = tf.stack((0.0, 0.0, 0.0, B_MASS), axis=-1)
 PION_MASS = 139.6
 
 
-def create_ref_histos():
+def create_ref_histos(n_pions):
     """Load reference histogram data."""
-    def make_histos(vector_list, range_):
+    def make_histos(vector_list, range_, weights=None):
         """Make histograms."""
         v_array = np.stack([vector_list.x, vector_list.y, vector_list.z, vector_list.E])
-        histos = tuple(np.histogram(v_array[coord], 100, range=range_)[0]
+        histos = tuple(np.histogram(v_array[coord], 100, range=range_, weights=weights)[0]
                        for coord in range(4))
         return tuple(histo/np.sum(histo) for histo in histos)
 
-    if not os.path.exists(REF_FILE):
+    ref_file = os.path.join(BASE_PATH, 'data', 'bto{}pi.root'.format(n_pions))
+    if not os.path.exists(ref_file):
         script = os.path.join(BASE_PATH,
                               'scripts',
                               'prepare_test_samples.cxx')
         os.system('root -qb {}+'.format(script))
-    events = uproot.open(REF_FILE)['events']
-    pions = events.arrays(['pion_1', 'pion_2', 'pion_3'])
-    weights = np.histogram(events.array('weight'), 100, range=(0, 1))[0]
-    return sum([make_histos(pions[pion], range_=(-3000, 3000))
-                for pion in (b'pion_1', b'pion_2', b'pion_3')], tuple()), \
-        weights/np.sum(weights)
+    events = uproot.open(ref_file)['events']
+    pion_names = ['pion_{}'.format(pion+1) for pion in range(n_pions)]
+    pions = {pion_name: events.array(pion_name)
+             for pion_name in pion_names}
+    weights = events.array('weight')
+    weights_histo = np.histogram(weights, 100, range=(0, 1))[0]
+    return sum([make_histos(pion, range_=(-3000, 3000), weights=weights)
+                for pion in pions.values()], tuple()), \
+        weights_histo/np.sum(weights_histo)
+
+
+def make_norm_histo(array, range_, weights=None):
+    """Make histo and modify dimensions."""
+    histo = np.histogram(array, 100, range=range_, weights=weights)[0]
+    return histo/np.sum(histo)
+
+
+def test_two_body():
+    """Test B->pipi decay."""
+    weights, particles = tf.Session().run(tfphasespace.generate(B_AT_REST,
+                                                                [PION_MASS, PION_MASS],
+                                                                100000))
+    parts = np.concatenate(particles, axis=0)
+    histos = [make_norm_histo(parts[coord],
+                              range_=(-3000, 3000),
+                              weights=weights)
+              for coord in range(parts.shape[0])]
+    weight_histos = make_norm_histo(weights, range_=(0, 1))
+    ref_histos, ref_weights = create_ref_histos(2)
+    p_values = np.array([ks_2samp(histos[coord], ref_histos[coord])[1]
+                         for coord, _ in enumerate(histos)] +
+                        [ks_2samp(weight_histos, ref_weights)[1]])
+    # Let's plot
+    if platform.system() == 'Darwin':
+        import matplotlib
+        matplotlib.use('TkAgg')
+    import matplotlib.pyplot as plt
+
+    x = np.linspace(-3000, 3000, 100)
+    if not os.path.exists(PLOT_DIR):
+        os.mkdir(PLOT_DIR)
+    for coord, _ in enumerate(histos):
+        plt.hist(x, weights=histos[coord], alpha=0.5, label='tfphasespace', bins=100)
+        plt.hist(x, weights=ref_histos[coord], alpha=0.5, label='TGenPhasespace', bins=100)
+        plt.legend(loc='upper right')
+        plt.savefig(os.path.join(PLOT_DIR,
+                                 "two_body_pion_{}_{}.png".format(int(coord / 4) + 1,
+                                                                  ['x', 'y', 'z', 'e'][coord % 4])))
+        plt.clf()
+    plt.hist(np.linspace(0, 1, 100), weights=weight_histos, alpha=0.5, label='tfphasespace', bins=100)
+    plt.hist(np.linspace(0, 1, 100), weights=ref_weights, alpha=0.5, label='tfphasespace', bins=100)
+    assert np.all(p_values > 0.05)
 
 
 def test_three_body():
     """Test B -> pi pi pi decay."""
-    def make_histo(array, range_):
-        """Make histo and modify dimensions."""
-        histo = np.histogram(array, 100, range=range_)[0]
-        return histo/np.sum(histo)
-        # return np.expand_dims(np.histogram(parts[0], 100, range=(-3000, 3000))[0], axis=0)
-
     weights, particles = tf.Session().run(tfphasespace.generate(B_AT_REST,
                                                                 [PION_MASS, PION_MASS, PION_MASS],
                                                                 100000))
     parts = np.concatenate(particles, axis=0)
-    histos = [make_histo(parts[coord], range_=(-3000, 3000)) for coord in range(parts.shape[0])]
-    weight_histos = make_histo(weights, range_=(0, 1))
-    ref_histos, ref_weights = create_ref_histos()
+    histos = [make_norm_histo(parts[coord],
+                              range_=(-3000, 3000),
+                              weights=weights)
+              for coord in range(parts.shape[0])]
+    weight_histos = make_norm_histo(weights, range_=(0, 1))
+    ref_histos, ref_weights = create_ref_histos(3)
     p_values = np.array([ks_2samp(histos[coord], ref_histos[coord])[1]
                          for coord, _ in enumerate(histos)] +
                         [ks_2samp(weight_histos, ref_weights)[1]])
@@ -87,10 +131,15 @@ def test_three_body():
                                  "three_body_pion_{}_{}.png".format(int(coord / 4) + 1,
                                                                     ['x', 'y', 'z', 'e'][coord % 4])))
         plt.clf()
+    plt.hist(np.linspace(0, 1, 100), weights=weight_histos, alpha=0.5, label='tfphasespace', bins=100)
+    plt.hist(np.linspace(0, 1, 100), weights=ref_weights, alpha=0.5, label='tfphasespace', bins=100)
+    plt.savefig(os.path.join(PLOT_DIR, 'three_body_weights.png'))
+    plt.clf()
     assert np.all(p_values > 0.05)
 
 
 if __name__ == "__main__":
+    test_two_body()
     test_three_body()
 
 

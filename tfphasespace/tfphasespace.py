@@ -118,7 +118,6 @@ def generate(p_top, masses, n_events=None):
     for i in range(n_particles):
         sum_ += masses_unstacked[i]
         inv_masses.append(random[i] * available_mass + sum_)
-    inv_mass = tf.concat(inv_masses, axis=0)
     pds = []
     # Calculate weights of the events
     for i in range(n_particles-1):
@@ -181,4 +180,6 @@ def generate(p_top, masses, n_events=None):
     # tf.concat(generated_particles, axis=0))
     return tf.reshape(weights, (n_events,)), generated_particles
 
+
 # EOF
+

@@ -103,3 +103,4 @@ ENV/
 
 # specific
 */*_cxx*
+tests/plots

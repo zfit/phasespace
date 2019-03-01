@@ -11,7 +11,7 @@ import pytest
 
 import tensorflow as tf
 
-from tfphasespace import tfphasespace
+import tfphasespace
 
 
 B_MASS = 5279.0
