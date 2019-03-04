@@ -18,12 +18,16 @@ import tensorflow as tf
 
 import tfphasespace.kinematics as kin
 
+# Useful constants
+_ZERO = tf.constant(0.0, dtype=tf.float64)
+_ONE = tf.constant(1.0, dtype=tf.float64)
+_TWO = tf.constant(2.0, dtype=tf.float64)
 
-def debug_print(op):
-    p_op = tf.print(op)
-    with tf.control_dependencies([p_op]):
-        op = tf.identity(op)
-    return op
+
+def pdk(a, b, c):
+    """Calculate the PDK (2-body phase space) function."""
+    x = (a - b - c) * (a + b + c) * (a - b + c) * (a + b - c)
+    return tf.sqrt(x)/(_TWO * a)
 
 
 def generate(p_top, masses, n_events=None):
@@ -39,16 +43,6 @@ def generate(p_top, masses, n_events=None):
         tf.tensor: 4-momenta of the generated particles.
 
     """
-    # Useful constants
-    zero = tf.constant(0.0, dtype=tf.float64)
-    one = tf.constant(1.0, dtype=tf.float64)
-    two = tf.constant(2.0, dtype=tf.float64)
-
-    def pdk(a, b, c):
-        """Calculate the PDK function."""
-        x = (a - b - c) * (a + b + c) * (a - b + c) * (a + b - c)
-        return tf.sqrt(x)/(two * a)
-
     # Bookkeeping, preparation
     if isinstance(p_top, list):
         p_top = tf.transpose(tf.convert_to_tensor(p_top,
@@ -91,20 +85,19 @@ def generate(p_top, masses, n_events=None):
     # Check masses
     top_mass = kin.mass(p_top)
     available_mass = top_mass - tf.reduce_sum(masses, axis=0)
-    mass_check = tf.assert_greater_equal(available_mass, zero,
+    mass_check = tf.assert_greater_equal(available_mass, _ZERO,
                                          message="Forbidden decay",
                                          name="mass_check")
     with tf.control_dependencies([mass_check]):
         available_mass = tf.identity(available_mass)
     # Calculate the max weight, initial beta, etc
     emmax = available_mass + masses[0, :]
-    emmin = zero
+    emmin = _ZERO
     w_max = tf.ones((1, n_events), dtype=tf.float64)
     for i in range(1, n_particles):
         emmin += masses[i-1, :]
         emmax += masses[i, :]
         w_max *= pdk(emmax, emmin, masses[i, :])
-    w_max = one / w_max
     p_top_boost = kin.boost_components(p_top, axis=0)
     # Start the generation
     random_numbers = tf.random.uniform((n_particles-2, n_events), dtype=tf.float64)
@@ -122,7 +115,7 @@ def generate(p_top, masses, n_events=None):
     # Calculate weights of the events
     for i in range(n_particles-1):
         pds.append(pdk(inv_masses[i+1], inv_masses[i], masses_unstacked[i+1]))
-    weights = w_max * tf.reduce_prod(pds, axis=0)
+    weights = tf.reduce_prod(pds, axis=0)
     zero_component = tf.zeros_like(pds[0], dtype=tf.float64)
     generated_particles = [tf.concat([zero_component,
                                       pds[0],
@@ -137,9 +130,9 @@ def generate(p_top, masses, n_events=None):
                                               tf.sqrt(pds[part_num-1] * pds[part_num-1]
                                                       + masses_unstacked[part_num] * masses_unstacked[part_num])],
                                              axis=0))
-        cos_z = two * tf.random.uniform((1, n_events), dtype=tf.float64) - one
-        sin_z = tf.sqrt(one - cos_z * cos_z)
-        ang_y = two * tf.constant(pi, dtype=tf.float64) * tf.random.uniform((1, n_events), dtype=tf.float64)
+        cos_z = _TWO * tf.random.uniform((1, n_events), dtype=tf.float64) - _ONE
+        sin_z = tf.sqrt(_ONE - cos_z * cos_z)
+        ang_y = _TWO * tf.constant(pi, dtype=tf.float64) * tf.random.uniform((1, n_events), dtype=tf.float64)
         cos_y = tf.math.cos(ang_y)
         sin_y = tf.math.sin(ang_y)
         # Do the rotations
@@ -178,8 +171,6 @@ def generate(p_top, masses, n_events=None):
     # Final boost of all particles
     generated_particles = [kin.lorentz_boost(part, p_top_boost, dim_axis=0)
                            for part in generated_particles]
-    # Should we merge the particles?
-    # tf.concat(generated_particles, axis=0))
-    return tf.reshape(weights, (n_events,)), generated_particles
+    return tf.reshape(weights, (n_events,)), tf.reshape(w_max, (n_events,)), generated_particles
 
 # EOF
