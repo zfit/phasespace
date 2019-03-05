@@ -42,7 +42,7 @@ class Particle:
         self.name = name
         self._children_masses = None
         self.parent = parent
-        self.children = None
+        self.children = []
         self._n_events = None
 
     def _do_names_clash(self, names):
@@ -67,6 +67,11 @@ class Particle:
 
     def has_children(self):
         return bool(self.children)
+
+    def has_grandchildren(self):
+        if not self.children:
+            return False
+        return any(child.has_children() for child in self.children)
 
     def _preprocess(self, momentum, masses, n_events):
         momentum = process_list_to_tensor(momentum)
@@ -103,11 +108,21 @@ class Particle:
         # TODO: Convert n_events to tf.Variable
         return momentum, masses, n_events
 
+    def _get_w_max(self, available_mass, masses):
+        emmax = available_mass + masses[0, :]
+        emmin = _ZERO
+        w_max = _ONE
+        for i in range(1, masses.shape.as_list()[0]):
+            emmin += masses[i-1, :]
+            emmax += masses[i, :]
+            w_max *= pdk(emmax, emmin, masses[i, :])
+        return w_max
+
     def _generate(self, momentum, n_events):
         if not self.children:
             raise ValueError("No children have been configured")
         if callable(self._children_masses):
-            masses = self._children_masses()
+            masses = self._children_masses(momentum)
         else:
             masses = self._children_masses
         p_top, masses, n_events = self._preprocess(momentum, masses, n_events)
@@ -120,13 +135,7 @@ class Particle:
         with tf.control_dependencies([mass_check]):
             available_mass = tf.identity(available_mass)
         # Calculate the max weight, initial beta, etc
-        emmax = available_mass + masses[0, :]
-        emmin = _ZERO
-        w_max = tf.ones((1, n_events), dtype=tf.float64)
-        for i in range(1, n_particles):
-            emmin += masses[i-1, :]
-            emmax += masses[i, :]
-            w_max *= pdk(emmax, emmin, masses[i, :])
+        w_max = self._get_w_max(available_mass, masses)
         p_top_boost = kin.boost_components(p_top, axis=0)
         # Start the generation
         random_numbers = tf.random.uniform((n_particles-2, n_events), dtype=tf.float64)
@@ -195,18 +204,77 @@ class Particle:
                                                                 zero_component],
                                                                axis=0),
                                                      dim_axis=0)
-                                for part in generated_particles]
+                                   for part in generated_particles]
             part_num += 1
         # Final boost of all particles
         generated_particles = [kin.lorentz_boost(part, p_top_boost, dim_axis=0)
                                for part in generated_particles]
-        return tf.reshape(weights, (n_events,)), tf.reshape(w_max, (n_events,)), generated_particles
+        return tf.reshape(weights, (n_events,)), w_max, generated_particles, masses
 
-    def generate(self, momentum, n_events):
-        weights, weights_max, parts = self._generate(momentum, n_events)
+    def _recursive_generate(self, momentum, n_events, recalculate_max_weights):
+        weights, weights_max, parts, children_masses = self._generate(momentum, n_events)
         output_particles = {child.name: parts[child_num]
                             for child_num, child in enumerate(self.children)}
-        return weights/weights_max, output_particles
+        output_masses = {child.name: children_masses[child_num]
+                         for child_num, child in enumerate(self.children)}
+        for child_num, child in enumerate(self.children):
+            if child.has_children():
+                child_weights, _, child_gen_particles, child_masses = \
+                    child._recursive_generate(parts[child_num], n_events, False)
+                weights *= child_weights
+                output_particles.update(child_gen_particles)
+                output_masses.update(child_masses)
+        if recalculate_max_weights:
+
+            def build_mass_tree(particle, leaf):
+                if particle.has_children():
+                    leaf[particle.name] = {}
+                    for child in particle.children:
+                        build_mass_tree(child, leaf[particle.name])
+                else:
+                    leaf[particle.name] = output_masses[particle.name]
+
+            def get_flattened_values(dict_):
+                output = []
+                for val in dict_.values():
+                    if isinstance(val, dict):
+                        output.extend(get_flattened_values(val))
+                    else:
+                        output.append(val)
+                return output
+
+            def recurse_w_max(parent_mass, current_mass_tree):
+                available_mass = parent_mass - tf.reduce_sum(get_flattened_values(current_mass_tree),
+                                                             axis=0)
+                masses = []
+                w_max = tf.expand_dims(_ONE, axis=-1)
+                for child, child_mass in current_mass_tree.items():
+                    if isinstance(child_mass, dict):
+                        w_max *= recurse_w_max(parent_mass -
+                                               tf.reduce_sum(get_flattened_values({ch_it: ch_m_it
+                                                                                   for ch_it, ch_m_it
+                                                                                   in current_mass_tree.items()
+                                                                                   if ch_it != child}),
+                                                             axis=0),
+                                               child_mass)
+                        masses.append(tf.reduce_sum(get_flattened_values(child_mass), axis=0))
+                    else:
+                        masses.append(child_mass)
+                masses = tf.convert_to_tensor(masses)
+                if len(masses.shape.as_list()) == 1:
+                    masses = tf.expand_dims(masses, axis=-1)
+                w_max *= self._get_w_max(available_mass, masses)
+                return w_max
+
+            mass_tree = {}
+            build_mass_tree(self, mass_tree)
+            weights_max = tf.ones_like(weights, dtype=tf.float64) * \
+                recurse_w_max(kin.mass(tf.expand_dims(process_list_to_tensor(momentum), axis=-1)), mass_tree[self.name])
+        return weights, weights_max, output_particles, output_masses
+
+    def generate(self, momentum, n_events=None):
+        weights, weights_max, parts, _ = self._recursive_generate(momentum, n_events, self.has_grandchildren())
+        return weights/weights_max, parts
 
 
 def generate(p_top, masses, n_events=None):
