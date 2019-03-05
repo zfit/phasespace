@@ -206,7 +206,7 @@ class Particle:
         weights, weights_max, parts = self._generate(momentum, n_events)
         output_particles = {child.name: parts[child_num]
                             for child_num, child in enumerate(self.children)}
-        return weights, weights_max, output_particles
+        return weights/weights_max, output_particles
 
 
 def generate(p_top, masses, n_events=None):
@@ -226,8 +226,8 @@ def generate(p_top, masses, n_events=None):
     n_parts = process_list_to_tensor(masses).shape.as_list()[0]
     children_names = [str(num+1) for num in range(n_parts)]
     top.set_children(children_names, masses)
-    weights, weights_max, parts = top.generate(p_top, n_events)
-    return weights, weights_max, [parts[name] for name in children_names]
+    norm_weights, parts = top.generate(p_top, n_events)
+    return norm_weights, [parts[name] for name in children_names]
 
 
 # EOF

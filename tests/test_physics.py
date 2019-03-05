@@ -73,10 +73,9 @@ def create_ref_histos(n_pions):
 
 
 def run_test(n_particles, test_prefix):
-    weights, max_weights, particles = tf.Session().run(tfphasespace.generate(B_AT_REST,
-                                                                             [PION_MASS] * n_particles,
-                                                                             100000))
-    weights = weights/max_weights
+    weights, particles = tf.Session().run(tfphasespace.generate(B_AT_REST,
+                                                                [PION_MASS] * n_particles,
+                                                                100000))
     parts = np.concatenate(particles, axis=0)
     histos = [make_norm_histo(parts[coord],
                               range_=(-3000 if coord % 4 != 3 else 0, 3000),
