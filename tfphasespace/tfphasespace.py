@@ -46,10 +46,23 @@ class Particle:
         self._n_events = None
 
     def _do_names_clash(self, names):
-        if any(name == self.name for name in names):
-            return self.name
-        if not self.is_top():
-            return self.parent._do_names_clash(names)
+        def get_list_of_names(part):
+            output = [part.name]
+            for child in part.children:
+                output.extend(get_list_of_names(child))
+            return output
+
+        names_to_check = list(names)
+        # Find top
+        top = self
+        while True:
+            if top.is_top():
+                break
+            top = top.parent
+        names_to_check.extend(get_list_of_names(top))
+        dup_names = {name for name in names_to_check if names_to_check.count(name) > 1}
+        if dup_names:
+            return dup_names
         return None
 
     def set_children(self, names, masses):
