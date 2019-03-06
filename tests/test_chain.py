@@ -13,7 +13,6 @@ import tensorflow as tf
 
 from tfphasespace import Particle
 
-
 B_MASS = 5279.0
 B_AT_REST = tf.stack((0.0, 0.0, 0.0, B_MASS), axis=-1)
 PION_MASS = 139.6
@@ -44,7 +43,8 @@ def test_kstargamma():
     kstar, _ = top_part.set_children(['K*0', 'gamma'], lambda momentum: (tf.random.normal((1000,), KSTARZ_MASS, 45),
                                                                          tf.zeros((1000,))))
     kstar.set_children(['K+', 'pi-'], lambda momentum: (KAON_MASS, PION_MASS))
-    norm_weights, particles = tf.Session().run(top_part.generate(B_AT_REST))
+    with tf.Session() as sess:
+        norm_weights, particles = sess.run(top_part.generate(B_AT_REST))
     assert len(norm_weights) == 1000
     assert all([weight < 1 for weight in norm_weights])
     assert len(particles) == 4
