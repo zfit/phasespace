@@ -10,8 +10,8 @@
 import tensorflow as tf
 
 
-def debug_print(op):
-    p_op = tf.print(op)
+def debug_print(op, msg=''):
+    p_op = tf.print(msg, op, summarize=-1)
     with tf.control_dependencies([p_op]):
         op = tf.identity(op)
     return op
