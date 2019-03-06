@@ -257,23 +257,23 @@ class Particle:
                 return output
 
             def recurse_w_max(parent_mass, current_mass_tree):
-                available_mass = parent_mass - tf.reduce_sum(get_flattened_values(current_mass_tree),
-                                                             axis=0)
+                available_mass = parent_mass - sum(get_flattened_values(current_mass_tree))
                 masses = []
                 w_max = tf.expand_dims(_ONE, axis=-1)
                 for child, child_mass in current_mass_tree.items():
                     if isinstance(child_mass, dict):
                         w_max *= recurse_w_max(parent_mass -
-                                               tf.reduce_sum(get_flattened_values({ch_it: ch_m_it
-                                                                                   for ch_it, ch_m_it
-                                                                                   in current_mass_tree.items()
-                                                                                   if ch_it != child}),
-                                                             axis=0),
+                                               sum(get_flattened_values({ch_it: ch_m_it
+                                                                         for ch_it, ch_m_it
+                                                                         in current_mass_tree.items()
+                                                                         if ch_it != child})),
                                                child_mass)
-                        masses.append(tf.reduce_sum(get_flattened_values(child_mass), axis=0))
+                        masses.append(sum(get_flattened_values(child_mass)))
                     else:
                         masses.append(child_mass)
-                masses = tf.convert_to_tensor(masses)
+                # Find largest mass tensor
+                max_shape = max(mass.shape.as_list()[0] for mass in masses)
+                masses = tf.convert_to_tensor([tf.broadcast_to(mass, (max_shape,)) for mass in masses])
                 if len(masses.shape.as_list()) == 1:
                     masses = tf.expand_dims(masses, axis=-1)
                 w_max *= self._get_w_max(available_mass, masses)
