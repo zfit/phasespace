@@ -76,7 +76,8 @@ def test_k1gamma():
                                                     tf.zeros((1000,), dtype=tf.float64)))
     kstar, _ = k1.set_children(['K*0', 'pi+'], get_kstarpi_masses)
     kstar.set_children(['K+', 'pi-'], lambda momentum: (KAON_MASS, PION_MASS))
-    norm_weights, particles = tf.Session().run(top_part.generate(B_AT_REST))
+    with tf.Session() as sess:
+        norm_weights, particles = sess.run(top_part.generate(B_AT_REST))
     assert len(norm_weights) == 1000
     assert all([weight < 1 for weight in norm_weights])
     assert len(particles) == 6
