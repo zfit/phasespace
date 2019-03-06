@@ -92,6 +92,8 @@ class Particle:
         momentum_shape = momentum.shape.as_list()
         mass_shape = masses.shape.as_list()
         # Check sanity of inputs
+
+        # TODO(Mayou36): change for n_events being a tensor/Variable
         if len(momentum_shape) not in (1, 2):
             raise ValueError("Bad shape for momentum -> {}".format(momentum_shape))
         if len(mass_shape) not in (1, 2):

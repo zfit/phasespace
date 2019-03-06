@@ -9,12 +9,14 @@
 
 import os
 import platform
+import subprocess
 
 import numpy as np
 from scipy.stats import ks_2samp
 
 if platform.system() == 'Darwin':
     import matplotlib
+
     matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
@@ -24,7 +26,6 @@ import tensorflow as tf
 
 from tfphasespace import tfphasespace
 
-
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 PLOT_DIR = os.path.join(BASE_PATH, 'tests', 'plots')
 
@@ -33,34 +34,35 @@ B_AT_REST = tf.stack((0.0, 0.0, 0.0, B_MASS), axis=-1)
 PION_MASS = 139.6
 
 
-
 def make_norm_histo(array, range_, weights=None):
     """Make histo and modify dimensions."""
     histo = np.histogram(array, 100, range=range_, weights=weights)[0]
-    return histo/np.sum(histo)
+    return histo / np.sum(histo)
 
 
 def create_ref_histos(n_pions):
     """Load reference histogram data."""
+
     def make_histos(vector_list, range_, weights=None):
         """Make histograms."""
         v_array = np.stack([vector_list.x, vector_list.y, vector_list.z, vector_list.E])
         histos = tuple(np.histogram(v_array[coord], 100, range=range_, weights=weights)[0]
                        for coord in range(4))
-        return tuple(histo/np.sum(histo) for histo in histos)
+        return tuple(histo / np.sum(histo) for histo in histos)
 
     ref_file = os.path.join(BASE_PATH, 'data', 'bto{}pi.root'.format(n_pions))
     if not os.path.exists(ref_file):
         script = os.path.join(BASE_PATH,
                               'scripts',
                               'prepare_test_samples.cxx+({})'.format(','.join(
-                                  '"{}"'.format(os.path.join(BASE_PATH,
-                                                             'data',
-                                                             'bto{}pi.root'.format(i+1))
-                                                for i in range(4)))))
-        os.system("root -qb '{}'".format(script))
+                                      '"{}"'.format(os.path.join(BASE_PATH,
+                                                                 'data',
+                                                                 'bto{}pi.root'.format(i + 1))
+                                                    for i in range(4)))))
+        subprocess.call("echo $PATH", shell=True)
+        subprocess.call("root -qb '{}'".format(script), shell=True)
     events = uproot.open(ref_file)['events']
-    pion_names = ['pion_{}'.format(pion+1) for pion in range(n_pions)]
+    pion_names = ['pion_{}'.format(pion + 1) for pion in range(n_pions)]
     pions = {pion_name: events.array(pion_name)
              for pion_name in pion_names}
     weights = events.array('weight')
@@ -69,13 +71,14 @@ def create_ref_histos(n_pions):
                             weights=weights)
             for pion in pions.values()
             for coord, array in enumerate([pion.x, pion.y, pion.z, pion.E])], \
-        make_norm_histo(weights, range_=(0, 1))
+           make_norm_histo(weights, range_=(0, 1))
 
 
 def run_test(n_particles, test_prefix):
-    weights, particles = tf.Session().run(tfphasespace.generate(B_AT_REST,
-                                                                [PION_MASS] * n_particles,
-                                                                100000))
+    sess = tf.Session()
+    weights, particles = sess.run(tfphasespace.generate(B_AT_REST,
+                                                        [PION_MASS] * n_particles,
+                                                        100000))
     parts = np.concatenate(particles, axis=0)
     histos = [make_norm_histo(parts[coord],
                               range_=(-3000 if coord % 4 != 3 else 0, 3000),
@@ -105,6 +108,7 @@ def run_test(n_particles, test_prefix):
     plt.savefig(os.path.join(PLOT_DIR, '{}_weights.png'.format(test_prefix)))
     plt.clf()
     assert np.all(p_values > 0.05)
+    sess.close()
 
 
 def test_two_body():
@@ -126,6 +130,5 @@ if __name__ == "__main__":
     test_two_body()
     test_three_body()
     test_four_body()
-
 
 # EOF
