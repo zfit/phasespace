@@ -26,18 +26,15 @@ import tensorflow as tf
 
 from tfphasespace import tfphasespace
 
+from plotting import make_norm_histo
+
+
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 PLOT_DIR = os.path.join(BASE_PATH, 'tests', 'plots')
 
 B_MASS = 5279.0
 B_AT_REST = tf.stack((0.0, 0.0, 0.0, B_MASS), axis=-1)
 PION_MASS = 139.6
-
-
-def make_norm_histo(array, range_, weights=None):
-    """Make histo and modify dimensions."""
-    histo = np.histogram(array, 100, range=range_, weights=weights)[0]
-    return histo / np.sum(histo)
 
 
 def create_ref_histos(n_pions):
@@ -74,14 +71,14 @@ def create_ref_histos(n_pions):
                             weights=weights)
             for pion in pions.values()
             for coord, array in enumerate([pion.x, pion.y, pion.z, pion.E])], \
-           make_norm_histo(weights, range_=(0, 1))
+        make_norm_histo(weights, range_=(0, 1))
 
 
 def run_test(n_particles, test_prefix):
-    sess = tf.Session()
-    weights, particles = sess.run(tfphasespace.generate(B_AT_REST,
-                                                        [PION_MASS] * n_particles,
-                                                        100000))
+    with tf.Session() as sess:
+        weights, particles = sess.run(tfphasespace.generate(B_AT_REST,
+                                                            [PION_MASS] * n_particles,
+                                                            100000))
     parts = np.concatenate(particles, axis=0)
     histos = [make_norm_histo(parts[coord],
                               range_=(-3000 if coord % 4 != 3 else 0, 3000),
@@ -111,7 +108,6 @@ def run_test(n_particles, test_prefix):
     plt.savefig(os.path.join(PLOT_DIR, '{}_weights.png'.format(test_prefix)))
     plt.clf()
     assert np.all(p_values > 0.05)
-    sess.close()
 
 
 def test_two_body():
