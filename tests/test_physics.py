@@ -54,11 +54,11 @@ def create_ref_histos(n_pions):
     if not os.path.exists(ref_file):
         script = os.path.join(BASE_PATH,
                               'scripts',
-                              'prepare_test_samples.cxx+({})'.format(','.join(
-                                      '"{}"'.format(os.path.join(BASE_PATH,
-                                                                 'data',
-                                                                 'bto{}pi.root'.format(i + 1))
-                                                    for i in range(4)))))
+                              'prepare_test_samples.cxx+({})'
+                              .format(','.join(['"{}"'.format(os.path.join(BASE_PATH,
+                                                                           'data',
+                                                                           'bto{}pi.root'.format(i + 1)))
+                                                for i in range(1, 4)])))
         subprocess.call("echo $PATH", shell=True)
         subprocess.call("root -qb '{}'".format(script), shell=True)
     events = uproot.open(ref_file)['events']
