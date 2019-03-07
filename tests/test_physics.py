@@ -50,7 +50,10 @@ def create_ref_histos(n_pions):
                        for coord in range(4))
         return tuple(histo / np.sum(histo) for histo in histos)
 
-    ref_file = os.path.join(BASE_PATH, 'data', 'bto{}pi.root'.format(n_pions))
+    ref_dir = os.path.join(BASE_PATH, 'data')
+    if not os.path.exists(ref_dir):
+        os.mkdir(ref_dir)
+    ref_file = os.path.join(ref_dir, 'bto{}pi.root'.format(n_pions))
     if not os.path.exists(ref_file):
         script = os.path.join(BASE_PATH,
                               'scripts',
