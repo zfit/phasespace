@@ -287,8 +287,12 @@ class Particle:
                 recurse_w_max(kin.mass(tf.expand_dims(process_list_to_tensor(momentum), axis=-1)), mass_tree[self.name])
         return weights, weights_max, output_particles, output_masses
 
-    def generate(self, momentum, n_events=None):
+    def generate_unnormalized(self, momentum, n_events=None):
         weights, weights_max, parts, _ = self._recursive_generate(momentum, n_events, self.has_grandchildren())
+        return weights, weights_max, parts
+
+    def generate(self, momentum, n_events=None):
+        weights, weights_max, parts = self.generate_unnormalized(momentum, n_events)
         return weights/weights_max, parts
 
 
