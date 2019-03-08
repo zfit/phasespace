@@ -32,7 +32,7 @@ def generate_fonll(mass, beam_energy, quark, n_events):
     pt_histo, eta_histo = get_fonll_histos(beam_energy, quark)
     pt_data = analyze_histo(pt_histo)
     eta_data = analyze_histo(eta_histo)
-    pt_rand = np.abs(np.random.choice(pt_data[0], size=n_events, p=pt_data[1]))
+    pt_rand = 1000.0 * np.abs(np.random.choice(pt_data[0], size=n_events, p=pt_data[1]))
     eta_rand = np.random.choice(eta_data[0], size=n_events, p=eta_data[1])
     phi_rand = np.random.uniform(0, 2*np.pi, size=n_events)
     px = pt_rand * np.cos(phi_rand)
