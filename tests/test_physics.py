@@ -120,19 +120,20 @@ def test_four_body():
     run_test(4, "four_body")
 
 
-@pytest.mark.flaky(3)  # Stats are limited
-def test_kstargamma_kstarnonresonant():
-    """Test B0 -> K* gamma physics."""
+def run_kstargamma(input_file, kstar_width, suffix):
     n_events = 1000000
     with tf.Session() as sess:
-        norm_weights, particles = sess.run(decays.b0_to_kstar_gamma(n_events, kstar_width=0).generate(decays.B0_AT_REST, n_events))
+        norm_weights, particles = sess.run(decays.b0_to_kstar_gamma(n_events, kstar_width=kstar_width).generate(decays.B0_AT_REST, n_events))
     rapidsim_parts = rapidsim.get_tree_in_b_rest_frame(
         os.path.join(BASE_PATH,
                      'data',
-                     'B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root'),
+                     input_file),
         'B0_0',
         ('Kst0_0', 'gamma_0', 'Kp_0', 'pim_0'))
-    name_matching = {'Kst0_0': 'K*0', 'gamma_0': 'gamma', 'Kp_0': 'K+', 'pim_0': 'pi-'}
+    name_matching = {'Kst0_0': 'K*0',
+                     'gamma_0': 'gamma',
+                     'Kp_0': 'K+',
+                     'pim_0': 'pi-'}
     if not os.path.exists(PLOT_DIR):
         os.mkdir(PLOT_DIR)
     x = np.linspace(-3000, 3000, 100)
@@ -148,14 +149,35 @@ def test_kstargamma_kstarnonresonant():
             plt.hist(x if coord % 4 != 3 else e, weights=ref_histo, alpha=0.5, label='RapidSim', bins=100)
             plt.legend(loc='upper right')
             plt.savefig(os.path.join(PLOT_DIR,
-                                     "B0_Kstar_gamma_KstarNonResonant_{}_{}.png".format(tf_part, coord_name)))
+                                     "B0_Kstar_gamma_Kstar{}_{}_{}.png".format(suffix, tf_part, coord_name)))
             plt.clf()
             p_values[(tf_part, coord_name)] = ks_2samp(tf_histo, ref_histo)[1]
-    plt.hist(np.linspace(0, 1, 100), weights=make_norm_histo(norm_weights, range_=(0, 1)))
-    plt.savefig(os.path.join(PLOT_DIR, 'B0_Kstar_gamma_KstarNonResonant_weights.png'))
+    plt.hist(np.linspace(0, 1, 100), weights=make_norm_histo(norm_weights, range_=(0, 1)), bins=100)
+    plt.savefig(os.path.join(PLOT_DIR, 'B0_Kstar_gamma_Kstar{}_weights.png'.format(suffix)))
     plt.clf()
-    assert np.all(np.array(list(p_values.values())) > 0.05)
+    return np.array(list(p_values.values()))
 
+
+
+@pytest.mark.flaky(3)  # Stats are limited
+def test_kstargamma_kstarnonresonant():
+    """Test B0 -> K* gamma physics with fixed mass for K*."""
+    p_values = run_kstargamma('B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root',
+                              0, 'NonResonant')
+    assert np.all(p_values > 0.05)
+
+
+def test_kstargamma_resonant():
+    """Test B0 -> K* gamma physics with Gaussian mass for K*.
+
+    Since we don't have BW and we model the resonances with Gaussians,
+    we can't really perform the Kolmogorov test wrt to RapidSim,
+    so plots are generated and can be inspected by the user. However, small differences
+    are expected in the tails of the energy distributions of the kaon and the pion.
+
+    """
+    run_kstargamma('B2KstGamma_RapidSim_7TeV_Tree.root',
+                   decays.KSTARZ_WIDTH, 'Gaussian')
 
 # def test_kstargamma_lhcb():
 #     """Test B0 -> K* gamma physics with boosted B."""
@@ -190,19 +212,24 @@ def test_kstargamma_kstarnonresonant():
 #     plt.clf()
 
 
-@pytest.mark.flaky(3)  # Stats are limited
-def test_k1gamma_kstarnonresonant():
-    """Test B0 -> K1 (->K*pi) gamma physics."""
+def run_k1_gamma(input_file, k1_width, kstar_width, suffix):
     n_events = 1000000
     with tf.Session() as sess:
-        norm_weights, particles = sess.run(decays.bp_to_k1_kstar_pi_gamma(n_events, k1_width=0, kstar_width=0).generate(decays.B0_AT_REST, n_events))
+        norm_weights, particles = sess.run(
+            decays.bp_to_k1_kstar_pi_gamma(n_events, k1_width=k1_width, kstar_width=kstar_width)
+            .generate(decays.B0_AT_REST, n_events))
     rapidsim_parts = rapidsim.get_tree_in_b_rest_frame(
         os.path.join(BASE_PATH,
                      'data',
-                     'B2K1Gamma_RapidSim_7TeV_K1KstarNonResonant_Tree.root'),
+                     input_file),
         'Bp_0',
         ('K1_1270_p_0', 'Kst0_0', 'gamma_0', 'Kp_0', 'pim_0', 'pip_0'))
-    name_matching = {'K1_1270_p_0': 'K1+', 'Kst0_0': 'K*0', 'gamma_0': 'gamma', 'Kp_0': 'K+', 'pim_0': 'pi-', 'pip_0': 'pi+'}
+    name_matching = {'K1_1270_p_0': 'K1+',
+                     'Kst0_0': 'K*0',
+                     'gamma_0': 'gamma',
+                     'Kp_0': 'K+',
+                     'pim_0': 'pi-',
+                     'pip_0': 'pi+'}
     if not os.path.exists(PLOT_DIR):
         os.mkdir(PLOT_DIR)
     x = np.linspace(-3000, 3000, 100)
@@ -218,13 +245,33 @@ def test_k1gamma_kstarnonresonant():
             plt.hist(x if coord % 4 != 3 else e, weights=ref_histo, alpha=0.5, label='RapidSim', bins=100)
             plt.legend(loc='upper right')
             plt.savefig(os.path.join(PLOT_DIR,
-                                     "Bp_K1_gamma_K1KstarNonResonant_{}_{}.png".format(tf_part, coord_name)))
+                                     "Bp_K1_gamma_K1Kstar{}_{}_{}.png".format(suffix, tf_part, coord_name)))
             plt.clf()
             p_values[(tf_part, coord_name)] = ks_2samp(tf_histo, ref_histo)[1]
-    plt.hist(np.linspace(0, 1, 100), weights=make_norm_histo(norm_weights, range_=(0, 1)))
-    plt.savefig(os.path.join(PLOT_DIR, 'Bp_K1_gamma_K1KstarNonResonant_weights.png'))
+    plt.hist(np.linspace(0, 1, 100), weights=make_norm_histo(norm_weights, range_=(0, 1)), bins=100)
+    plt.savefig(os.path.join(PLOT_DIR, 'Bp_K1_gamma_K1Kstar{}_weights.png'.format(suffix)))
     plt.clf()
-    assert np.all(np.array(list(p_values.values())) > 0.05)
+    return np.array(list(p_values.values()))
+
+
+@pytest.mark.flaky(3)  # Stats are limited
+def test_k1gamma_kstarnonresonant():
+    """Test B0 -> K1 (->K*pi) gamma physics with fixed-mass resonances."""
+    p_values = run_k1_gamma('B2K1Gamma_RapidSim_7TeV_K1KstarNonResonant_Tree.root',
+                            0, 0, 'NonResonant')
+    assert np.all(p_values > 0.05)
+
+
+def test_k1gamma_resonant():
+    """Test B0 -> K1 (->K*pi) gamma physics.
+
+    Since we don't have BW and we model the resonances with Gaussians,
+    we can't really perform the Kolmogorov test wrt to RapidSim,
+    so plots are generated and can be inspected by the user.
+
+    """
+    run_k1_gamma('B2K1Gamma_RapidSim_7TeV_Tree.root',
+                 decays.K1_WIDTH, decays.KSTARZ_WIDTH, 'Gaussian')
 
 
 if __name__ == "__main__":
