@@ -28,9 +28,12 @@ import tensorflow as tf
 
 from tfphasespace import tfphasespace
 
-from plotting import make_norm_histo, mass
-import decays
-import rapidsim
+import os, sys
+
+sys.path.append(os.path.dirname(__file__))
+
+from .helpers.plotting import make_norm_histo, mass
+from .helpers import decays, rapidsim
 
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -67,10 +70,22 @@ def create_ref_histos(n_pions):
 
 
 def run_test(n_particles, test_prefix):
-    with tf.Session() as sess:
-        weights, particles = sess.run(tfphasespace.generate(decays.B0_AT_REST,
-                                                            [decays.PION_MASS] * n_particles,
-                                                            100000))
+
+    sess = tf.Session()
+    first_run_n_events = 100
+    main_run_n_events = 100000
+    n_events = tf.Variable(initial_value=first_run_n_events, dtype=tf.int64, use_resource=True)
+    sess.run(n_events.initializer)
+
+    generate = tfphasespace.generate(decays.B0_AT_REST,
+                                     [decays.PION_MASS] * n_particles,
+                                     n_events)
+    weights1, particles1 = sess.run(generate)  # only generate to test change in n_events
+    assert len(weights1) == first_run_n_events
+
+    # change n_events and run again
+    n_events.load(main_run_n_events, session=sess)
+    weights, particles = sess.run(generate)
     parts = np.concatenate(particles, axis=0)
     histos = [make_norm_histo(parts[coord],
                               range_=(-3000 if coord % 4 != 3 else 0, 3000),

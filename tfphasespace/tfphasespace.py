@@ -34,7 +34,7 @@ def process_list_to_tensor(lst):
 def pdk(a, b, c):
     """Calculate the PDK (2-body phase space) function."""
     x = (a - b - c) * (a + b + c) * (a - b + c) * (a + b - c)
-    return tf.sqrt(x)/(_TWO * a)
+    return tf.sqrt(x) / (_TWO * a)
 
 
 class Particle:
@@ -89,38 +89,53 @@ class Particle:
     def _preprocess(self, momentum, masses, n_events):
         momentum = process_list_to_tensor(momentum)
         masses = process_list_to_tensor(masses)
-        momentum_shape = momentum.shape.as_list()
-        mass_shape = masses.shape.as_list()
+        momentum_shape_list = momentum.shape.as_list()
+        mass_shape_list = masses.shape.as_list()
         # Check sanity of inputs
 
         # TODO(Mayou36): change for n_events being a tensor/Variable
-        if len(momentum_shape) not in (1, 2):
-            raise ValueError("Bad shape for momentum -> {}".format(momentum_shape))
-        if len(mass_shape) not in (1, 2):
-            raise ValueError("Bad shape for masses -> {}".format(mass_shape))
+        if momentum.shape.ndims not in (1, 2):
+            raise ValueError("Bad shape for momentum -> {}".format(momentum_shape_list))
+        if masses.shape.ndims not in (1, 2):
+            raise ValueError("Bad shape for masses -> {}".format(mass_shape_list))
         # Check compatibility of inputs
-        if len(mass_shape) == 2:
-            if n_events and n_events != mass_shape[1]:
-                raise ValueError("Conflicting inputs -> masses and n_events")
-            if len(momentum_shape) == 2:
-                if mass_shape[1] != momentum_shape[1]:
+        if masses.shape.ndims == 2:
+            if n_events is not None:
+                masses_shape = tf.convert_to_tensor(masses.shape[1].value, preferred_dtype=tf.int64)
+                masses_shape = tf.cast(masses_shape, dtype=tf.int64)
+                assert_op = tf.assert_equal(n_events, masses_shape,
+                                            message="Conflicting inputs -> masses and n_events")
+                with tf.control_dependencies([assert_op]):
+                    n_events = tf.identity(n_events)
+
+            if momentum.shape.ndims == 2:
+                if masses.shape[1] != momentum.shape[1]:
                     raise ValueError("Conflicting inputs -> momentum and masses")
-        if len(momentum_shape) == 2:
-            if n_events and n_events != momentum_shape[1]:
-                raise ValueError("Conflicting inputs -> momentum_shape and n_events")
-        if not n_events:
-            if len(mass_shape) == 2:
-                n_events = mass_shape[1]
-            elif len(momentum_shape) == 2:
-                n_events = momentum_shape[1]
+        if momentum.shape.ndims == 2:
+            # TODO(Mayou36): use tf assertion?
+            if n_events is not None:
+
+                momentum_shape = tf.convert_to_tensor(momentum.shape[1].value, preferred_dtype=tf.int64)
+                momentum_shape = tf.cast(momentum_shape, dtype=tf.int64)
+                assert_op = tf.assert_equal(n_events, momentum_shape,
+                                            message="Conflicting inputs -> momentum_shape and n_events")
+                with tf.control_dependencies([assert_op]):
+                    n_events = tf.identity(n_events)
+        if n_events is None:
+            if masses.shape.ndims == 2:
+                n_events = masses.shape[1].value
+            elif momentum.shape.ndims == 2:
+                n_events = momentum.shape[1].value
             else:
-                n_events = 1
+                n_events = tf.constant(1, dtype=tf.int64)
+
+        n_events = tf.convert_to_tensor(n_events, preferred_dtype=tf.int64)
+        n_events = tf.cast(n_events, dtype=tf.int64)
         # Now preparation of tensors
-        if len(mass_shape) == 1:
+        if masses.shape.ndims == 1:
             masses = tf.expand_dims(masses, axis=-1)
-        if len(momentum_shape) == 1:
+        if momentum.shape.ndims == 1:
             momentum = tf.expand_dims(momentum, axis=-1)
-        # TODO: Convert n_events to tf.Variable
         return momentum, masses, n_events
 
     def _get_w_max(self, available_mass, masses):
@@ -128,7 +143,7 @@ class Particle:
         emmin = _ZERO
         w_max = _ONE
         for i in range(1, masses.shape.as_list()[0]):
-            emmin += masses[i-1, :]
+            emmin += masses[i - 1, :]
             emmax += masses[i, :]
             w_max *= pdk(emmax, emmin, masses[i, :])
         return w_max
@@ -141,7 +156,7 @@ class Particle:
         else:
             masses = self._children_masses
         p_top, masses, n_events = self._preprocess(momentum, masses, n_events)
-        n_particles = masses.shape.as_list()[0]
+        n_particles = masses.shape[0].value
         top_mass = kin.mass(p_top)
         available_mass = top_mass - tf.reduce_sum(masses, axis=0)
         mass_check = tf.assert_greater_equal(available_mass, _ZERO,
@@ -153,35 +168,36 @@ class Particle:
         w_max = self._get_w_max(available_mass, masses)
         p_top_boost = kin.boost_components(p_top, axis=0)
         # Start the generation
-        random_numbers = tf.random.uniform((n_particles-2, n_events), dtype=tf.float64)
+        random_numbers = tf.random.uniform((n_particles - 2, n_events), dtype=tf.float64)
         random = tf.concat([tf.zeros((1, n_events), dtype=tf.float64),
                             tf.contrib.framework.sort(random_numbers, axis=0),
                             tf.ones((1, n_events), dtype=tf.float64)],
                            axis=0)
+        if random.shape[0] is None:
+            random.set_shape((n_particles, None))
         sum_ = tf.zeros((1, n_events), dtype=tf.float64)
         inv_masses = []
-        masses_unstacked = tf.unstack(masses, axis=0)
+        # TODO(Mayou36): rewrite with cumsum?
         for i in range(n_particles):
-            sum_ += masses_unstacked[i]
+            sum_ += masses[i]
             inv_masses.append(random[i] * available_mass + sum_)
         pds = []
         # Calculate weights of the events
-        for i in range(n_particles-1):
-            pds.append(pdk(inv_masses[i+1], inv_masses[i], masses_unstacked[i+1]))
+        for i in range(n_particles - 1):
+            pds.append(pdk(inv_masses[i + 1], inv_masses[i], masses[i + 1]))
         weights = tf.reduce_prod(pds, axis=0)
         zero_component = tf.zeros_like(pds[0], dtype=tf.float64)
         generated_particles = [tf.concat([zero_component,
                                           pds[0],
                                           zero_component,
-                                          tf.sqrt(pds[0] * pds[0] + masses_unstacked[0] * masses_unstacked[0])],
+                                          tf.sqrt(tf.square(pds[0]) + tf.square(masses[0]))],
                                          axis=0)]
         part_num = 1
         while True:
             generated_particles.append(tf.concat([zero_component,
-                                                  -pds[part_num-1],
+                                                  -pds[part_num - 1],
                                                   zero_component,
-                                                  tf.sqrt(pds[part_num-1] * pds[part_num-1]
-                                                          + masses_unstacked[part_num] * masses_unstacked[part_num])],
+                                                  tf.sqrt(tf.square(pds[part_num - 1]) + tf.square(masses[part_num]))],
                                                  axis=0))
             cos_z = _TWO * tf.random.uniform((1, n_events), dtype=tf.float64) - _ONE
             sin_z = tf.sqrt(_ONE - cos_z * cos_z)
@@ -193,6 +209,7 @@ class Particle:
                 px = kin.x_component(generated_particles[j], axis=0)
                 py = kin.y_component(generated_particles[j], axis=0)
                 # Rotate about z
+                # TODO(Mayou36): only list? will be overwritten below anyway, but can `*_component` handle it?
                 generated_particles[j] = tf.concat([cos_z * px - sin_z * py,
                                                     sin_z * px + cos_z * py,
                                                     tf.expand_dims(kin.z_component(generated_particles[j], axis=0),
@@ -212,7 +229,7 @@ class Particle:
                                                    axis=0)
             if part_num == (n_particles - 1):
                 break
-            betas = (pds[part_num] / tf.sqrt(pds[part_num] * pds[part_num] + inv_masses[part_num] * inv_masses[part_num]))
+            betas = (pds[part_num] / tf.sqrt(tf.square(pds[part_num]) + tf.square(inv_masses[part_num])))
             generated_particles = [kin.lorentz_boost(part,
                                                      tf.concat([zero_component,
                                                                 betas,
@@ -287,16 +304,21 @@ class Particle:
             if len(momentum.shape.as_list()) == 1:
                 momentum = tf.expand_dims(momentum, axis=-1)
             weights_max = tf.ones_like(weights, dtype=tf.float64) * \
-                recurse_w_max(kin.mass(momentum), mass_tree[self.name])
+                          recurse_w_max(kin.mass(momentum), mass_tree[self.name])
         return weights, weights_max, output_particles, output_masses
 
     def generate_unnormalized(self, momentum, n_events=None):
-        weights, weights_max, parts, _ = self._recursive_generate(momentum, n_events, self.has_grandchildren())
+        weights, weights_max, parts, _ = self._recursive_generate(momentum=momentum, n_events=n_events,
+                                                                  recalculate_max_weights=self.has_grandchildren())
         return weights, weights_max, parts
 
     def generate(self, momentum, n_events=None):
+        if not (isinstance(n_events, tf.Variable) or n_events is None):
+            n_events = tf.convert_to_tensor(n_events, preferred_dtype=tf.int64)
+            n_events = tf.cast(n_events, dtype=tf.int64)
+
         weights, weights_max, parts = self.generate_unnormalized(momentum, n_events)
-        return weights/weights_max, parts
+        return weights / weights_max, parts
 
 
 def generate(p_top, masses, n_events=None):
@@ -313,11 +335,10 @@ def generate(p_top, masses, n_events=None):
 
     """
     top = Particle('top')
-    n_parts = process_list_to_tensor(masses).shape.as_list()[0]
-    children_names = [str(num+1) for num in range(n_parts)]
+    n_parts = process_list_to_tensor(masses).shape[0].value
+    children_names = [str(num + 1) for num in range(n_parts)]
     top.set_children(children_names, masses)
-    norm_weights, parts = top.generate(p_top, n_events)
+    norm_weights, parts = top.generate(p_top, n_events=n_events)
     return norm_weights, [parts[name] for name in children_names]
-
 
 # EOF
