@@ -29,7 +29,7 @@ def b0_to_kstar_gamma(n_events, kstar_width=KSTARZ_WIDTH):
     """Generate B0 -> K*gamma."""
     def kstar_gamma_masses(momentum):
         if len(momentum.shape) > 1:
-            shape = momentum.shape[1]
+            shape = (momentum.shape[1], )
         else:
             shape = (n_events, )
         if kstar_width == 0:

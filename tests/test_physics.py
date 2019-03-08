@@ -120,16 +120,21 @@ def test_four_body():
     run_test(4, "four_body")
 
 
-def run_kstargamma(input_file, kstar_width, suffix):
+def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
     n_events = 1000000
+    if b_at_rest:
+        input_bs = decays.B0_AT_REST
+        rapidsim_getter = rapidsim.get_tree_in_b_rest_frame
+    else:
+        input_bs = rapidsim.generate_fonll(decays.B0_MASS, 7, 'b', n_events)
+        rapidsim_getter = rapidsim.get_tree
     with tf.Session() as sess:
-        norm_weights, particles = sess.run(decays.b0_to_kstar_gamma(n_events, kstar_width=kstar_width).generate(decays.B0_AT_REST, n_events))
-    rapidsim_parts = rapidsim.get_tree_in_b_rest_frame(
-        os.path.join(BASE_PATH,
-                     'data',
-                     input_file),
-        'B0_0',
-        ('Kst0_0', 'gamma_0', 'Kp_0', 'pim_0'))
+        norm_weights, particles = sess.run(decays.b0_to_kstar_gamma(n_events, kstar_width=kstar_width).generate(input_bs, n_events))
+    rapidsim_parts = rapidsim_getter(os.path.join(BASE_PATH,
+                                                  'data',
+                                                  input_file),
+                                     'B0_0',
+                                     ('Kst0_0', 'gamma_0', 'Kp_0', 'pim_0'))
     name_matching = {'Kst0_0': 'K*0',
                      'gamma_0': 'gamma',
                      'Kp_0': 'K+',
@@ -160,14 +165,22 @@ def run_kstargamma(input_file, kstar_width, suffix):
 
 
 @pytest.mark.flaky(3)  # Stats are limited
-def test_kstargamma_kstarnonresonant():
+def test_kstargamma_kstarnonresonant_at_rest():
     """Test B0 -> K* gamma physics with fixed mass for K*."""
     p_values = run_kstargamma('B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root',
-                              0, 'NonResonant')
+                              True, 0, 'NonResonant')
     assert np.all(p_values > 0.05)
 
 
-def test_kstargamma_resonant():
+@pytest.mark.flaky(3)  # Stats are limited
+def test_kstargamma_kstarnonresonant_lhcb():
+    """Test B0 -> K* gamma physics with fixed mass for K*."""
+    p_values = run_kstargamma('B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root',
+                              True, 0, 'NonResonant_LHCb')
+    assert np.all(p_values > 0.05)
+
+
+def test_kstargamma_resonant_at_rest():
     """Test B0 -> K* gamma physics with Gaussian mass for K*.
 
     Since we don't have BW and we model the resonances with Gaussians,
@@ -255,14 +268,14 @@ def run_k1_gamma(input_file, k1_width, kstar_width, suffix):
 
 
 @pytest.mark.flaky(3)  # Stats are limited
-def test_k1gamma_kstarnonresonant():
+def test_k1gamma_kstarnonresonant_at_rest():
     """Test B0 -> K1 (->K*pi) gamma physics with fixed-mass resonances."""
     p_values = run_k1_gamma('B2K1Gamma_RapidSim_7TeV_K1KstarNonResonant_Tree.root',
                             0, 0, 'NonResonant')
     assert np.all(p_values > 0.05)
 
 
-def test_k1gamma_resonant():
+def test_k1gamma_resonant_at_rest():
     """Test B0 -> K1 (->K*pi) gamma physics.
 
     Since we don't have BW and we model the resonances with Gaussians,
@@ -275,10 +288,13 @@ def test_k1gamma_resonant():
 
 
 if __name__ == "__main__":
-    test_two_body()
-    test_three_body()
-    test_four_body()
-    test_kstargamma_kstarnonresonant()
-    test_k1gamma_kstarnonresonant()
+    # test_two_body()
+    # test_three_body()
+    # test_four_body()
+    # test_kstargamma_kstarnonresonant_at_rest()
+    # test_kstargamma_resonant_at_rest()
+    # test_k1gamma_kstarnonresonant_at_rest()
+    # test_k1gamma_resonant_at_rest()
+    test_kstargamma_kstarnonresonant_lhcb()
 
 # EOF
