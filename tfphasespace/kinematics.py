@@ -16,6 +16,7 @@ def scalar_product(vec1, vec2, axis=1):
     """
     return tf.reduce_sum(vec1 * vec2, axis=axis)
 
+
 def spatial_component(vector, axis=1):
     """
     Return spatial components of the input Lorentz vector
@@ -78,7 +79,7 @@ def mass(vector):
     Calculate mass scalar for Lorentz 4-momentum
         vector : input Lorentz momentum vector
     """
-    return tf.sqrt(tf.reduce_sum(vector * vector * tf.reshape(metric_tensor(), (4,1)), axis=0))
+    return tf.sqrt(tf.reduce_sum(vector * vector * tf.reshape(metric_tensor(), (4, 1)), axis=0))
     # return tf.sqrt(tf.reduce_sum(vector * vector * metric_tensor(), axis=0))
 
 
@@ -100,24 +101,34 @@ def lorentz_boost(vector, boostvector, dim_axis=1):
     """
     boost = spatial_component(boostvector, axis=dim_axis)
     b2 = scalar_product(boost, boost, dim_axis)
-    gamma = 1. / tf.sqrt(1. - b2)
-    gamma2 = (gamma - 1.0) / b2
-    ve = time_component(vector, axis=dim_axis)
-    vp = spatial_component(vector, axis=dim_axis)
-    bp = scalar_product(vp, boost, dim_axis)
-    vp2 = vp + (gamma2 * bp + gamma * ve) * boost
-    ve2 = gamma * (ve + bp)
-    return lorentz_vector(vp2, ve2)
+
+    def boost_fn():
+        gamma = 1. / tf.sqrt(1. - b2)
+        gamma2 = (gamma - 1.0) / b2
+        ve = time_component(vector, axis=dim_axis)
+        vp = spatial_component(vector, axis=dim_axis)
+        bp = scalar_product(vp, boost, dim_axis)
+        vp2 = vp + (gamma2 * bp + gamma * ve) * boost
+        ve2 = gamma * (ve + bp)
+        return lorentz_vector(vp2, ve2)
+
+    def no_boost_fn():
+        return vector
+
+    # if boost vector is zero, return the original vector
+    all_b2_zero = tf.reduce_all(tf.equal(b2, tf.zeros_like(b2)))
+    boosted_vector = tf.cond(all_b2_zero, true_fn=no_boost_fn, false_fn=boost_fn)
+    return boosted_vector
 
 
 def beta(vector, axis=1):
     """Calculate beta of a given 4-vector"""
-    return mass(vector)/time_component(vector, axis=axis)
+    return mass(vector) / time_component(vector, axis=axis)
 
 
 def boost_components(vector, axis=1):
     """Get the boost components of a given vector."""
-    return spatial_component(vector, axis=axis)/time_component(vector, axis=axis)
+    return spatial_component(vector, axis=axis) / time_component(vector, axis=axis)
 
 
 def metric_tensor():
