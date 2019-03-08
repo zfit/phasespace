@@ -168,7 +168,7 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
 def test_kstargamma_kstarnonresonant_at_rest():
     """Test B0 -> K* gamma physics with fixed mass for K*."""
     p_values = run_kstargamma('B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root',
-                              True, 0, 'NonResonant')
+                              0, True, 'NonResonant')
     assert np.all(p_values > 0.05)
 
 
@@ -176,7 +176,7 @@ def test_kstargamma_kstarnonresonant_at_rest():
 def test_kstargamma_kstarnonresonant_lhcb():
     """Test B0 -> K* gamma physics with fixed mass for K*."""
     p_values = run_kstargamma('B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root',
-                              True, 0, 'NonResonant_LHCb')
+                              0, False, 'NonResonant_LHCb')
     assert np.all(p_values > 0.05)
 
 
@@ -190,7 +190,7 @@ def test_kstargamma_resonant_at_rest():
 
     """
     run_kstargamma('B2KstGamma_RapidSim_7TeV_Tree.root',
-                   decays.KSTARZ_WIDTH, 'Gaussian')
+                   decays.KSTARZ_WIDTH, True, 'Gaussian')
 
 # def test_kstargamma_lhcb():
 #     """Test B0 -> K* gamma physics with boosted B."""

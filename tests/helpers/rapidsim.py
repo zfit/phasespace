@@ -54,9 +54,9 @@ def get_tree(file_name, top_particle, particles):
     """Load a RapidSim tree."""
     rapidsim_file = uproot.open(file_name)
     tree = rapidsim_file['DecayTree']
-    return {particle: np.stack([tree.array('{}_{}_TRUE'.format(particle, coord))
+    return {particle: np.stack([1000.0*tree.array('{}_{}_TRUE'.format(particle, coord))
                                 for coord in ('PX', 'PY', 'PZ', 'E')])
-            for particle in list(particles)}
+            for particle in particles}
 
 
 def get_tree_in_b_rest_frame(file_name, top_particle, particles):
@@ -78,9 +78,9 @@ def get_tree_in_b_rest_frame(file_name, top_particle, particles):
                                np.expand_dims(gamma * (part_time + bp), axis=0)],
                               axis=0)
 
-    part_dict = get_tree(file_name, top_particle, particles + [top_particle])
+    part_dict = get_tree(file_name, top_particle, list(particles) + [top_particle])
     top_parts = part_dict.pop(top_particle)
-    return {part_name: lorentz_boost(part*1000.0, top_parts*1000.0)
+    return {part_name: lorentz_boost(part, top_parts)
             for part_name, part in part_dict.items()}
 
 # EOF
