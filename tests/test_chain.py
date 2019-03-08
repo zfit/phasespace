@@ -36,7 +36,7 @@ def test_name_clashes():
 def test_kstargamma():
     """Test B0 -> K*gamma."""
     with tf.Session() as sess:
-        norm_weights, particles = sess.run(decays.b0_to_kstar_gamma().generate(decays.B_AT_REST))
+        norm_weights, particles = sess.run(decays.b0_to_kstar_gamma(1000).generate(decays.B0_AT_REST, 1000))
     assert len(norm_weights) == 1000
     assert all([weight < 1 for weight in norm_weights])
     assert len(particles) == 4
@@ -47,11 +47,11 @@ def test_kstargamma():
 def test_k1gamma():
     """Test B+ -> K1 (K*pi) gamma."""
     with tf.Session() as sess:
-        norm_weights, particles = sess.run(decays.bp_to_k1_kstar_pi_gamma().generate(decays.B_AT_REST))
+        norm_weights, particles = sess.run(decays.bp_to_k1_kstar_pi_gamma(1000).generate(decays.B0_AT_REST, 1000))
     assert len(norm_weights) == 1000
     assert all([weight < 1 for weight in norm_weights])
     assert len(particles) == 6
-    assert set(particles.keys()) == {'K1', 'K*0', 'gamma', 'K+', 'pi-', 'pi+'}
+    assert set(particles.keys()) == {'K1+', 'K*0', 'gamma', 'K+', 'pi-', 'pi+'}
     assert all([part.shape == (4, 1000) for part in particles.values()])
 
 

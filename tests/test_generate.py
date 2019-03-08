@@ -13,10 +13,11 @@ import tensorflow as tf
 
 import tfphasespace
 
-B_MASS = 5279.0
-B_AT_REST = tf.stack((0.0, 0.0, 0.0, B_MASS), axis=-1)
-BS_AT_REST = tf.stack((0.0, 0.0, 0.0, B_MASS + 86.8), axis=-1)
-PION_MASS = 139.6
+import decays
+
+B_AT_REST = decays.B0_AT_REST
+BS_AT_REST = tf.stack((0.0, 0.0, 0.0, decays.B0_MASS + 86.8), axis=-1)
+PION_MASS = decays.PION_MASS
 
 
 def test_one_event():
@@ -85,6 +86,6 @@ def test_input_inconsistencies():
                                            n_events=5))
         with pytest.raises(tf.errors.InvalidArgumentError):
             sess.run(tfphasespace.generate(B_AT_REST,
-                                           [B_MASS, PION_MASS, PION_MASS]))
+                                           [6000.0, PION_MASS, PION_MASS]))
 
 # EOF

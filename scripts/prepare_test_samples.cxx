@@ -6,6 +6,8 @@
 #include "TGenPhaseSpace.h"
 
 Int_t N_EVENTS = 100000;
+Double_t B0_MASS = 5279.58;
+Double_t PION_MASS = 139.57018;
 
 
 int prepare_two_body(TString filename)
@@ -13,8 +15,8 @@ int prepare_two_body(TString filename)
     TFile out_file(filename, "RECREATE");
     TTree out_tree("events", "Generated events");
 
-    TLorentzVector B(0.0, 0.0, 0.0, 5279.0);
-    Double_t masses[2] = {139.6, 139.6};
+    TLorentzVector B(0.0, 0.0, 0.0, B0_MASS);
+    Double_t masses[2] = {PION_MASS, PION_MASS};
 
     TGenPhaseSpace event;
     event.SetDecay(B, 2, masses);
@@ -44,8 +46,8 @@ int prepare_three_body(TString filename)
     TFile out_file(filename, "RECREATE");
     TTree out_tree("events", "Generated events");
 
-    TLorentzVector B(0.0, 0.0, 0.0, 5279.0);
-    Double_t masses[3] = {139.6, 139.6, 139.6};
+    TLorentzVector B(0.0, 0.0, 0.0, B0_MASS);
+    Double_t masses[3] = {PION_MASS, PION_MASS, PION_MASS};
 
     TGenPhaseSpace event;
     event.SetDecay(B, 3, masses);
@@ -78,8 +80,8 @@ int prepare_four_body(TString filename)
     TFile out_file(filename, "RECREATE");
     TTree out_tree("events", "Generated events");
 
-    TLorentzVector B(0.0, 0.0, 0.0, 5279.0);
-    Double_t masses[4] = {139.6, 139.6, 139.6, 139.6};
+    TLorentzVector B(0.0, 0.0, 0.0, B0_MASS);
+    Double_t masses[4] = {PION_MASS, PION_MASS, PION_MASS, PION_MASS};
 
     TGenPhaseSpace event;
     event.SetDecay(B, 4, masses);

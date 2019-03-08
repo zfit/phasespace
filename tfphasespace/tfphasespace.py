@@ -283,8 +283,11 @@ class Particle:
 
             mass_tree = {}
             build_mass_tree(self, mass_tree)
+            momentum = process_list_to_tensor(momentum)
+            if len(momentum.shape.as_list()) == 1:
+                momentum = tf.expand_dims(momentum, axis=-1)
             weights_max = tf.ones_like(weights, dtype=tf.float64) * \
-                recurse_w_max(kin.mass(tf.expand_dims(process_list_to_tensor(momentum), axis=-1)), mass_tree[self.name])
+                recurse_w_max(kin.mass(momentum), mass_tree[self.name])
         return weights, weights_max, output_particles, output_masses
 
     def generate_unnormalized(self, momentum, n_events=None):
