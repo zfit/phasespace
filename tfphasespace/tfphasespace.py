@@ -89,15 +89,14 @@ class Particle:
     def _preprocess(self, momentum, masses, n_events):
         momentum = process_list_to_tensor(momentum)
         masses = process_list_to_tensor(masses)
-        momentum_shape_list = momentum.shape.as_list()
-        mass_shape_list = masses.shape.as_list()
+
         # Check sanity of inputs
 
         # TODO(Mayou36): change for n_events being a tensor/Variable
         if momentum.shape.ndims not in (1, 2):
-            raise ValueError("Bad shape for momentum -> {}".format(momentum_shape_list))
+            raise ValueError("Bad shape for momentum -> {}".format(momentum.shape.as_list()))
         if masses.shape.ndims not in (1, 2):
-            raise ValueError("Bad shape for masses -> {}".format(mass_shape_list))
+            raise ValueError("Bad shape for masses -> {}".format(masses.shape.as_list()))
         # Check compatibility of inputs
         if masses.shape.ndims == 2:
             if n_events is not None:
