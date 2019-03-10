@@ -55,7 +55,6 @@ def create_ref_histos(n_pions):
                                                                            'data',
                                                                            'bto{}pi.root'.format(i + 1)))
                                                 for i in range(1, 4)])))
-        subprocess.call("echo $PATH", shell=True)
         subprocess.call("root -qb '{}'".format(script), shell=True)
     events = uproot.open(ref_file)['events']
     pion_names = ['pion_{}'.format(pion + 1) for pion in range(n_pions)]
