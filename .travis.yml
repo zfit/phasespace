@@ -2,8 +2,8 @@ os: linux
 language: python
 python:
   - '2.7'
-  - '3.4'
-  - '3.5'
+#  - '3.4'
+#  - '3.5'
   - '3.6'
 
 cache: pip
@@ -34,7 +34,7 @@ before_install:
 
   - conda info -a
 
-  - conda create -q --name=tfphasespace-env python=$TRAVIS_PYTHON_VERSION root=6 -c conda-forge > tmp.txt && echo "alive"
+  - conda create -q --name=tfphasespace-env python=$TRAVIS_PYTHON_VERSION root -c conda-forge > tmp.txt && echo "alive"
   - conda activate tfphasespace-env
 
   # install test environment
