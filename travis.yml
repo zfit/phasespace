@@ -56,7 +56,7 @@ after_success:
 #  provider: pypi
 #  user: mayou36
 #  password:
-#    secure: mKCnjcpHm5DQHsCcbwo4ahx4Bz5th4gpzXZSQZOhhzs3l1mRxVDYW1GW5FjwSseftjSPXWI3EaDVbLyFP6uwTc0w+HIEeCZMVVKhb9BPWNM/a31uhYfKPwNIORqyvwsq5v4HLg5oyyMlcbNESEx6dStaqlCBOWJUeRq4tZR+R+qttIAH0lWY+QNBc7BB+hTqyZdcYF8iOo5FQBdrfG4rttie1eBEzW1t0TKURnfwx9CryCRfPdKPJi6I4O5gpaTX8h/vAhXQlWGNpSj3EkfZgn//oivnPcwjeQ2Ff8veUShB4fLJ/360xmZEEB3pxBZsb9Beq6iuNOKKtKpXVkWA+i8cPkZ7Y0USwY2quGSZsR0ztthaY8Ju2OqM+YIHchE//jQpMw8OmjcMEplFQZIezzOc/A2W0Zg+MPhFVg4zUxvg7ubHHXEYFGNarGxN2JDIkPfjstX05Stm5aH71zkV2WoyVdb3fpWd9koNJiAaWTHSCMD55pIv90jQG5Rw3Enzi2MfqdXWRs848CqoscaZ8kP4gA/BFDFcXdsP2pWGM829ndqsw0iuDn+tvY/33Dty3NNl+KfBUBrEjO3iSva0M0aIFfj3dZlP57uFK3kdGycDtm6vG5YjAgX1shpu/OiLxxN69p+T+eeDTMaFR4rKc1oLOznhZwojIf6W9aJSXF0=
+#    secure:
 #  distributions: sdist bdist_wheel
 #  on:
 #    branch: master
