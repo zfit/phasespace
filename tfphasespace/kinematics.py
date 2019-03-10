@@ -72,6 +72,7 @@ def scalar(x):
     One cannot do e.g. Const(2.)*vector(x, y, z), needs to do scalar(Const(2))*vector(x, y, z)
     """
     return tf.stack([x], axis=1)
+    # return tf.expand_dims(x, axis=0)
 
 
 def mass(vector):
@@ -79,7 +80,7 @@ def mass(vector):
     Calculate mass scalar for Lorentz 4-momentum
         vector : input Lorentz momentum vector
     """
-    return tf.sqrt(tf.reduce_sum(vector * vector * tf.reshape(metric_tensor(), (4, 1)), axis=0))
+    return tf.sqrt(tf.reduce_sum(tf.square(vector) * tf.reshape(metric_tensor(), (4, 1)), axis=0))
     # return tf.sqrt(tf.reduce_sum(vector * vector * metric_tensor(), axis=0))
 
 
