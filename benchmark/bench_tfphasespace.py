@@ -26,8 +26,8 @@ B_MASS = 5279.0
 B_AT_REST = tf.stack((0.0, 0.0, 0.0, B_MASS), axis=-1)
 PION_MASS = 139.6
 
-N_EVENTS = 100000
-CHUNK_SIZE = 100000
+N_EVENTS = 1000000
+CHUNK_SIZE = N_EVENTS
 
 N_EVENTS_VAR = tf.Variable(initial_value=N_EVENTS)
 CHUNK_SIZE_VAR = tf.Variable(initial_value=CHUNK_SIZE)

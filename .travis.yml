@@ -42,6 +42,7 @@ before_install:
   - conda install -y coverage > tmp.txt && echo "alive"
   - conda install -y future > tmp.txt && echo "alive"
   - pip install coveralls > tmp.txt && echo "alive"
+  - pip install -r requirements_dev.txt
 
 install:
   - pip install .
