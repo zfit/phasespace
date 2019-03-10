@@ -15,7 +15,7 @@ import os, sys
 
 sys.path.append(os.path.dirname(__file__))
 
-from monitoring import Timer
+from .monitoring import Timer
 
 # to play around with optimization, no big effect though
 NUM_PARALLEL_EXEC_UNITS = 1
