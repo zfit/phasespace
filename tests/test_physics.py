@@ -9,6 +9,9 @@
 
 import os
 import platform
+import subprocess
+
+import pytest
 
 import numpy as np
 from scipy.stats import ks_2samp
@@ -16,6 +19,7 @@ from scipy.stats import ks_2samp
 if platform.system() == 'Darwin':
     import matplotlib
     matplotlib.use('TkAgg')
+
 import matplotlib.pyplot as plt
 
 import uproot
@@ -24,43 +28,36 @@ import tensorflow as tf
 
 from tfphasespace import tfphasespace
 
+import os
+import sys
+
+sys.path.append(os.path.dirname(__file__))
+
+from .helpers.plotting import make_norm_histo, mass
+from .helpers import decays, rapidsim
+
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 PLOT_DIR = os.path.join(BASE_PATH, 'tests', 'plots')
 
-B_MASS = 5279.0
-B_AT_REST = tf.stack((0.0, 0.0, 0.0, B_MASS), axis=-1)
-PION_MASS = 139.6
-
-
-
-def make_norm_histo(array, range_, weights=None):
-    """Make histo and modify dimensions."""
-    histo = np.histogram(array, 100, range=range_, weights=weights)[0]
-    return histo/np.sum(histo)
-
 
 def create_ref_histos(n_pions):
     """Load reference histogram data."""
-    def make_histos(vector_list, range_, weights=None):
-        """Make histograms."""
-        v_array = np.stack([vector_list.x, vector_list.y, vector_list.z, vector_list.E])
-        histos = tuple(np.histogram(v_array[coord], 100, range=range_, weights=weights)[0]
-                       for coord in range(4))
-        return tuple(histo/np.sum(histo) for histo in histos)
-
-    ref_file = os.path.join(BASE_PATH, 'data', 'bto{}pi.root'.format(n_pions))
+    ref_dir = os.path.join(BASE_PATH, 'data')
+    if not os.path.exists(ref_dir):
+        os.mkdir(ref_dir)
+    ref_file = os.path.join(ref_dir, 'bto{}pi.root'.format(n_pions))
     if not os.path.exists(ref_file):
         script = os.path.join(BASE_PATH,
                               'scripts',
-                              'prepare_test_samples.cxx+({})'.format(','.join(
-                                  '"{}"'.format(os.path.join(BASE_PATH,
-                                                             'data',
-                                                             'bto{}pi.root'.format(i+1))
-                                                for i in range(4)))))
-        os.system("root -qb '{}'".format(script))
+                              'prepare_test_samples.cxx+({})'
+                              .format(','.join(['"{}"'.format(os.path.join(BASE_PATH,
+                                                                           'data',
+                                                                           'bto{}pi.root'.format(i + 1)))
+                                                for i in range(1, 4)])))
+        subprocess.call("root -qb '{}'".format(script), shell=True)
     events = uproot.open(ref_file)['events']
-    pion_names = ['pion_{}'.format(pion+1) for pion in range(n_pions)]
+    pion_names = ['pion_{}'.format(pion + 1) for pion in range(n_pions)]
     pions = {pion_name: events.array(pion_name)
              for pion_name in pion_names}
     weights = events.array('weight')
@@ -73,10 +70,22 @@ def create_ref_histos(n_pions):
 
 
 def run_test(n_particles, test_prefix):
-    weights, max_weights, particles = tf.Session().run(tfphasespace.generate(B_AT_REST,
-                                                                             [PION_MASS] * n_particles,
-                                                                             100000))
-    weights = weights/max_weights
+
+    sess = tf.Session()
+    first_run_n_events = 100
+    main_run_n_events = 100000
+    n_events = tf.Variable(initial_value=first_run_n_events, dtype=tf.int64, use_resource=True)
+    sess.run(n_events.initializer)
+
+    generate = tfphasespace.generate(decays.B0_AT_REST,
+                                     [decays.PION_MASS] * n_particles,
+                                     n_events)
+    weights1, particles1 = sess.run(generate)  # only generate to test change in n_events
+    assert len(weights1) == first_run_n_events
+
+    # change n_events and run again
+    n_events.load(main_run_n_events, session=sess)
+    weights, particles = sess.run(generate)
     parts = np.concatenate(particles, axis=0)
     histos = [make_norm_histo(parts[coord],
                               range_=(-3000 if coord % 4 != 3 else 0, 3000),
@@ -99,7 +108,7 @@ def run_test(n_particles, test_prefix):
         plt.savefig(os.path.join(PLOT_DIR,
                                  "{}_pion_{}_{}.png".format(test_prefix,
                                                             int(coord / 4) + 1,
-                                                            ['x', 'y', 'z', 'e'][coord % 4])))
+                                                            ['px', 'py', 'pz', 'e'][coord % 4])))
         plt.clf()
     plt.hist(np.linspace(0, 1, 100), weights=weight_histos, alpha=0.5, label='tfphasespace', bins=100)
     plt.hist(np.linspace(0, 1, 100), weights=ref_weights, alpha=0.5, label='tfphasespace', bins=100)
@@ -108,25 +117,182 @@ def run_test(n_particles, test_prefix):
     assert np.all(p_values > 0.05)
 
 
+@pytest.mark.flaky(3)  # Stats are limited
 def test_two_body():
     """Test B->pipi decay."""
     run_test(2, "two_body")
 
 
+@pytest.mark.flaky(3)  # Stats are limited
 def test_three_body():
     """Test B -> pi pi pi decay."""
     run_test(3, "three_body")
 
 
+@pytest.mark.flaky(3)  # Stats are limited
 def test_four_body():
     """Test B -> pi pi pi pi decay."""
     run_test(4, "four_body")
+
+
+def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
+    n_events = 1000000
+    if b_at_rest:
+        input_bs = decays.B0_AT_REST
+        rapidsim_getter = rapidsim.get_tree_in_b_rest_frame
+    else:
+        input_bs = rapidsim.generate_fonll(decays.B0_MASS, 7, 'b', n_events)
+        rapidsim_getter = rapidsim.get_tree
+    with tf.Session() as sess:
+        norm_weights, particles = sess.run(decays.b0_to_kstar_gamma(n_events, kstar_width=kstar_width).generate(input_bs, n_events))
+    rapidsim_parts = rapidsim_getter(os.path.join(BASE_PATH,
+                                                  'data',
+                                                  input_file),
+                                     'B0_0',
+                                     ('Kst0_0', 'gamma_0', 'Kp_0', 'pim_0'))
+    name_matching = {'Kst0_0': 'K*0',
+                     'gamma_0': 'gamma',
+                     'Kp_0': 'K+',
+                     'pim_0': 'pi-'}
+    if not os.path.exists(PLOT_DIR):
+        os.mkdir(PLOT_DIR)
+    x = np.linspace(-3000, 3000, 100)
+    e = np.linspace(0, 3000, 100)
+    p_values = {}
+    for ref_name, ref_part in rapidsim_parts.items():
+        tf_part = name_matching[ref_name]
+        for coord, coord_name in enumerate(('px', 'py', 'pz', 'e')):
+            range_ = (-3000 if coord % 4 != 3 else 0, 3000)
+            ref_histo = make_norm_histo(ref_part[coord], range_=range_)
+            tf_histo = make_norm_histo(particles[tf_part][coord], range_=range_, weights=norm_weights)
+            plt.hist(x if coord % 4 != 3 else e, weights=tf_histo, alpha=0.5, label='tfphasespace', bins=100)
+            plt.hist(x if coord % 4 != 3 else e, weights=ref_histo, alpha=0.5, label='RapidSim', bins=100)
+            plt.legend(loc='upper right')
+            plt.savefig(os.path.join(PLOT_DIR,
+                                     "B0_Kstar_gamma_Kstar{}_{}_{}.png".format(suffix, tf_part, coord_name)))
+            plt.clf()
+            p_values[(tf_part, coord_name)] = ks_2samp(tf_histo, ref_histo)[1]
+    plt.hist(np.linspace(0, 1, 100), weights=make_norm_histo(norm_weights, range_=(0, 1)), bins=100)
+    plt.savefig(os.path.join(PLOT_DIR, 'B0_Kstar_gamma_Kstar{}_weights.png'.format(suffix)))
+    plt.clf()
+    return np.array(list(p_values.values()))
+
+
+
+@pytest.mark.flaky(3)  # Stats are limited
+def test_kstargamma_kstarnonresonant_at_rest():
+    """Test B0 -> K* gamma physics with fixed mass for K*."""
+    p_values = run_kstargamma('B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root',
+                              0, True, 'NonResonant')
+    assert np.all(p_values > 0.05)
+
+
+@pytest.mark.flaky(3)  # Stats are limited
+def test_kstargamma_kstarnonresonant_lhc():
+    """Test B0 -> K* gamma physics with fixed mass for K* with LHC kinematics."""
+    p_values = run_kstargamma('B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root',
+                              0, False, 'NonResonant_LHC')
+    assert np.all(p_values > 0.05)
+
+
+def test_kstargamma_resonant_at_rest():
+    """Test B0 -> K* gamma physics with Gaussian mass for K*.
+
+    Since we don't have BW and we model the resonances with Gaussians,
+    we can't really perform the Kolmogorov test wrt to RapidSim,
+    so plots are generated and can be inspected by the user. However, small differences
+    are expected in the tails of the energy distributions of the kaon and the pion.
+
+    """
+    run_kstargamma('B2KstGamma_RapidSim_7TeV_Tree.root',
+                   decays.KSTARZ_WIDTH, True, 'Gaussian')
+
+
+def run_k1_gamma(input_file, k1_width, kstar_width, b_at_rest, suffix):
+    n_events = 1000000
+    if b_at_rest:
+        input_bs = decays.B0_AT_REST
+        rapidsim_getter = rapidsim.get_tree_in_b_rest_frame
+    else:
+        input_bs = rapidsim.generate_fonll(decays.B0_MASS, 7, 'b', n_events)
+        rapidsim_getter = rapidsim.get_tree
+    with tf.Session() as sess:
+        norm_weights, particles = sess.run(
+            decays.bp_to_k1_kstar_pi_gamma(n_events, k1_width=k1_width, kstar_width=kstar_width)
+            .generate(input_bs, n_events))
+    rapidsim_parts = rapidsim_getter(
+        os.path.join(BASE_PATH,
+                     'data',
+                     input_file),
+        'Bp_0',
+        ('K1_1270_p_0', 'Kst0_0', 'gamma_0', 'Kp_0', 'pim_0', 'pip_0'))
+    name_matching = {'K1_1270_p_0': 'K1+',
+                     'Kst0_0': 'K*0',
+                     'gamma_0': 'gamma',
+                     'Kp_0': 'K+',
+                     'pim_0': 'pi-',
+                     'pip_0': 'pi+'}
+    if not os.path.exists(PLOT_DIR):
+        os.mkdir(PLOT_DIR)
+    x = np.linspace(-3000, 3000, 100)
+    e = np.linspace(0, 3000, 100)
+    p_values = {}
+    for ref_name, ref_part in rapidsim_parts.items():
+        tf_part = name_matching[ref_name]
+        for coord, coord_name in enumerate(('px', 'py', 'pz', 'e')):
+            range_ = (-3000 if coord % 4 != 3 else 0, 3000)
+            ref_histo = make_norm_histo(ref_part[coord], range_=range_)
+            tf_histo = make_norm_histo(particles[tf_part][coord], range_=range_, weights=norm_weights)
+            plt.hist(x if coord % 4 != 3 else e, weights=tf_histo, alpha=0.5, label='tfphasespace', bins=100)
+            plt.hist(x if coord % 4 != 3 else e, weights=ref_histo, alpha=0.5, label='RapidSim', bins=100)
+            plt.legend(loc='upper right')
+            plt.savefig(os.path.join(PLOT_DIR,
+                                     "Bp_K1_gamma_K1Kstar{}_{}_{}.png".format(suffix, tf_part, coord_name)))
+            plt.clf()
+            p_values[(tf_part, coord_name)] = ks_2samp(tf_histo, ref_histo)[1]
+    plt.hist(np.linspace(0, 1, 100), weights=make_norm_histo(norm_weights, range_=(0, 1)), bins=100)
+    plt.savefig(os.path.join(PLOT_DIR, 'Bp_K1_gamma_K1Kstar{}_weights.png'.format(suffix)))
+    plt.clf()
+    return np.array(list(p_values.values()))
+
+
+@pytest.mark.flaky(3)  # Stats are limited
+def test_k1gamma_kstarnonresonant_at_rest():
+    """Test B0 -> K1 (->K*pi) gamma physics with fixed-mass resonances."""
+    p_values = run_k1_gamma('B2K1Gamma_RapidSim_7TeV_K1KstarNonResonant_Tree.root',
+                            0, 0, True, 'NonResonant')
+    assert np.all(p_values > 0.05)
+
+
+@pytest.mark.flaky(3)  # Stats are limited
+def test_k1gamma_kstarnonresonant_lhc():
+    """Test B0 -> K1 (->K*pi) gamma physics with fixed-mass resonances with LHC kinematics."""
+    p_values = run_k1_gamma('B2K1Gamma_RapidSim_7TeV_K1KstarNonResonant_Tree.root',
+                            0, 0, False, 'NonResonant_LHC')
+    assert np.all(p_values > 0.05)
+
+
+def test_k1gamma_resonant_at_rest():
+    """Test B0 -> K1 (->K*pi) gamma physics.
+
+    Since we don't have BW and we model the resonances with Gaussians,
+    we can't really perform the Kolmogorov test wrt to RapidSim,
+    so plots are generated and can be inspected by the user.
+
+    """
+    run_k1_gamma('B2K1Gamma_RapidSim_7TeV_Tree.root',
+                 decays.K1_WIDTH, decays.KSTARZ_WIDTH, True, 'Gaussian')
 
 
 if __name__ == "__main__":
     test_two_body()
     test_three_body()
     test_four_body()
-
+    test_kstargamma_kstarnonresonant_at_rest()
+    test_kstargamma_kstarnonresonant_lhc()
+    test_kstargamma_resonant_at_rest()
+    test_k1gamma_kstarnonresonant_at_rest()
+    test_k1gamma_kstarnonresonant_lhc()
+    test_k1gamma_resonant_at_rest()
 
 # EOF
