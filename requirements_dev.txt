@@ -11,3 +11,4 @@ coverage
 numpy
 matplotlib
 uproot
+scipy
