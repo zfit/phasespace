@@ -252,19 +252,19 @@ class Particle:
         def recurse_stable(part):
             output_mass = tf.zeros(tuple(), dtype=tf.float64)
             for child in part.children:
-                if child.has_fixed_mass():
+                if child.has_fixed_mass:
                     output_mass += child.get_mass()
                 else:
                     output_mass += recurse_stable(child)
             return output_mass
 
         mass_from_stable = tf.reduce_sum([child.get_mass() for child in self.children
-                                          if child.has_fixed_mass()],
+                                          if child.has_fixed_mass],
                                          axis=0)
         max_mass = top_mass - mass_from_stable
         masses = []
         for child in self.children:
-            if child.has_fixed_mass():
+            if child.has_fixed_mass:
                 masses.append(tf.broadcast_to(child.get_mass(), (1, n_events)))
             else:
                 # Recurse that particle to know the minimum mass we need to generate
