@@ -70,7 +70,6 @@ def create_ref_histos(n_pions):
 
 
 def run_test(n_particles, test_prefix):
-
     sess = tf.Session()
     first_run_n_events = 100
     main_run_n_events = 100000
@@ -144,7 +143,7 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
         input_bs = rapidsim.generate_fonll(decays.B0_MASS, 7, 'b', n_events)
         rapidsim_getter = rapidsim.get_tree
     with tf.Session() as sess:
-        norm_weights, particles = sess.run(decays.b0_to_kstar_gamma(n_events, kstar_width=kstar_width).generate(input_bs, n_events))
+        norm_weights, particles = sess.run(decays.b0_to_kstar_gamma(kstar_width=kstar_width).generate(input_bs, n_events))
     rapidsim_parts = rapidsim_getter(os.path.join(BASE_PATH,
                                                   'data',
                                                   input_file),
@@ -218,7 +217,7 @@ def run_k1_gamma(input_file, k1_width, kstar_width, b_at_rest, suffix):
         rapidsim_getter = rapidsim.get_tree
     with tf.Session() as sess:
         norm_weights, particles = sess.run(
-            decays.bp_to_k1_kstar_pi_gamma(n_events, k1_width=k1_width, kstar_width=kstar_width)
+            decays.bp_to_k1_kstar_pi_gamma(k1_width=k1_width, kstar_width=kstar_width)
             .generate(input_bs, n_events))
     rapidsim_parts = rapidsim_getter(
         os.path.join(BASE_PATH,

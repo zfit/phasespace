@@ -25,55 +25,51 @@ KSTARZ_MASS = 895.81
 KSTARZ_WIDTH = 47.4
 
 
-def b0_to_kstar_gamma(n_events, kstar_width=KSTARZ_WIDTH):
+def b0_to_kstar_gamma(kstar_width=KSTARZ_WIDTH):
     """Generate B0 -> K*gamma."""
-    def kstar_gamma_masses(momentum):
-        if len(momentum.shape) > 1:
-            shape = (momentum.shape[1], )
-        else:
-            shape = (n_events, )
-        if kstar_width == 0:
-            kstar_mass = KSTARZ_MASS * tf.ones(shape)
-        else:
-            kstar_mass = tf.random.normal(shape, KSTARZ_MASS, kstar_width)
-        return kstar_mass, tf.zeros(shape)
-
-    top_part = Particle('B0')
-    kstar, _ = top_part.set_children(['K*0', 'gamma'], kstar_gamma_masses)
-    kstar.set_children(['K+', 'pi-'], lambda momentum: (KAON_MASS, PION_MASS))
-    return top_part
-
-
-def bp_to_k1_kstar_pi_gamma(n_events, k1_width=K1_WIDTH, kstar_width=KSTARZ_WIDTH):
-    """Generate B+ -> K1 (-> K* (->K pi) pi) gamma."""
-    def get_k1_gamma_masses(momentum):
-        if len(momentum.shape) > 1:
-            shape = momentum.shape[1]
-        else:
-            shape = (n_events, )
-        if k1_width == 0:
-            k1_mass = K1_MASS * tf.ones(shape)
-        else:
-            k1_mass = tf.random.normal(shape, K1_MASS, k1_width)
-        return k1_mass, tf.zeros(shape)
-
-    def get_kstarpi_masses(momentum):
-        top_mass = mass(momentum)
-        shape = top_mass.shape.as_list()
-        ones = tf.ones(shape, dtype=tf.float64)
-        if kstar_width == 0:
-            kst_masses = ones * KSTARZ_MASS
-        else:
-            kst_masses = tfp.distributions.TruncatedNormal(loc=ones * KSTARZ_MASS,
+    def kstar_mass(min_mass, max_mass, n_events):
+        ones = tf.ones((1, n_events), dtype=tf.float64)
+        kstar_mass = KSTARZ_MASS * ones
+        if kstar_width > 0:
+            min_mass = tf.broadcast_to(min_mass, (1, n_events))
+            max_mass = tf.broadcast_to(max_mass, (1, n_events))
+            kstar_mass = tfp.distributions.TruncatedNormal(loc=kstar_mass,
                                                            scale=ones * kstar_width,
-                                                           low=ones * (KAON_MASS + PION_MASS),
-                                                           high=top_mass - PION_MASS).sample()
-        return kst_masses, ones * PION_MASS
+                                                           low=min_mass,
+                                                           high=max_mass).sample()
+        return kstar_mass
 
-    top_part = Particle('B+')
-    k1, _ = top_part.set_children(['K1+', 'gamma'], get_k1_gamma_masses)
-    kstar, _ = k1.set_children(['K*0', 'pi+'], get_kstarpi_masses)
-    kstar.set_children(['K+', 'pi-'], lambda momentum: (KAON_MASS, PION_MASS))
-    return top_part
+    return Particle('B0').set_children(Particle('K*0', mass=kstar_mass)
+                                       .set_children(Particle('K+', mass=KAON_MASS),
+                                                     Particle('pi-', mass=PION_MASS)),
+                                       Particle('gamma', mass=0.0))
+
+
+def bp_to_k1_kstar_pi_gamma(k1_width=K1_WIDTH, kstar_width=KSTARZ_WIDTH):
+    """Generate B+ -> K1 (-> K* (->K pi) pi) gamma."""
+    def res_mass(mass, width, min_mass, max_mass, n_events):
+        ones = tf.ones((1, n_events), dtype=tf.float64)
+        masses = mass * ones
+        if width > 0:
+            min_mass = tf.broadcast_to(min_mass, (1, n_events))
+            max_mass = tf.broadcast_to(max_mass, (1, n_events))
+            masses = tfp.distributions.TruncatedNormal(loc=masses,
+                                                       scale=ones * width,
+                                                       low=min_mass,
+                                                       high=max_mass).sample()
+        return masses
+
+    def k1_mass(min_mass, max_mass, n_events):
+        return res_mass(K1_MASS, k1_width, min_mass, max_mass, n_events)
+
+    def kstar_mass(min_mass, max_mass, n_events):
+        return res_mass(KSTARZ_MASS, kstar_width, min_mass, max_mass, n_events)
+
+    return Particle('B+').set_children(Particle('K1+', mass=k1_mass)
+                                       .set_children(Particle('K*0', mass=kstar_mass)
+                                                     .set_children(Particle('K+', mass=KAON_MASS),
+                                                                   Particle('pi-', mass=PION_MASS)),
+                                                     Particle('pi+', mass=PION_MASS)),
+                                       Particle('gamma', mass=0.0))
 
 # EOF

@@ -24,25 +24,27 @@ from .helpers import decays
 def test_name_clashes():
     """Test clashes in particle naming."""
     # In children
-    top_part = Particle('B')
     with pytest.raises(KeyError):
-        top_part.set_children(['Kstarz', 'Kstarz'], lambda momentum: (decays.KSTARZ_MASS, decays.KSTARZ_MASS))
-    top_part = Particle('Top')
+        Particle('Top').set_children(Particle('Kstarz', mass=decays.KSTARZ_MASS),
+                                     Particle('Kstarz', mass=decays.KSTARZ_MASS))
+    # With itself
     with pytest.raises(KeyError):
-        top_part.set_children(['Top', 'Kstarz'], lambda momentum: (decays.KSTARZ_MASS, decays.KSTARZ_MASS))
+        Particle('Top').set_children(Particle('Top', mass=decays.KSTARZ_MASS),
+                                     Particle('Kstarz', mass=decays.KSTARZ_MASS))
     # In grandchildren
-    top_part = Particle('B')
-    kst1, kst2 = top_part.set_children(['Kstarz0', 'Kstarz1'],
-                                       lambda momentum: (decays.KSTARZ_MASS, decays.KSTARZ_MASS))
-    kst1.set_children(['K+', 'pi-'], lambda momentum: (decays.KAON_MASS, decays.PION_MASS))
     with pytest.raises(KeyError):
-        kst2.set_children(['K+', 'pi-_1'], lambda momentum: (decays.KAON_MASS, decays.PION_MASS))
+        Particle('Top').set_children(Particle('Kstarz0', mass=decays.KSTARZ_MASS)
+                                     .set_children(Particle('K+', mass=decays.KAON_MASS),
+                                                   Particle('pi-', mass=decays.PION_MASS)),
+                                     Particle('Kstarz0', mass=decays.KSTARZ_MASS)
+                                     .set_children(Particle('K+', mass=decays.KAON_MASS),
+                                                   Particle('pi-_1', mass=decays.PION_MASS)))
 
 
 def test_kstargamma():
     """Test B0 -> K*gamma."""
     with tf.Session() as sess:
-        norm_weights, particles = sess.run(decays.b0_to_kstar_gamma(1000).generate(decays.B0_AT_REST, 1000))
+        norm_weights, particles = sess.run(decays.b0_to_kstar_gamma().generate(decays.B0_AT_REST, 1000))
     assert len(norm_weights) == 1000
     assert all([weight < 1 for weight in norm_weights])
     assert len(particles) == 4
@@ -53,7 +55,7 @@ def test_kstargamma():
 def test_k1gamma():
     """Test B+ -> K1 (K*pi) gamma."""
     with tf.Session() as sess:
-        norm_weights, particles = sess.run(decays.bp_to_k1_kstar_pi_gamma(1000).generate(decays.B0_AT_REST, 1000))
+        norm_weights, particles = sess.run(decays.bp_to_k1_kstar_pi_gamma().generate(decays.B0_AT_REST, 1000))
     assert len(norm_weights) == 1000
     assert all([weight < 1 for weight in norm_weights])
     assert len(particles) == 6
@@ -62,6 +64,7 @@ def test_k1gamma():
 
 
 if __name__ == "__main__":
+    test_name_clashes()
     test_kstargamma()
     test_k1gamma()
 
