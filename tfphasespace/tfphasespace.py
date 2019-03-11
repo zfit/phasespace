@@ -38,42 +38,96 @@ def pdk(a, b, c):
 
 
 class Particle:
-    def __init__(self, name, parent=None):
+    def __init__(self, name, mass=None, parent=None):
         self.name = name
-        self._children_masses = None
         self.parent = parent
         self.children = []
-        self._n_events = None
+        if mass is not None and not callable(mass) and not tf.contrib.framework.is_tensor(mass):
+            mass = tf.constant(mass, dtype=tf.float64)
+        self._mass = mass
 
-    def _do_names_clash(self, names):
+    def _do_names_clash(self, particles):
         def get_list_of_names(part):
             output = [part.name]
             for child in part.children:
                 output.extend(get_list_of_names(child))
             return output
 
-        names_to_check = list(names)
+        names_to_check = [self.name]
+        for part in particles:
+            names_to_check.extend(get_list_of_names(part))
         # Find top
-        top = self
-        while True:
-            if top.is_top():
-                break
-            top = top.parent
-        names_to_check.extend(get_list_of_names(top))
         dup_names = {name for name in names_to_check if names_to_check.count(name) > 1}
         if dup_names:
             return dup_names
         return None
 
-    def set_children(self, names, masses):
+    def get_mass(self, min_mass=None, max_mass=None, n_events=None):
+        """Get the particle mass.
+
+        If the particle is resonant, the mass function will be called with the
+        `min_mass` and `max_mass` parameters.
+
+        Arguments:
+            min_mass (tensor): Lower mass range. Defaults to None, which
+                is only valid in the case of fixed mass.
+            max_maxx (tensor): Upper mass range. Defaults to None, which
+                is only valid in the case of fixed mass.
+
+        Return:
+            tensor: Mass.
+
+        """
+        if self.has_fixed_mass():
+            return self._mass
+        else:
+            return self._mass(min_mass, max_mass, n_events)
+
+    def has_fixed_mass(self):
+        """Is the mass a callable function?"""
+        return not callable(self._mass)
+
+    def set_parent(self, parent):
+        """Set parent particle.
+
+        Arguments:
+            parent (Particle)
+
+        Raise:
+            ValueError: If parent had already been assigned.
+
+        """
+        if self.parent:
+            raise ValueError("Parent already assigned!")
+        self.parent = parent
+
+    def set_children(self, *children):
+        """Assign children.
+
+        The particle is set as parent for the children.
+
+        Arguments:
+            children (list[Particle]): Children to assign to the current particle.
+
+        Return:
+            self
+
+        Raise:
+            ValueError: If there is an inconsistency in the parent/children relationship, ie,
+                if children were already set, or if their parent was.
+            KeyError: If there is a particle name clash.
+
+        """
+        if self.children:
+            raise ValueError("Children already set!")
         # Check name clashes
-        name_clash = self._do_names_clash(names)
+        name_clash = self._do_names_clash(children)
         if name_clash:
             raise KeyError("Particle name {} already used".format(name_clash))
         # If none, add
-        self._children_masses = masses
-        self.children = [Particle(name, parent=self) for name in names]
-        return self.children
+        [child.set_parent(self) for child in children]
+        self.children = children
+        return self
 
     def is_top(self):
         return self.parent is None
@@ -86,34 +140,17 @@ class Particle:
             return False
         return any(child.has_children() for child in self.children)
 
-    def _preprocess(self, momentum, masses, n_events):
+    def _preprocess(self, momentum, n_events):
         momentum = process_list_to_tensor(momentum)
-        masses = process_list_to_tensor(masses)
 
         # Check sanity of inputs
-
         # TODO(Mayou36): change for n_events being a tensor/Variable
         if momentum.shape.ndims not in (1, 2):
             raise ValueError("Bad shape for momentum -> {}".format(momentum.shape.as_list()))
-        if masses.shape.ndims not in (1, 2):
-            raise ValueError("Bad shape for masses -> {}".format(masses.shape.as_list()))
         # Check compatibility of inputs
-        if masses.shape.ndims == 2:
-            if n_events is not None:
-                masses_shape = tf.convert_to_tensor(masses.shape[1].value, preferred_dtype=tf.int64)
-                masses_shape = tf.cast(masses_shape, dtype=tf.int64)
-                assert_op = tf.assert_equal(n_events, masses_shape,
-                                            message="Conflicting inputs -> masses and n_events")
-                with tf.control_dependencies([assert_op]):
-                    n_events = tf.identity(n_events)
-
-            if momentum.shape.ndims == 2:
-                if masses.shape[1] != momentum.shape[1]:
-                    raise ValueError("Conflicting inputs -> momentum and masses")
         if momentum.shape.ndims == 2:
             # TODO(Mayou36): use tf assertion?
             if n_events is not None:
-
                 momentum_shape = tf.convert_to_tensor(momentum.shape[1].value, preferred_dtype=tf.int64)
                 momentum_shape = tf.cast(momentum_shape, dtype=tf.int64)
                 assert_op = tf.assert_equal(n_events, momentum_shape,
@@ -121,21 +158,16 @@ class Particle:
                 with tf.control_dependencies([assert_op]):
                     n_events = tf.identity(n_events)
         if n_events is None:
-            if masses.shape.ndims == 2:
-                n_events = masses.shape[1].value
-            elif momentum.shape.ndims == 2:
+            if momentum.shape.ndims == 2:
                 n_events = momentum.shape[1].value
             else:
                 n_events = tf.constant(1, dtype=tf.int64)
-
         n_events = tf.convert_to_tensor(n_events, preferred_dtype=tf.int64)
         n_events = tf.cast(n_events, dtype=tf.int64)
         # Now preparation of tensors
-        if masses.shape.ndims == 1:
-            masses = tf.expand_dims(masses, axis=-1)
         if momentum.shape.ndims == 1:
             momentum = tf.expand_dims(momentum, axis=-1)
-        return momentum, masses, n_events
+        return momentum, n_events
 
     def _get_w_max(self, available_mass, masses):
         emmax = available_mass + masses[0, :]
@@ -150,13 +182,37 @@ class Particle:
     def _generate(self, momentum, n_events):
         if not self.children:
             raise ValueError("No children have been configured")
-        if callable(self._children_masses):
-            masses = self._children_masses(momentum)
-        else:
-            masses = self._children_masses
-        p_top, masses, n_events = self._preprocess(momentum, masses, n_events)
-        n_particles = masses.shape[0].value
+        p_top, n_events = self._preprocess(momentum, n_events)
         top_mass = kin.mass(p_top)
+        n_particles = len(self.children)
+        # Prepare masses
+        def recurse_stable(part):
+            output_mass = tf.zeros(tuple(), dtype=tf.float64)
+            for child in part.children:
+                if child.has_fixed_mass():
+                    output_mass += child.get_mass()
+                else:
+                    output_mass += recurse_stable(child)
+            return output_mass
+
+        mass_from_stable = tf.reduce_sum([child.get_mass() for child in self.children
+                                          if child.has_fixed_mass()],
+                                         axis=0)
+        max_mass = top_mass - mass_from_stable
+        masses = []
+        try:
+            for child in self.children:
+                if child.has_fixed_mass():
+                    masses.append(tf.broadcast_to(child.get_mass(), (1, n_events)))
+                else:
+                    # Recurse that particle to know the minimum mass we need to generate
+                    min_mass = tf.broadcast_to(recurse_stable(child), max_mass.shape)
+                    mass = child.get_mass(min_mass, max_mass, n_events)
+                    max_mass -= mass
+                    masses.append(mass)
+        except:
+            __import__('ipdb').set_trace()
+        masses = tf.concat(masses, axis=0)
         available_mass = top_mass - tf.reduce_sum(masses, axis=0)
         mass_check = tf.assert_greater_equal(available_mass, _ZERO,
                                              message="Forbidden decay",
@@ -333,11 +389,8 @@ def generate(p_top, masses, n_events=None):
         tf.tensor: 4-momenta of the generated particles.
 
     """
-    top = Particle('top')
-    n_parts = process_list_to_tensor(masses).shape[0].value
-    children_names = [str(num + 1) for num in range(n_parts)]
-    top.set_children(children_names, masses)
+    top = Particle('top').set_children(*[Particle(str(num+1), mass=mass) for num, mass in enumerate(masses)])
     norm_weights, parts = top.generate(p_top, n_events=n_events)
-    return norm_weights, [parts[name] for name in children_names]
+    return norm_weights, [parts[child.name] for child in top.children]
 
 # EOF
