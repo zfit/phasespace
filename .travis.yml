@@ -6,8 +6,6 @@ python:
   #  - 3.5
   - 3.6
 
-cache: pip
-
 matrix:
   allow_failures:
     - python: 2.7
@@ -16,28 +14,16 @@ matrix:
       dist: xenial
       sudo: true
 
-
-
 before_install:
-
-
-
-  #- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-  #  sudo apt-get -qq update;
-  #
-  #  sudo apt-get install python-dev libblas-dev libatlas-dev liblapack-dev gfortran g++ python-setuptools;
-  #  sudo apt-get install libpng-dev libjpeg8-dev libfreetype6-dev libxft-dev;
-  #  fi
 
   - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O anaconda.sh;
   - bash anaconda.sh -b -p $HOME/anaconda > tmp.txt && echo "alive"
-  #  - export PATH="$HOME/anaconda/bin:$PATH"
   - . /home/travis/anaconda/etc/profile.d/conda.sh
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
-
   - conda info -a
 
+  # create env and activate
   - conda create -q -n tfphasespace-env python=$TRAVIS_PYTHON_VERSION root -c conda-forge > tmp.txt && echo "alive"
   - conda activate tfphasespace-env
 
@@ -51,20 +37,20 @@ install:
   - pip install .
   -
 script:
-  - pytest --cov-branch=tfphasespace tests
-
+  - pytest --cov-branch --cov=tfphasespace tests
 
 after_success:
   - coveralls
 #
 #deploy:
 #  provider: pypi
-#  user: mayou36
+#  user: zfit
 #  password:
-#    secure:
+#    secure:  TODO
 #  distributions: sdist bdist_wheel
 #  on:
 #    branch: master
-#    condition: $TRAVIS_PYTHON_VERSION = "3.7"
+#    tag: true
+#    condition: $TRAVIS_PYTHON_VERSION = 3.7
 
 
