@@ -2,6 +2,8 @@
 Tensorflow PhaseSpace
 =====================
 
+.. image:: https://travis-ci.org/zfit/tfphasespace.svg?branch=master
+    :target: https://travis-ci.org/zfit/tfphasespace
 .. image:: https://readthedocs.org/projects/tfphasespace/badge/?version=latest
    :target: https://tfphasespace.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
