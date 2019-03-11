@@ -80,6 +80,16 @@ class Particle:
     """
 
     def __init__(self, name, mass=None):
+        """Initialise the particle.
+
+        Set the name and the mass if given.
+
+        Arguments:
+            name (str): Name of the particle.
+            mass (float, Tensor, callable): Mass of the particle. If it's a float, it's
+            converted to a `tf.constant`.
+
+        """
         self.name = name
         self.children = []
         if mass is not None and not callable(mass) and not tf.contrib.framework.is_tensor(mass):
@@ -117,14 +127,24 @@ class Particle:
         Return:
             tensor: Mass.
 
+        Raise:
+            ValueError: If the mass is requested and has not been set.
+
         """
+        if self._mass is None:
+            raise ValueError("Mass has not been configured!")
         if self.has_fixed_mass():
             return self._mass
         else:
             return self._mass(min_mass, max_mass, n_events)
 
     def has_fixed_mass(self):
-        """Is the mass a callable function?"""
+        """Is the mass a callable function?
+
+        Return:
+            bool
+
+        """
         return not callable(self._mass)
 
     def set_children(self, *children):
@@ -152,14 +172,27 @@ class Particle:
         return self
 
     def has_children(self):
+        """Check if the particle has children.
+
+        Return:
+            bool: Does the particle have children?
+
+        """
         return bool(self.children)
 
     def has_grandchildren(self):
+        """Check if the particle has grandchildren.
+
+        Return:
+            bool: Does the particle have grand children?
+
+        """
         if not self.children:
             return False
         return any(child.has_children() for child in self.children)
 
-    def _preprocess(self, momentum, n_events):
+    @staticmethod
+    def _preprocess(momentum, n_events):
         momentum = process_list_to_tensor(momentum)
 
         # Check sanity of inputs
@@ -219,18 +252,15 @@ class Particle:
                                          axis=0)
         max_mass = top_mass - mass_from_stable
         masses = []
-        try:
-            for child in self.children:
-                if child.has_fixed_mass():
-                    masses.append(tf.broadcast_to(child.get_mass(), (1, n_events)))
-                else:
-                    # Recurse that particle to know the minimum mass we need to generate
-                    min_mass = tf.broadcast_to(recurse_stable(child), max_mass.shape)
-                    mass = child.get_mass(min_mass, max_mass, n_events)
-                    max_mass -= mass
-                    masses.append(mass)
-        except:
-            __import__('ipdb').set_trace()
+        for child in self.children:
+            if child.has_fixed_mass():
+                masses.append(tf.broadcast_to(child.get_mass(), (1, n_events)))
+            else:
+                # Recurse that particle to know the minimum mass we need to generate
+                min_mass = tf.broadcast_to(recurse_stable(child), max_mass.shape)
+                mass = child.get_mass(min_mass, max_mass, n_events)
+                max_mass -= mass
+                masses.append(mass)
         masses = tf.concat(masses, axis=0)
         available_mass = top_mass - tf.reduce_sum(masses, axis=0)
         mass_check = tf.assert_greater_equal(available_mass, _ZERO,
@@ -398,14 +428,16 @@ class Particle:
 def generate(p_top, masses, n_events=None):
     """Generate an n-body phasespace.
 
+    Internally, this function uses `Particle` with a single generation of children.
+
     Arguments:
-        p_top (tf.tensor, list): Momentum of the top particle. Can be a list of 4-vectors.
-        masses (list): Masses of the child particles. Can be a tensor of (n_particles, n_events) shape.
+        p_top (Tensor, list): Momentum of the top particle. Can be a list of 4-vectors.
+        masses (list): Masses of the child particles.
         n_events (int, optional): Number of samples to generate. If n_events is None,
-            the shape of `masses` is used.
+            the number of events is deduced from `p_top`.
 
     Return:
-        tf.tensor: 4-momenta of the generated particles.
+        Tensor: 4-momenta of the generated particles, with shape (4xn_particles, n_events).
 
     """
     top = Particle('top').set_children(*[Particle(str(num+1), mass=mass) for num, mass in enumerate(masses)])
