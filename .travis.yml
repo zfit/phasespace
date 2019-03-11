@@ -1,56 +1,55 @@
 os: linux
 language: python
 python:
-  - 2.7
-  #  - 3.4
-  #  - 3.5
-  - 3.6
-
+- 2.7
+- 3.6
 matrix:
   allow_failures:
-    - python: 2.7
+  - python: 2.7
   include:
-    - python: 3.7
-      dist: xenial
-      sudo: true
-
+  - python: 3.7
+    dist: xenial
+    sudo: true
 before_install:
-
-  - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O anaconda.sh;
-  - bash anaconda.sh -b -p $HOME/anaconda > tmp.txt && echo "alive"
-  - . /home/travis/anaconda/etc/profile.d/conda.sh
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
-  - conda info -a
-
-  # create env and activate
-  - conda create -q -n tfphasespace-env python=$TRAVIS_PYTHON_VERSION root -c conda-forge > tmp.txt && echo "alive"
-  - conda activate tfphasespace-env
-
-  # install test environment
-  - conda install -y coverage > tmp.txt && echo "alive"
-  - conda install -y future > tmp.txt && echo "alive"
-  - pip install coveralls > tmp.txt && echo "alive"
-  - pip install -r requirements_dev.txt
-
+- wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O anaconda.sh;
+- bash anaconda.sh -b -p $HOME/anaconda > tmp.txt && echo "alive"
+- ". /home/travis/anaconda/etc/profile.d/conda.sh"
+- hash -r
+- conda config --set always_yes yes --set changeps1 no
+- conda info -a
+- conda create -q -n tfphasespace-env python=$TRAVIS_PYTHON_VERSION root -c conda-forge
+  > tmp.txt && echo "alive"
+- conda activate tfphasespace-env
+- conda install -y coverage > tmp.txt && echo "alive"
+- conda install -y future > tmp.txt && echo "alive"
+- pip install coveralls > tmp.txt && echo "alive"
+- pip install -r requirements_dev.txt
 install:
-  - pip install .
-  -
+- pip install .
+-
 script:
-  - pytest --cov-branch --cov=tfphasespace tests
-
+- pytest --cov-branch --cov=tfphasespace tests
 after_success:
-  - coveralls
-#
-#deploy:
-#  provider: pypi
-#  user: zfit
-#  password:
-#    secure:  TODO
-#  distributions: sdist bdist_wheel
-#  on:
-#    branch: master
-#    tag: true
-#    condition: $TRAVIS_PYTHON_VERSION = 3.7
+- coveralls
 
+deploy:
+  - provider: pypi
+    distributions: sdist bdist_wheel
+    user: zfit
+    password:
+      secure: UwKmHCXuVkxZDA55GHAg7ji9mfvD7ur0iglJajsB5SRcGJYUv1lEIPY8XsF5IS7xU9wVuRNEwpIUppyXNHV8EjxKyyGAvmRHnQLuLUkXbHxUO1txDm0ru05V1DHrukcgj2uD2HsiRTEd4CuJD0v9OTN61ISsq9YKfEBWaDMNEl0QPC3j1pQTzUoe9a+kSie+w2XFmYjiUqbVxJ4zQOGyczD9FRctmj9+e3vs2ITodRuVkCyCFLRiuR/GhbhZ+QpDkyKb0d5mySt3Zm3n/WRvYKAq9UzFkf624QllNdMXbdkCj9V9k/lQ7B70CWM65F1w2fDEmuU44EmZd3jfw8G1l+WAE87afxT6jDllhD0IC2jM+FDSREnpFBxqXnNyrYomS7abnlOF+6CTQO6gMwPJuRawrB3CPLTH64uiGJaJwAduxNt1qxfpqHwVRJ2So0o6wJ2K4j88cl7Nz/1GHSIzd5WCizJc3siAAZhGKLKDY1wAi23ZXc5PWkIXRgUR09mrxv8Cj5DCOpdj4619ebWyhojpe9wHFGGhCSPHLPH5QNBEMe1nRuqRu3uZZAP8KeVULr9kl2XvDV+ufJEFAeIr+xKdP0GgENbiitu0wz2uxysSSIrJGqpLebcKvLkIaEzNcMK1D51VmLF5O1KF7rZvRpjH4sbRhgpWwJmE0yl7Jl4=
+    on:
+      branch: master
+      tags: true
+      repo: zfit/tfphasespace
+      python: 3.7
 
+#  - provider: pages
+#    skip_cleanup: true
+#    github_token:
+#      secure: jrPIzI6e67nPuqIFXCwr0NfpAKxVrkZ5JSE9iW7GLVagLTiHcXCnzGDDPYo8Aq+jwJv69Hy+wXLCgq5G6AU/SCy9eLjYlAFVoEwyKh9SQzm404ay3B5Gxcuskj4nqJWWWH0ETAK4QIvhWtAzx48ElNwLOaidzPRFAgyzSVm337EpnEvuNr67I53M0IYaaAL21zWj8yCdKzOTOg/GI1Idn3a1cvW+Hqy0AWID7d/LxNWC1zwBIwTwUGaMUOw9tA2FTqrXXbfW00nBlulhYkkWG3JUursL8nrs/PLzwp5lJPQJ8DBG6I1PYexZ5Cfl6GMHY6+K2lSx+PdNeB9UkEucXNiB4utQMplCqVxHPi/m2wEM9tJSADMQ96HCKSprXmKfa1VW039Dxf8efWGosO7dI1QOmbsrs8LcloSLli/q+PmgNv7s+emEv6/X0UL7idB4T097KPsJCulE468VBwuNfnvIUcX2a2q7T+MDr6Q3uDFZ1NYAsTPpOLqDLM25ri5h0DHf0i3h3wCuMT27kDUlpEcSjaVeJvJStlS3nn+ioo/LGNUGvNiO9uUYB62Pegb8RmIEZ1QGjL6hhGPujv9WAdqYU2f8iSmpBr50G/jOUZhnOMOcvttaQDew20+TRvg20u43HggaeS9f32YbXEK7QbtdtGLsJiPculnxF3ZNBmM=
+#    local_dir: docs/api/_build/html
+#    keep-history: true
+#    on:
+#      branch: develop
+#      condition: $TRAVIS_PYTHON_VERSION = "3.6" && $TRAVIS_OS_NAME = "linux"
