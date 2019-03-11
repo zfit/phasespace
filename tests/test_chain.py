@@ -13,7 +13,12 @@ import tensorflow as tf
 
 from tfphasespace import Particle
 
-import decays
+import os
+import sys
+
+sys.path.append(os.path.dirname(__file__))
+
+from .helpers import decays
 
 
 def test_name_clashes():
@@ -27,7 +32,8 @@ def test_name_clashes():
         top_part.set_children(['Top', 'Kstarz'], lambda momentum: (decays.KSTARZ_MASS, decays.KSTARZ_MASS))
     # In grandchildren
     top_part = Particle('B')
-    kst1, kst2 = top_part.set_children(['Kstarz0', 'Kstarz1'], lambda momentum: (decays.KSTARZ_MASS, decays.KSTARZ_MASS))
+    kst1, kst2 = top_part.set_children(['Kstarz0', 'Kstarz1'],
+                                       lambda momentum: (decays.KSTARZ_MASS, decays.KSTARZ_MASS))
     kst1.set_children(['K+', 'pi-'], lambda momentum: (decays.KAON_MASS, decays.PION_MASS))
     with pytest.raises(KeyError):
         kst2.set_children(['K+', 'pi-_1'], lambda momentum: (decays.KAON_MASS, decays.PION_MASS))
