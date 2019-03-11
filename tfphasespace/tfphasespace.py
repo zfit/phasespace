@@ -25,6 +25,21 @@ _TWO = tf.constant(2.0, dtype=tf.float64)
 
 
 def process_list_to_tensor(lst):
+    """Convert a list to a tensor.
+
+    The list is converted to a tensor and transposed to get the proper shape.
+
+    Note:
+        If `lst` is a tensor, nothing is done to it other than convert it to
+        `tf.float64`.
+
+    Arguments:
+        lst (list): List to convert.
+
+    Return:
+        Tensor.
+
+    """
     if isinstance(lst, list):
         lst = tf.transpose(tf.convert_to_tensor(lst,
                                                 preferred_dtype=tf.float64))
@@ -32,15 +47,40 @@ def process_list_to_tensor(lst):
 
 
 def pdk(a, b, c):
-    """Calculate the PDK (2-body phase space) function."""
+    """Calculate the PDK (2-body phase space) function.
+
+    Based on Eq. (9.17) in CERN 68-15 (1968).
+
+    Arguments:
+        a, b, c (Tensor): M_{i+1}, M_{i}, m_{i+1} in Eq. (9.17).
+
+    Return:
+        Tensor.
+
+    """
     x = (a - b - c) * (a + b + c) * (a - b + c) * (a + b - c)
     return tf.sqrt(x) / (_TWO * a)
 
 
 class Particle:
-    def __init__(self, name, mass=None, parent=None):
+    """Representation of a particle.
+
+    Instances of this class can be combined with each other to build decay chains,
+    which can then be used to generate phase space events through the `generate`
+    method.
+
+    A `Particle` must have a `name`, which is ensured not to clash with any others in
+    the decay chain.
+    It may also have:
+        + Mass, which can be either a number or a function to generate it according to
+        a certain distribution. In this case, the particle is not considered as having a
+        fixed mass and the `has_fixed_mass` method will return False.
+        + Children, ie, decay products, which are also `Particle` instances.
+
+    """
+
+    def __init__(self, name, mass=None):
         self.name = name
-        self.parent = parent
         self.children = []
         if mass is not None and not callable(mass) and not tf.contrib.framework.is_tensor(mass):
             mass = tf.constant(mass, dtype=tf.float64)
@@ -87,24 +127,8 @@ class Particle:
         """Is the mass a callable function?"""
         return not callable(self._mass)
 
-    def set_parent(self, parent):
-        """Set parent particle.
-
-        Arguments:
-            parent (Particle)
-
-        Raise:
-            ValueError: If parent had already been assigned.
-
-        """
-        if self.parent:
-            raise ValueError("Parent already assigned!")
-        self.parent = parent
-
     def set_children(self, *children):
         """Assign children.
-
-        The particle is set as parent for the children.
 
         Arguments:
             children (list[Particle]): Children to assign to the current particle.
@@ -124,13 +148,8 @@ class Particle:
         name_clash = self._do_names_clash(children)
         if name_clash:
             raise KeyError("Particle name {} already used".format(name_clash))
-        # If none, add
-        [child.set_parent(self) for child in children]
         self.children = children
         return self
-
-    def is_top(self):
-        return self.parent is None
 
     def has_children(self):
         return bool(self.children)
