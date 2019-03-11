@@ -2,8 +2,8 @@ os: linux
 language: python
 python:
   - 2.7
-#  - 3.4
-#  - 3.5
+  #  - 3.4
+  #  - 3.5
   - 3.6
 
 cache: pip
@@ -31,7 +31,7 @@ before_install:
 
   - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O anaconda.sh;
   - bash anaconda.sh -b -p $HOME/anaconda > tmp.txt && echo "alive"
-#  - export PATH="$HOME/anaconda/bin:$PATH"
+  #  - export PATH="$HOME/anaconda/bin:$PATH"
   - . /home/travis/anaconda/etc/profile.d/conda.sh
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
@@ -49,9 +49,11 @@ before_install:
 
 install:
   - pip install .
+  -
 script:
-  - coverage run -m unittest discover
-  - coverage run --branch -m unittest discover
+#  - coverage run -m unittest discover
+#  - coverage run --branch -m unittest discover
+  - pytest --cov=tfphasespace tests
 
 
 after_success:

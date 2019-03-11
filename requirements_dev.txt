@@ -7,6 +7,7 @@ Sphinx
 twine
 
 pytest
+pytest-cov
 coverage
 numpy
 matplotlib
