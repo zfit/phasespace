@@ -133,11 +133,12 @@ class Particle:
         """
         if self._mass is None:
             raise ValueError("Mass has not been configured!")
-        if self.has_fixed_mass():
+        if self.has_fixed_mass:
             return self._mass
         else:
             return self._mass(min_mass, max_mass, n_events)
 
+    @property
     def has_fixed_mass(self):
         """Is the mass a callable function?
 
@@ -171,6 +172,7 @@ class Particle:
         self.children = children
         return self
 
+    @property
     def has_children(self):
         """Check if the particle has children.
 
@@ -180,6 +182,7 @@ class Particle:
         """
         return bool(self.children)
 
+    @property
     def has_grandchildren(self):
         """Check if the particle has grandchildren.
 
@@ -189,7 +192,7 @@ class Particle:
         """
         if not self.children:
             return False
-        return any(child.has_children() for child in self.children)
+        return any(child.has_children for child in self.children)
 
     @staticmethod
     def _preprocess(momentum, n_events):
@@ -354,7 +357,7 @@ class Particle:
         output_masses = {child.name: children_masses[child_num]
                          for child_num, child in enumerate(self.children)}
         for child_num, child in enumerate(self.children):
-            if child.has_children():
+            if child.has_children:
                 child_weights, _, child_gen_particles, child_masses = \
                     child._recursive_generate(parts[child_num], n_events, False)
                 weights *= child_weights
@@ -363,7 +366,7 @@ class Particle:
         if recalculate_max_weights:
 
             def build_mass_tree(particle, leaf):
-                if particle.has_children():
+                if particle.has_children:
                     leaf[particle.name] = {}
                     for child in particle.children:
                         build_mass_tree(child, leaf[particle.name])
@@ -408,12 +411,12 @@ class Particle:
             if len(momentum.shape.as_list()) == 1:
                 momentum = tf.expand_dims(momentum, axis=-1)
             weights_max = tf.ones_like(weights, dtype=tf.float64) * \
-                          recurse_w_max(kin.mass(momentum), mass_tree[self.name])
+                recurse_w_max(kin.mass(momentum), mass_tree[self.name])
         return weights, weights_max, output_particles, output_masses
 
     def generate_unnormalized(self, momentum, n_events=None):
         weights, weights_max, parts, _ = self._recursive_generate(momentum=momentum, n_events=n_events,
-                                                                  recalculate_max_weights=self.has_grandchildren())
+                                                                  recalculate_max_weights=self.has_grandchildren)
         return weights, weights_max, parts
 
     def generate(self, momentum, n_events=None):
