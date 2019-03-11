@@ -13,7 +13,12 @@ import tensorflow as tf
 
 from tfphasespace import Particle
 
-import decays
+import os
+import sys
+
+sys.path.append(os.path.dirname(__file__))
+
+from .helpers import decays
 
 
 def test_name_clashes():
@@ -22,6 +27,7 @@ def test_name_clashes():
     with pytest.raises(KeyError):
         Particle('Top').set_children(Particle('Kstarz', mass=decays.KSTARZ_MASS),
                                      Particle('Kstarz', mass=decays.KSTARZ_MASS))
+    # With itself
     with pytest.raises(KeyError):
         Particle('Top').set_children(Particle('Top', mass=decays.KSTARZ_MASS),
                                      Particle('Kstarz', mass=decays.KSTARZ_MASS))
