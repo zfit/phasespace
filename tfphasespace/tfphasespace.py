@@ -174,28 +174,36 @@ class Particle:
 
     @property
     def has_children(self):
-        """Check if the particle has children.
-
-        Return:
-            bool: Does the particle have children?
-
-        """
+        """bool: Does the particle have children?"""
         return bool(self.children)
 
     @property
     def has_grandchildren(self):
-        """Check if the particle has grandchildren.
-
-        Return:
-            bool: Does the particle have grand children?
-
-        """
+        """bool: Does the particle have grandchildren?"""
         if not self.children:
             return False
         return any(child.has_children for child in self.children)
 
     @staticmethod
     def _preprocess(momentum, n_events):
+        """Preprocess momentum input and determine number of events to generate.
+
+        Both `momentum` and `n_events` are converted to tensors if they
+        are not already.
+
+        Arguments:
+            `momentum`: Momentum vector, of shape (4, x), where x is optional.
+            `n_events`: Number of events to generate. If `None`, the number of events
+            to generate is calculated from the shape of `momentum`.
+
+        Return:
+            tuple: Processed `momentum` and `n_events`.
+
+        Raise:
+            tf.errors.InvalidArgumentError: If the number of events deduced from the
+            shape of `momentum` is inconsistent with `n_events`.
+
+        """
         momentum = process_list_to_tensor(momentum)
 
         # Check sanity of inputs
@@ -415,15 +423,54 @@ class Particle:
         return weights, weights_max, output_particles, output_masses
 
     def generate_unnormalized(self, momentum, n_events=None):
+        """Generate unnormalized n-body phase space.
+
+        Note:
+            In this method, the event weights and their normalization (the maximum weight)
+            are returned separately.
+
+        Arguments:
+            `momentum`: Momentum vector of shape (4, x), where x is optional.
+            `n_events` (optional): Number of events to generate. If `None` (default),
+            the number of events to generate is calculated from the shape of `momentum`.
+
+        Return:
+            tuple: Event weights tensor of shape (n_events, ), max event weights tensor, of shape
+            (n_events, ), and generated particles, a dictionary of tensors of shape (4, n_events)
+            with particle names as keys.
+
+        Raise:
+            tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
+
+        """
+        if not (isinstance(n_events, tf.Variable) or n_events is None):
+            n_events = tf.convert_to_tensor(n_events, preferred_dtype=tf.int64)
+            n_events = tf.cast(n_events, dtype=tf.int64)
+
         weights, weights_max, parts, _ = self._recursive_generate(momentum=momentum, n_events=n_events,
                                                                   recalculate_max_weights=self.has_grandchildren)
         return weights, weights_max, parts
 
     def generate(self, momentum, n_events=None):
-        if not (isinstance(n_events, tf.Variable) or n_events is None):
-            n_events = tf.convert_to_tensor(n_events, preferred_dtype=tf.int64)
-            n_events = tf.cast(n_events, dtype=tf.int64)
+        """Generate normalized n-body phase space.
 
+        Note:
+            In this method, the event weights are returned normalized to their maximum.
+
+        Arguments:
+            `momentum`: Momentum vector of shape (4, x), where x is optional.
+            `n_events` (optional): Number of events to generate. If `None` (default),
+            the number of events to generate is calculated from the shape of `momentum`.
+
+        Return:
+            tuple: Normalized event weights tensor of shape (n_events, ), and generated
+            particles, a dictionary of tensors of shape (4, n_events) with particle names
+            as keys.
+
+        Raise:
+            tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
+
+        """
         weights, weights_max, parts = self.generate_unnormalized(momentum, n_events)
         return weights / weights_max, parts
 
