@@ -35,27 +35,11 @@ To install Tensorflow PhaseSpace, run this command in your terminal:
 
 This is the preferred method to install Tensorflow PhaseSpace, as it will always install the most recent stable release.
 
-You can also install from the git source by cloning the public repository
+For the newest development version (in case you really need it), you can install the version from git with
 
 .. code-block:: console
 
-    $ git clone git://github.com/zfit/tfphasespace
-
-or downloading the `tarball`_:
-
-.. code-block:: console
-
-    $ curl  -OL https://github.com/zfit/tfphasespace/tarball/master
-
-Once you have a copy of the source, you can install it with:
-
-.. code-block:: console
-
-    $ python setup.py install
-
-
-.. _Github repo: https://github.com/zfit/tfphasespace
-.. _tarball: https://github.com/zfit/tfphasespace/tarball/master
+   $ pip install git+https://github.com/zfit/tfphasespace
 
 
 How to use
