@@ -13,7 +13,12 @@ import tensorflow as tf
 
 import tfphasespace
 
-import decays
+import os
+import sys
+
+sys.path.append(os.path.dirname(__file__))
+
+from .helpers import decays
 
 B_AT_REST = decays.B0_AT_REST
 BS_AT_REST = tf.stack((0.0, 0.0, 0.0, decays.B0_MASS + 86.8), axis=-1)
