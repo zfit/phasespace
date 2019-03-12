@@ -26,7 +26,7 @@ import uproot
 
 import tensorflow as tf
 
-from tfphasespace import tfphasespace
+from phasespace import phasespace
 
 import os
 import sys
@@ -76,9 +76,9 @@ def run_test(n_particles, test_prefix):
     n_events = tf.Variable(initial_value=first_run_n_events, dtype=tf.int64, use_resource=True)
     sess.run(n_events.initializer)
 
-    generate = tfphasespace.generate(decays.B0_AT_REST,
-                                     [decays.PION_MASS] * n_particles,
-                                     n_events)
+    generate = phasespace.generate(decays.B0_AT_REST,
+                                   [decays.PION_MASS] * n_particles,
+                                   n_events)
     weights1, particles1 = sess.run(generate)  # only generate to test change in n_events
     assert len(weights1) == first_run_n_events
 
@@ -101,7 +101,7 @@ def run_test(n_particles, test_prefix):
     if not os.path.exists(PLOT_DIR):
         os.mkdir(PLOT_DIR)
     for coord, _ in enumerate(histos):
-        plt.hist(x if coord % 4 != 3 else e, weights=histos[coord], alpha=0.5, label='tfphasespace', bins=100)
+        plt.hist(x if coord % 4 != 3 else e, weights=histos[coord], alpha=0.5, label='phasespace', bins=100)
         plt.hist(x if coord % 4 != 3 else e, weights=ref_histos[coord], alpha=0.5, label='TGenPhasespace', bins=100)
         plt.legend(loc='upper right')
         plt.savefig(os.path.join(PLOT_DIR,
@@ -109,8 +109,8 @@ def run_test(n_particles, test_prefix):
                                                             int(coord / 4) + 1,
                                                             ['px', 'py', 'pz', 'e'][coord % 4])))
         plt.clf()
-    plt.hist(np.linspace(0, 1, 100), weights=weight_histos, alpha=0.5, label='tfphasespace', bins=100)
-    plt.hist(np.linspace(0, 1, 100), weights=ref_weights, alpha=0.5, label='tfphasespace', bins=100)
+    plt.hist(np.linspace(0, 1, 100), weights=weight_histos, alpha=0.5, label='phasespace', bins=100)
+    plt.hist(np.linspace(0, 1, 100), weights=ref_weights, alpha=0.5, label='phasespace', bins=100)
     plt.savefig(os.path.join(PLOT_DIR, '{}_weights.png'.format(test_prefix)))
     plt.clf()
     assert np.all(p_values > 0.05)
@@ -164,7 +164,7 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
             range_ = (-3000 if coord % 4 != 3 else 0, 3000)
             ref_histo = make_norm_histo(ref_part[coord], range_=range_)
             tf_histo = make_norm_histo(particles[tf_part][coord], range_=range_, weights=norm_weights)
-            plt.hist(x if coord % 4 != 3 else e, weights=tf_histo, alpha=0.5, label='tfphasespace', bins=100)
+            plt.hist(x if coord % 4 != 3 else e, weights=tf_histo, alpha=0.5, label='phasespace', bins=100)
             plt.hist(x if coord % 4 != 3 else e, weights=ref_histo, alpha=0.5, label='RapidSim', bins=100)
             plt.legend(loc='upper right')
             plt.savefig(os.path.join(PLOT_DIR,
@@ -242,7 +242,7 @@ def run_k1_gamma(input_file, k1_width, kstar_width, b_at_rest, suffix):
             range_ = (-3000 if coord % 4 != 3 else 0, 3000)
             ref_histo = make_norm_histo(ref_part[coord], range_=range_)
             tf_histo = make_norm_histo(particles[tf_part][coord], range_=range_, weights=norm_weights)
-            plt.hist(x if coord % 4 != 3 else e, weights=tf_histo, alpha=0.5, label='tfphasespace', bins=100)
+            plt.hist(x if coord % 4 != 3 else e, weights=tf_histo, alpha=0.5, label='phasespace', bins=100)
             plt.hist(x if coord % 4 != 3 else e, weights=ref_histo, alpha=0.5, label='RapidSim', bins=100)
             plt.legend(loc='upper right')
             plt.savefig(os.path.join(PLOT_DIR,

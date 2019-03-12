@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # =============================================================================
-# @file   tfphasespace.py
+# @file   phasespace.py
 # @author Albert Puig (albert.puig@cern.ch)
 # @date   25.02.2019
 # =============================================================================
@@ -16,7 +16,7 @@ from math import pi
 
 import tensorflow as tf
 
-import tfphasespace.kinematics as kin
+import phasespace.kinematics as kin
 
 # Useful constants
 _ZERO = tf.constant(0.0, dtype=tf.float64)

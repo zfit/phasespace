@@ -6,5 +6,4 @@ __author__ = """Albert Puig Navarro"""
 __email__ = 'albert.puig@cern.ch'
 __version__ = '0.1.0'
 
-from tfphasespace.tfphasespace import generate, Particle
-# import tfphasespace.chain as chain
+from phasespace.phasespace import generate, Particle

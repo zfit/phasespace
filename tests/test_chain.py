@@ -11,7 +11,7 @@ import pytest
 
 import tensorflow as tf
 
-from tfphasespace import Particle
+from phasespace import Particle
 
 import os
 import sys
