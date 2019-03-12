@@ -1,19 +1,25 @@
 Welcome to Tensorflow PhaseSpace's documentation!
 =================================================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+.. include:: ../README.rst
 
-   readme
-   usage
-   API <tfphasespace>
-   contributing
-   authors
-   history
 
-Indices and tables
-==================
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+..
+   Table of Contents
+   =================
+..
+   .. toctree::
+      :maxdepth: 2
+      :caption: Contents:
+..
+      usage
+      API <tfphasespace>
+      contributing
+      authors
+      history
+..
+   Indices and tables
+   ==================
+   * :ref:`genindex`
+   * :ref:`modindex`
+   * :ref:`search`
