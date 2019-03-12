@@ -44,7 +44,7 @@ setup(
         description="Tensorflow implementation of the Raubold and Lynch method for n-body events",
         install_requires=requirements,
         license="BSD license",
-        long_description=readme + '\n\n' + history,
+        long_description=readme.replace(":math:", "") + '\n\n' + history,
         include_package_data=True,
         keywords='phasespace',
         name='phasespace',
