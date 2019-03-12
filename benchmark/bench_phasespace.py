@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # =============================================================================
-# @file   bench_tfphasespace.py
+# @file   bench_phasespace.py
 # @author Albert Puig (albert.puig@cern.ch)
 # @date   27.02.2019
 # =============================================================================
-"""Benchmark tfphasespace."""
+"""Benchmark phasespace."""
+
+from __future__ import print_function, division, absolute_import
 
 import tensorflow as tf
 
-from tfphasespace import tfphasespace
+from phasespace import phasespace
 
 import os, sys
 
@@ -32,9 +34,9 @@ CHUNK_SIZE = N_EVENTS
 N_EVENTS_VAR = tf.Variable(initial_value=N_EVENTS)
 CHUNK_SIZE_VAR = tf.Variable(initial_value=CHUNK_SIZE)
 
-samples = [tfphasespace.generate(B_AT_REST,
-                                 [PION_MASS, PION_MASS, PION_MASS],
-                                 CHUNK_SIZE_VAR)
+samples = [phasespace.generate(B_AT_REST,
+                               [PION_MASS, PION_MASS, PION_MASS],
+                               CHUNK_SIZE_VAR)
            for _ in range(0, N_EVENTS, CHUNK_SIZE)
            ]
 

@@ -7,11 +7,13 @@
 # =============================================================================
 """Test decay chain tools."""
 
+from __future__ import print_function, division, absolute_import
+
 import pytest
 
 import tensorflow as tf
 
-from tfphasespace import Particle
+from phasespace import Particle
 
 import os
 import sys

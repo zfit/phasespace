@@ -1,18 +1,18 @@
-tfphasespace package
+phasespace package
 ====================
 
-tfphasespace.tfphasespace module
+phasespace.phasespace module
 --------------------------------
 
-.. automodule:: tfphasespace.tfphasespace
+.. automodule:: phasespace.phasespace
     :members:
     :undoc-members:
     :show-inheritance:
 
-tfphasespace.kinematics module
+phasespace.kinematics module
 ------------------------------
 
-.. automodule:: tfphasespace.kinematics
+.. automodule:: phasespace.kinematics
     :members:
     :undoc-members:
     :show-inheritance:

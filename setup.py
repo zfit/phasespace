@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """The setup script."""
+
+from __future__ import print_function, division, absolute_import
+
 import os
 import warnings
 
@@ -69,13 +72,13 @@ setup(
         license="BSD license",
         long_description=readme + '\n\n' + history,
         include_package_data=True,
-        keywords='tfphasespace',
-        name='tfphasespace',
-        packages=find_packages(include=['tfphasespace']),
+        keywords='phasespace',
+        name='phasespace',
+        packages=find_packages(include=['phasespace']),
         setup_requires=setup_requirements,
         test_suite='tests',
         tests_require=test_requirements,
-        url='https://github.com/zfit/tfphasespace',
+        url='https://github.com/zfit/phasespace',
         version='0.1.0',
         zip_safe=False,
         )

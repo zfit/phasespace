@@ -11,7 +11,7 @@ Table of Contents
    :maxdepth: 1
 
    usage
-   API <tfphasespace>
+   API <phasespace>
    contributing
    authors
    history

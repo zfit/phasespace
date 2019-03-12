@@ -7,12 +7,14 @@
 # =============================================================================
 """Some physics models to test with."""
 
+from __future__ import print_function, division, absolute_import
+
 import tensorflow as tf
 
 import tensorflow_probability as tfp
 
-from tfphasespace import Particle
-from tfphasespace.kinematics import mass
+from phasespace import Particle
+from phasespace.kinematics import mass
 
 # Use RapidSim values (https://github.com/gcowan/RapidSim/blob/master/config/particles.dat)
 B0_MASS = 5279.58

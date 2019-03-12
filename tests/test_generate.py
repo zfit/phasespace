@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # =============================================================================
-# @file   test_tfphasespace.py
+# @file   test_generate.py
 # @author Albert Puig (albert.puig@cern.ch)
 # @date   27.02.2019
 # =============================================================================
 """Basic dimensionality tests."""
 
+from __future__ import print_function, division, absolute_import
+
 import pytest
 
 import tensorflow as tf
 
-import tfphasespace
+import phasespace
 
 import os
 import sys
@@ -28,8 +30,8 @@ PION_MASS = decays.PION_MASS
 def test_one_event():
     """Test B->pi pi pi."""
     with tf.Session() as sess:
-        norm_weights, particles = sess.run(tfphasespace.generate(B_AT_REST,
-                                                                 [PION_MASS, PION_MASS, PION_MASS]))
+        norm_weights, particles = sess.run(phasespace.generate(B_AT_REST,
+                                                               [PION_MASS, PION_MASS, PION_MASS]))
         assert len(norm_weights) == 1
         assert all([weight < 1 for weight in norm_weights])
         assert len(particles) == 3
@@ -42,9 +44,9 @@ def test_n_events(n_events):
     with tf.Session() as sess:
         if isinstance(n_events, tf.Variable):
             sess.run(n_events.initializer)
-        norm_weights, particles = sess.run(tfphasespace.generate(B_AT_REST,
-                                                                 [PION_MASS, PION_MASS, PION_MASS],
-                                                                 n_events=n_events))
+        norm_weights, particles = sess.run(phasespace.generate(B_AT_REST,
+                                                               [PION_MASS, PION_MASS, PION_MASS],
+                                                               n_events=n_events))
         assert len(norm_weights) == 5
         assert all([weight < 1 for weight in norm_weights])
         assert len(particles) == 3
@@ -54,8 +56,8 @@ def test_n_events(n_events):
 def test_n_events_implicit_parent():
     """Test multiple events by passing mutiple parent momenta."""
     with tf.Session() as sess:
-        norm_weights, particles = sess.run(tfphasespace.generate([B_AT_REST, BS_AT_REST],
-                                                                 [PION_MASS, PION_MASS, PION_MASS]))
+        norm_weights, particles = sess.run(phasespace.generate([B_AT_REST, BS_AT_REST],
+                                                               [PION_MASS, PION_MASS, PION_MASS]))
         assert len(norm_weights) == 2
         assert all([weight < 1 for weight in norm_weights])
         assert len(particles) == 3
@@ -66,12 +68,12 @@ def test_input_inconsistencies():
     """Test input inconsistencies."""
     with tf.Session() as sess:
         with pytest.raises(tf.errors.InvalidArgumentError):
-            sess.run(tfphasespace.generate([B_AT_REST, BS_AT_REST],
-                                           [PION_MASS, PION_MASS, PION_MASS],
-                                           n_events=5))
+            sess.run(phasespace.generate([B_AT_REST, BS_AT_REST],
+                                         [PION_MASS, PION_MASS, PION_MASS],
+                                         n_events=5))
         with pytest.raises(tf.errors.InvalidArgumentError):
-            sess.run(tfphasespace.generate(B_AT_REST,
-                                           [6000.0, PION_MASS, PION_MASS]))
+            sess.run(phasespace.generate(B_AT_REST,
+                                         [6000.0, PION_MASS, PION_MASS]))
 
 
 if __name__ == "__main__":

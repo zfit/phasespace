@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=tfphasespace
+set SPHINXPROJ=phasespace
 
 if "%1" == "" goto help
 

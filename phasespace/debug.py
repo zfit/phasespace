@@ -7,6 +7,7 @@
 # =============================================================================
 """Debugging utils."""
 
+from __future__ import print_function, division, absolute_import
 import tensorflow as tf
 
 
@@ -15,6 +16,5 @@ def debug_print(op, msg=''):
     with tf.control_dependencies([p_op]):
         op = tf.identity(op)
     return op
-
 
 # EOF
