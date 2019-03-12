@@ -11,7 +11,6 @@ Table of Contents
    :maxdepth: 1
 
    usage
-   performance
    API <tfphasespace>
    contributing
    authors
