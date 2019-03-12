@@ -49,7 +49,7 @@ How to use
 Physics validation
 ------------------
 In addition, this package adds the possibility of generating sequential decays including
-non-fixed-mass particles, ie, resonances.
+non-fixed-mass particles, *i.e.*, resonances.
 
 
 Performance
