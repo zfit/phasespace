@@ -2,15 +2,16 @@
 Tensorflow PhaseSpace
 =====================
 
-.. image:: https://img.shields.io/pypi/status/phasespace.svg   
-   :alt: PyPI - Status
+.. image:: https://img.shields.io/pypi/status/phasespace.svg
+   :target: https://pypi.org/project/phasespace/
 .. image:: https://img.shields.io/pypi/pyversions/phasespace.svg
-   :alt: PyPI - Python Version
+   :target: https://pypi.org/project/phasespace/
 .. image:: https://travis-ci.org/zfit/phasespace.svg?branch=master
    :target: https://travis-ci.org/zfit/phasespace
 .. image:: https://readthedocs.org/projects/phasespace/badge/?version=stable
    :target: https://phasespace.readthedocs.io/en/latest/?badge=stable
    :alt: Documentation Status
+
 
 Python implementation of the Raubold and Lynch method for `n`-body events using
 Tensorflow as a backend.
