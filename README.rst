@@ -73,7 +73,8 @@ very similar interface to ``TGenPhaseSpace``. For example, to generate :math:`B^
 
 This generates tensorflow tensors, so no code has been executed yet. To run the Tensorflow graph, we simply do::
 
-   weights, particles = tf.Session().run([weights, particles])
+   with tf.Session() as sess:
+      weights, particles = sess.run([weights, particles])
 
 This returns an array of 1000 elements in the case of ``weights`` and a list of `n particles` (2) arrays of (4, 1000) shape,
 where each of the 4-dimensions corresponds to one of the components of the generated Lorentz 4-vector.
