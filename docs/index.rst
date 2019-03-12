@@ -1,4 +1,4 @@
-Welcome to Tensorflow PhaseSpace's documentation!
+Welcome to TensorFlow PhaseSpace's documentation!
 =================================================
 
 .. include:: ../README.rst

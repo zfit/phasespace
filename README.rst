@@ -1,5 +1,5 @@
 =====================
-Tensorflow PhaseSpace
+TensorFlow PhaseSpace
 =====================
 
 .. image:: https://img.shields.io/pypi/status/phasespace.svg
@@ -14,7 +14,7 @@ Tensorflow PhaseSpace
 
 
 Python implementation of the Raubold and Lynch method for `n`-body events using
-Tensorflow as a backend.
+TensorFlow as a backend.
 
 The code is based on the GENBOD function (W515 from CERNLIB), documented in [1]
 and tries to follow it as closely as possible.
@@ -35,7 +35,7 @@ One of the aspects where this is still not possible is in the random generation 
 of the particle decays of interest, or to perform importance sampling in the case of complex amplitude models.
 This has been traditionally done with the `TGenPhaseSpace`_ class, which is based of the GENBOD function of the CERNLIB FORTRAN libraries and which requires a full working ROOT installation.
 
-This package aims to address this issue by providing a Tensorflow-based implementation of such function to generate `n`-body decays without requiring a ROOT installation.
+This package aims to address this issue by providing a TensorFlow-based implementation of such function to generate `n`-body decays without requiring a ROOT installation.
 Additionally, an oft-needed functionality to generate complex decay chains, not included in ``TGenPhaseSpace``, is also offered, leaving room for decaying resonances (which don't have a fixed mass, but can be seen as a broad peak).
 
 .. _ROOT: https://root.cern.ch
@@ -44,13 +44,13 @@ Additionally, an oft-needed functionality to generate complex decay chains, not 
 Installing
 ----------
 
-To install Tensorflow PhaseSpace, run this command in your terminal:
+To install TensorFlow PhaseSpace, run this command in your terminal:
 
 .. code-block:: console
 
     $ pip install phasespace
 
-This is the preferred method to install Tensorflow PhaseSpace, as it will always install the most recent stable release.
+This is the preferred method to install TensorFlow PhaseSpace, as it will always install the most recent stable release.
 
 For the newest development version (in case you really need it), you can install the version from git with
 
@@ -77,7 +77,7 @@ very similar interface to ``TGenPhaseSpace``. For example, to generate :math:`B^
                                             [PION_MASS, KAON_MASS],
                                             1000)
 
-This generates tensorflow tensors, so no code has been executed yet. To run the Tensorflow graph, we simply do::
+This generates TensorFlow tensors, so no code has been executed yet. To run the TensorFlow graph, we simply do::
 
    with tf.Session() as sess:
       weights, particles = sess.run([weights, particles])

@@ -35,13 +35,14 @@ setup(
         author_email='albert.puig@cern.ch',
         classifiers=[
             'Development Status :: 2 - Pre-Alpha',
-            'Intended Audience :: Developers',
+            'Intended Audience :: Science/Research',
             'License :: OSI Approved :: BSD License',
             'Natural Language :: English',
             'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
+            'Topic :: Scientific/Engineering :: Physics'
             ],
-        description="Tensorflow implementation of the Raubold and Lynch method for n-body events",
+        description="TensorFlow implementation of the Raubold and Lynch method for n-body events",
         install_requires=requirements,
         license="BSD license",
         long_description=readme.replace(":math:", "") + '\n\n' + history,
@@ -54,6 +55,6 @@ setup(
         test_suite='tests',
         tests_require=test_requirements,
         url='https://github.com/zfit/phasespace',
-        version='0.2.0',
+        version='0.9.0',
         zip_safe=False,
         )

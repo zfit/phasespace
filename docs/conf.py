@@ -72,7 +72,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Tensorflow PhaseSpace'
+project = u'TensorFlow PhaseSpace'
 copyright = u"2019, Albert Puig Navarro"
 author = u"Albert Puig Navarro"
 
@@ -151,7 +151,7 @@ latex_elements = {
 # [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'phasespace.tex',
-     u'Tensorflow PhaseSpace Documentation',
+     u'TensorFlow PhaseSpace Documentation',
      u'Albert Puig Navarro', 'manual'),
     ]
 
@@ -161,7 +161,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     (master_doc, 'phasespace',
-     u'Tensorflow PhaseSpace Documentation',
+     u'TensorFlow PhaseSpace Documentation',
      [author], 1)
     ]
 
@@ -172,7 +172,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'phasespace',
-     u'Tensorflow PhaseSpace Documentation',
+     u'TensorFlow PhaseSpace Documentation',
      author,
      'phasespace',
      'One line description of project.',

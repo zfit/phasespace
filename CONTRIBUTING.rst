@@ -38,8 +38,8 @@ and "help wanted" is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-Tensorflow PhaseSpace could always use more documentation, whether as part of the
-official Tensorflow PhaseSpace docs, in docstrings, or even on the web in blog posts,
+TensorFlow PhaseSpace could always use more documentation, whether as part of the
+official TensorFlow PhaseSpace docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 Submit Feedback
