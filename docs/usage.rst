@@ -1,6 +1,6 @@
-==============
-Usage examples
-==============
+=====
+Usage
+=====
 
 To use Tensorflow PhaseSpace in a project::
 

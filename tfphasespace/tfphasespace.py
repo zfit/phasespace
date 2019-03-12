@@ -51,7 +51,9 @@ def pdk(a, b, c):
     Based on Eq. (9.17) in CERN 68-15 (1968).
 
     Arguments:
-        a, b, c (Tensor): M_{i+1}, M_{i}, m_{i+1} in Eq. (9.17).
+        a (Tensor): :math:`M_{i+1}` in Eq. (9.17).
+        b (Tensor): :math:`M_{i}` in Eq. (9.17).
+        c (Tensor): :math:`m_{i+1}` in Eq. (9.17).
 
     Return:
         Tensor.
