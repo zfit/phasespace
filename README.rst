@@ -16,6 +16,8 @@ and tries to follow it as closely as possible.
 
 Detailed documentation, including the API, can be found in https://phasespace.readthedocs.io.
 
+Free software: BSD-3-Clause.
+
 [1]  F. James, Monte Carlo Phase Space, CERN 68-15 (1968)
 
 Why?
