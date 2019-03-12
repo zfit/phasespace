@@ -13,7 +13,7 @@ Tensorflow as a backend.
 
 The code is based on the GENBOD function (W515 from CERNLIB), documented in
 
-    F. James, Monte Carlo Phase Space, CERN 68-15 (1968)
+|  F. James, Monte Carlo Phase Space, CERN 68-15 (1968)
 
 and tries to follow it as closely as possible.
 
