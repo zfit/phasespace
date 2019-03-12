@@ -15,7 +15,7 @@ import os, sys
 
 sys.path.append(os.path.dirname(__file__))
 
-from .monitoring import Timer
+from monitoring import Timer
 
 # to play around with optimization, no big effect though
 NUM_PARALLEL_EXEC_UNITS = 1
@@ -26,17 +26,15 @@ B_MASS = 5279.0
 B_AT_REST = tf.stack((0.0, 0.0, 0.0, B_MASS), axis=-1)
 PION_MASS = 139.6
 
-N_EVENTS = 1000000
-CHUNK_SIZE = N_EVENTS
+N_EVENTS = 100000000
+CHUNK_SIZE = 1000000
 
 N_EVENTS_VAR = tf.Variable(initial_value=N_EVENTS)
 CHUNK_SIZE_VAR = tf.Variable(initial_value=CHUNK_SIZE)
 
 samples = [tfphasespace.generate(B_AT_REST,
                                  [PION_MASS, PION_MASS, PION_MASS],
-                                 CHUNK_SIZE_VAR)
-           for _ in range(0, N_EVENTS, CHUNK_SIZE)
-           ]
+                                 CHUNK_SIZE_VAR)] * int(N_EVENTS / CHUNK_SIZE)
 
 sess = tf.Session(
         config=config
