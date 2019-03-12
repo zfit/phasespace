@@ -110,21 +110,19 @@ write the :math:`B^{0}\to K^{*}\gamma` decay chain as::
    KSTARZ_MASS = 895.81
    KSTARZ_WIDTH = 47.4
 
-   def b0_to_kstar_gamma():
-    """Generate B0 -> K*gamma."""
-    def kstar_mass(min_mass, max_mass, n_events):
-        kstar_mass = KSTARZ_MASS * ones
-        min_mass = tf.broadcast_to(min_mass, (1, n_events))
-        max_mass = tf.broadcast_to(max_mass, (1, n_events))
-        kstar_mass = tfp.distributions.TruncatedNormal(loc=KSTARZ_MASS,
-                                                       scale=KSTARZ_WIDTH,
-                                                       low=min_mass,
-                                                       high=max_mass).sample()
+   def kstar_mass(min_mass, max_mass, n_events):
+       kstar_mass = KSTARZ_MASS * ones
+       min_mass = tf.broadcast_to(min_mass, (1, n_events))
+       max_mass = tf.broadcast_to(max_mass, (1, n_events))
+       kstar_mass = tfp.distributions.TruncatedNormal(loc=KSTARZ_MASS,
+                                                      scale=KSTARZ_WIDTH,
+                                                      low=min_mass,
+                                                      high=max_mass).sample()
 
-    return Particle('B0').set_children(Particle('K*0', mass=kstar_mass)
-                                       .set_children(Particle('K+', mass=KAON_MASS),
-                                                     Particle('pi-', mass=PION_MASS)),
-                                       Particle('gamma', mass=0.0))
+   bz = Particle('B0').set_children(Particle('K*0', mass=kstar_mass)
+                                    .set_children(Particle('K+', mass=KAON_MASS),
+                                                  Particle('pi-', mass=PION_MASS)),
+                                    Particle('gamma', mass=0.0))
 
 
 Shortcut for simple decays
