@@ -12,6 +12,8 @@ The code is based on the GENBOD function (W515 from CERNLIB), documented in
 
 """
 
+from __future__ import print_function, division, absolute_import
+
 from math import pi
 
 import tensorflow as tf

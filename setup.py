@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """The setup script."""
+
+from __future__ import print_function, division, absolute_import
+
 import os
 import warnings
 
