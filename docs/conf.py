@@ -20,6 +20,7 @@
 #
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath('..'))
 
 import tfphasespace
@@ -30,9 +31,31 @@ import tfphasespace
 #
 # needs_sphinx = '1.0'
 
+# use for classes the class and the __init__ docs combined
+autoclass_content = 'both'
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc',
+              'sphinx.ext.viewcode',
+              'sphinx.ext.napoleon',
+              'sphinx.ext.mathjax'
+              ]
+
+using_numpy_style = False  # False -> google style
+
+# Napoleon settings (convert numpy/google docstrings to proper ReST
+napoleon_google_docstring = not using_numpy_style
+napoleon_numpy_docstring = using_numpy_style
+napoleon_include_init_with_doc = False
+napoleon_include_private_with_doc = False
+napoleon_include_special_with_doc = True
+napoleon_use_admonition_for_examples = False
+napoleon_use_admonition_for_notes = False
+napoleon_use_admonition_for_references = False
+napoleon_use_ivar = False
+napoleon_use_param = True
+napoleon_use_rtype = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -78,7 +101,6 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
-
 # -- Options for HTML output -------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -97,12 +119,10 @@ html_theme = 'alabaster'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-
 # -- Options for HTMLHelp output ---------------------------------------
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'tfphasespacedoc'
-
 
 # -- Options for LaTeX output ------------------------------------------
 
@@ -122,7 +142,7 @@ latex_elements = {
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
-}
+    }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass
@@ -131,8 +151,7 @@ latex_documents = [
     (master_doc, 'tfphasespace.tex',
      u'Tensorflow PhaseSpace Documentation',
      u'Albert Puig Navarro', 'manual'),
-]
-
+    ]
 
 # -- Options for manual page output ------------------------------------
 
@@ -142,8 +161,7 @@ man_pages = [
     (master_doc, 'tfphasespace',
      u'Tensorflow PhaseSpace Documentation',
      [author], 1)
-]
-
+    ]
 
 # -- Options for Texinfo output ----------------------------------------
 
@@ -157,7 +175,4 @@ texinfo_documents = [
      'tfphasespace',
      'One line description of project.',
      'Miscellaneous'),
-]
-
-
-
+    ]

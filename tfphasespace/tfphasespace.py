@@ -30,8 +30,7 @@ def process_list_to_tensor(lst):
     The list is converted to a tensor and transposed to get the proper shape.
 
     Note:
-        If `lst` is a tensor, nothing is done to it other than convert it to
-        `tf.float64`.
+        If `lst` is a tensor, nothing is done to it other than convert it to `tf.float64`.
 
     Arguments:
         lst (list): List to convert.
@@ -52,7 +51,9 @@ def pdk(a, b, c):
     Based on Eq. (9.17) in CERN 68-15 (1968).
 
     Arguments:
-        a, b, c (Tensor): M_{i+1}, M_{i}, m_{i+1} in Eq. (9.17).
+        a (Tensor): :math:`M_{i+1}` in Eq. (9.17).
+        b (Tensor): :math:`M_{i}` in Eq. (9.17).
+        c (Tensor): :math:`m_{i+1}` in Eq. (9.17).
 
     Return:
         Tensor.
@@ -72,24 +73,21 @@ class Particle:
     A `Particle` must have a `name`, which is ensured not to clash with any others in
     the decay chain.
     It may also have:
+
         + Mass, which can be either a number or a function to generate it according to
-        a certain distribution. In this case, the particle is not considered as having a
-        fixed mass and the `has_fixed_mass` method will return False.
+            a certain distribution. In this case, the particle is not considered as having a
+            fixed mass and the `has_fixed_mass` method will return False.
         + Children, ie, decay products, which are also `Particle` instances.
+
+
+    Arguments:
+        name (str): Name of the particle.
+        mass (float, Tensor, callable): Mass of the particle. If it's a float, it get
+            converted to a `tf.constant`.
 
     """
 
     def __init__(self, name, mass=None):
-        """Initialise the particle.
-
-        Set the name and the mass if given.
-
-        Arguments:
-            name (str): Name of the particle.
-            mass (float, Tensor, callable): Mass of the particle. If it's a float, it's
-            converted to a `tf.constant`.
-
-        """
         self.name = name
         self.children = []
         if mass is not None and not callable(mass) and not tf.contrib.framework.is_tensor(mass):
@@ -140,12 +138,7 @@ class Particle:
 
     @property
     def has_fixed_mass(self):
-        """Is the mass a callable function?
-
-        Return:
-            bool
-
-        """
+        """bool: Is the mass a callable function?"""
         return not callable(self._mass)
 
     def set_children(self, *children):
@@ -159,7 +152,7 @@ class Particle:
 
         Raise:
             ValueError: If there is an inconsistency in the parent/children relationship, ie,
-                if children were already set, or if their parent was.
+            if children were already set, or if their parent was.
             KeyError: If there is a particle name clash.
 
         """
