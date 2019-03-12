@@ -4,8 +4,8 @@ Tensorflow PhaseSpace
 
 .. image:: https://travis-ci.org/zfit/phasespace.svg?branch=master
     :target: https://travis-ci.org/zfit/phasespace
-.. image:: https://readthedocs.org/projects/phasespace/badge/?version=latest
-   :target: https://phasespace.readthedocs.io/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/phasespace/badge/?version=stable
+   :target: https://phasespace.readthedocs.io/en/latest/?badge=stable
    :alt: Documentation Status
 
 Python implementation of the Raubold and Lynch method for `n`-body events using
