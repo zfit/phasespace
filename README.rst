@@ -11,14 +11,12 @@ Tensorflow PhaseSpace
 Python implementation of the Raubold and Lynch method for `n`-body events using
 Tensorflow as a backend.
 
-The code is based on the GENBOD function (W515 from CERNLIB), documented in
-
-|  F. James, Monte Carlo Phase Space, CERN 68-15 (1968)
-
-
+The code is based on the GENBOD function (W515 from CERNLIB), documented in [1]
 and tries to follow it as closely as possible.
 
 Detailed documentation, including the API, can be found in https://phasespace.readthedocs.io.
+
+[1]  F. James, Monte Carlo Phase Space, CERN 68-15 (1968)
 
 Why?
 ----
