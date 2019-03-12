@@ -5,7 +5,7 @@ import warnings
 
 __author__ = """Albert Puig Navarro"""
 __email__ = 'albert.puig@cern.ch'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 import sys
 
