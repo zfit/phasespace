@@ -9,6 +9,8 @@
 
 import tensorflow as tf
 
+import numpy as np
+
 from tfphasespace import tfphasespace
 
 import os, sys
@@ -34,7 +36,8 @@ CHUNK_SIZE_VAR = tf.Variable(initial_value=CHUNK_SIZE)
 
 samples = [tfphasespace.generate(B_AT_REST,
                                  [PION_MASS, PION_MASS, PION_MASS],
-                                 CHUNK_SIZE_VAR)] * int(N_EVENTS / CHUNK_SIZE)
+                                 CHUNK_SIZE_VAR)
+           for _ in range(0, N_EVENTS, CHUNK_SIZE)]
 
 sess = tf.Session(
         config=config
@@ -49,10 +52,15 @@ def test_three_body():
         print("Initial run (may takes more time than consequent runs)")
         do_run()  # to get rid of initial overhead
     print("starting benchmark")
-    with Timer(verbose=True):
+    with Timer(verbose=True) as timer:
         CHUNK_SIZE_VAR.load(CHUNK_SIZE + 1, session=sess)  # +1 to make sure we're not using any trivial caching
         samples = do_run()
+        tot_samples = sum(sample[0].shape[0] for sample in samples)
+        if np.any(samples[0][0] == samples[1][0]):
+            raise ValueError("You're generating the same sample!")
+        print("Total number of generated samples", tot_samples)
         print("Shape of one particle momentum", samples[0][1][0].shape)
+    print("Time per sample: {} ms".format(timer.elapsed/tot_samples))
 
 
 def do_run():
