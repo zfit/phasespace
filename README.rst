@@ -2,10 +2,12 @@
 Tensorflow PhaseSpace
 =====================
 
-.. image:: https://img.shields.io/pypi/status/phasespace.svg   :alt: PyPI - Status
-.. image:: https://img.shields.io/pypi/pyversions/phasespace.svg   :alt: PyPI - Python Version
+.. image:: https://img.shields.io/pypi/status/phasespace.svg   
+   :alt: PyPI - Status
+.. image:: https://img.shields.io/pypi/pyversions/phasespace.svg
+   :alt: PyPI - Python Version
 .. image:: https://travis-ci.org/zfit/phasespace.svg?branch=master
-    :target: https://travis-ci.org/zfit/phasespace
+   :target: https://travis-ci.org/zfit/phasespace
 .. image:: https://readthedocs.org/projects/phasespace/badge/?version=stable
    :target: https://phasespace.readthedocs.io/en/latest/?badge=stable
    :alt: Documentation Status
