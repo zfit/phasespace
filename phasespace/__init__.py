@@ -5,7 +5,7 @@ import warnings
 
 __author__ = """Albert Puig Navarro"""
 __email__ = 'albert.puig@cern.ch'
-__version__ = '0.9.0'
+__version__ = '0.8.0'
 
 __all__ = ['generate', 'Particle']
 
