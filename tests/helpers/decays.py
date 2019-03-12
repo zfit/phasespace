@@ -7,8 +7,6 @@
 # =============================================================================
 """Some physics models to test with."""
 
-from __future__ import print_function, division, absolute_import
-
 import tensorflow as tf
 
 import tensorflow_probability as tfp
@@ -29,6 +27,7 @@ KSTARZ_WIDTH = 47.4
 
 def b0_to_kstar_gamma(kstar_width=KSTARZ_WIDTH):
     """Generate B0 -> K*gamma."""
+
     def kstar_mass(min_mass, max_mass, n_events):
         ones = tf.ones((1, n_events), dtype=tf.float64)
         kstar_mass = KSTARZ_MASS * ones
@@ -49,6 +48,7 @@ def b0_to_kstar_gamma(kstar_width=KSTARZ_WIDTH):
 
 def bp_to_k1_kstar_pi_gamma(k1_width=K1_WIDTH, kstar_width=KSTARZ_WIDTH):
     """Generate B+ -> K1 (-> K* (->K pi) pi) gamma."""
+
     def res_mass(mass, width, min_mass, max_mass, n_events):
         ones = tf.ones((1, n_events), dtype=tf.float64)
         masses = mass * ones

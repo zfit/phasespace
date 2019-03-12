@@ -7,8 +7,6 @@
 # =============================================================================
 """Plotting helpers for tests."""
 
-from __future__ import print_function, division, absolute_import
-
 import numpy as np
 
 
@@ -23,6 +21,5 @@ def mass(vector):
     return np.sqrt(np.sum(vector * vector * np.reshape(np.array([-1., -1., -1., 1.]),
                                                        (4, 1)),
                           axis=0))
-
 
 # EOF

@@ -12,8 +12,6 @@ The code is based on the GENBOD function (W515 from CERNLIB), documented in
 
 """
 
-from __future__ import print_function, division, absolute_import
-
 from math import pi
 
 import tensorflow as tf
@@ -243,6 +241,7 @@ class Particle:
         p_top, n_events = self._preprocess(momentum, n_events)
         top_mass = kin.mass(p_top)
         n_particles = len(self.children)
+
         # Prepare masses
         def recurse_stable(part):
             output_mass = tf.zeros(tuple(), dtype=tf.float64)
@@ -414,7 +413,7 @@ class Particle:
             if len(momentum.shape.as_list()) == 1:
                 momentum = tf.expand_dims(momentum, axis=-1)
             weights_max = tf.ones_like(weights, dtype=tf.float64) * \
-                recurse_w_max(kin.mass(momentum), mass_tree[self.name])
+                          recurse_w_max(kin.mass(momentum), mass_tree[self.name])
         return weights, weights_max, output_particles, output_masses
 
     def generate_unnormalized(self, momentum, n_events=None):
@@ -485,7 +484,7 @@ def generate(p_top, masses, n_events=None):
         Tensor: 4-momenta of the generated particles, with shape (4xn_particles, n_events).
 
     """
-    top = Particle('top').set_children(*[Particle(str(num+1), mass=mass) for num, mass in enumerate(masses)])
+    top = Particle('top').set_children(*[Particle(str(num + 1), mass=mass) for num, mass in enumerate(masses)])
     norm_weights, parts = top.generate(p_top, n_events=n_events)
     return norm_weights, [parts[child.name] for child in top.children]
 

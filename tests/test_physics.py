@@ -7,8 +7,6 @@
 # =============================================================================
 """Test physics output."""
 
-from __future__ import print_function, division, absolute_import
-
 import os
 import platform
 import subprocess
@@ -20,6 +18,7 @@ from scipy.stats import ks_2samp
 
 if platform.system() == 'Darwin':
     import matplotlib
+
     matplotlib.use('TkAgg')
 
 import matplotlib.pyplot as plt
@@ -37,7 +36,6 @@ sys.path.append(os.path.dirname(__file__))
 
 from .helpers.plotting import make_norm_histo, mass
 from .helpers import decays, rapidsim
-
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 PLOT_DIR = os.path.join(BASE_PATH, 'tests', 'plots')
@@ -68,7 +66,7 @@ def create_ref_histos(n_pions):
                             weights=weights)
             for pion in pions.values()
             for coord, array in enumerate([pion.x, pion.y, pion.z, pion.E])], \
-        make_norm_histo(weights, range_=(0, 1))
+           make_norm_histo(weights, range_=(0, 1))
 
 
 def run_test(n_particles, test_prefix):
@@ -145,7 +143,8 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
         input_bs = rapidsim.generate_fonll(decays.B0_MASS, 7, 'b', n_events)
         rapidsim_getter = rapidsim.get_tree
     with tf.Session() as sess:
-        norm_weights, particles = sess.run(decays.b0_to_kstar_gamma(kstar_width=kstar_width).generate(input_bs, n_events))
+        norm_weights, particles = sess.run(
+            decays.b0_to_kstar_gamma(kstar_width=kstar_width).generate(input_bs, n_events))
     rapidsim_parts = rapidsim_getter(os.path.join(BASE_PATH,
                                                   'data',
                                                   input_file),
@@ -177,7 +176,6 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
     plt.savefig(os.path.join(PLOT_DIR, 'B0_Kstar_gamma_Kstar{}_weights.png'.format(suffix)))
     plt.clf()
     return np.array(list(p_values.values()))
-
 
 
 @pytest.mark.flaky(3)  # Stats are limited
@@ -219,14 +217,14 @@ def run_k1_gamma(input_file, k1_width, kstar_width, b_at_rest, suffix):
         rapidsim_getter = rapidsim.get_tree
     with tf.Session() as sess:
         norm_weights, particles = sess.run(
-            decays.bp_to_k1_kstar_pi_gamma(k1_width=k1_width, kstar_width=kstar_width)
-            .generate(input_bs, n_events))
+                decays.bp_to_k1_kstar_pi_gamma(k1_width=k1_width, kstar_width=kstar_width)
+                    .generate(input_bs, n_events))
     rapidsim_parts = rapidsim_getter(
-        os.path.join(BASE_PATH,
-                     'data',
-                     input_file),
-        'Bp_0',
-        ('K1_1270_p_0', 'Kst0_0', 'gamma_0', 'Kp_0', 'pim_0', 'pip_0'))
+            os.path.join(BASE_PATH,
+                         'data',
+                         input_file),
+            'Bp_0',
+            ('K1_1270_p_0', 'Kst0_0', 'gamma_0', 'Kp_0', 'pim_0', 'pip_0'))
     name_matching = {'K1_1270_p_0': 'K1+',
                      'Kst0_0': 'K*0',
                      'gamma_0': 'gamma',

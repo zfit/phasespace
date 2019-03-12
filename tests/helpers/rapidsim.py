@@ -7,14 +7,11 @@
 # =============================================================================
 """Utils to crossheck against RapidSim."""
 
-from __future__ import print_function, division, absolute_import
-
 import os
 
 import numpy as np
 
 import uproot
-
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 FONLL_FILE = os.path.join(BASE_PATH, 'data', 'fonll', 'LHC{}{}.root')
@@ -27,8 +24,8 @@ def get_fonll_histos(energy, quark):
 
 def generate_fonll(mass, beam_energy, quark, n_events):
     def analyze_histo(histo):
-        bin_centers = (histo.bins[:, 1] + histo.bins[:, 0])/2
-        normalized_values = histo.values/np.sum(histo.values)
+        bin_centers = (histo.bins[:, 1] + histo.bins[:, 0]) / 2
+        normalized_values = histo.values / np.sum(histo.values)
         return bin_centers, normalized_values
 
     pt_histo, eta_histo = get_fonll_histos(beam_energy, quark)
@@ -36,11 +33,11 @@ def generate_fonll(mass, beam_energy, quark, n_events):
     eta_data = analyze_histo(eta_histo)
     pt_rand = 1000.0 * np.abs(np.random.choice(pt_data[0], size=n_events, p=pt_data[1]))
     eta_rand = np.random.choice(eta_data[0], size=n_events, p=eta_data[1])
-    phi_rand = np.random.uniform(0, 2*np.pi, size=n_events)
+    phi_rand = np.random.uniform(0, 2 * np.pi, size=n_events)
     px = pt_rand * np.cos(phi_rand)
     py = pt_rand * np.sin(phi_rand)
     pz = pt_rand * np.sinh(eta_rand)
-    e = np.sqrt(px*px + py*py + pz*pz + mass*mass)
+    e = np.sqrt(px * px + py * py + pz * pz + mass * mass)
     return np.stack([px, py, pz, e])
 
 
@@ -51,12 +48,11 @@ def load_generated_histos(file_name, particles):
             for particle in particles}
 
 
-
 def get_tree(file_name, top_particle, particles):
     """Load a RapidSim tree."""
     rapidsim_file = uproot.open(file_name)
     tree = rapidsim_file['DecayTree']
-    return {particle: np.stack([1000.0*tree.array('{}_{}_TRUE'.format(particle, coord))
+    return {particle: np.stack([1000.0 * tree.array('{}_{}_TRUE'.format(particle, coord))
                                 for coord in ('PX', 'PY', 'PZ', 'E')])
             for particle in particles}
 

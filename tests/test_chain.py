@@ -7,8 +7,6 @@
 # =============================================================================
 """Test decay chain tools."""
 
-from __future__ import print_function, division, absolute_import
-
 import pytest
 
 import tensorflow as tf
