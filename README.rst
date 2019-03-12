@@ -150,10 +150,10 @@ Physics validation
 Physics validation is performed continuously in the included tests (``tests/test_physics.py``), run through Travis CI.
 This validation is performed at two levels:
 
-   + In simple `n`-body decays, the results of ``tfphasespace`` are checked against ``TGenPhaseSpace``.
-   + For sequential decays, the results of ``tfphasespace`` are checked against `RapidSim`_, a "fast Monte Carlo generator for simulation of heavy-quark hadron decays".
-      In the case of resonances, differences are expected because our tests don't include proper modelling of their mass shape, as it would require the introduction of 
-      further dependencies. However, the results of the comparison can be expected visually.
+- In simple `n`-body decays, the results of ``tfphasespace`` are checked against ``TGenPhaseSpace``.
+- For sequential decays, the results of ``tfphasespace`` are checked against `RapidSim`_, a "fast Monte Carlo generator for simulation of heavy-quark hadron decays".
+  In the case of resonances, differences are expected because our tests don't include proper modelling of their mass shape, as it would require the introduction of 
+  further dependencies. However, the results of the comparison can be expected visually.
 
 The results of all physics validation performed by the ``tests_physics.py`` test are written in ``tests/plots``.
 
