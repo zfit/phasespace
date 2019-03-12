@@ -21,8 +21,19 @@ Detailed documentation, including the API, can be found in https://tfphasespace.
 
 Why?
 ----
-A statement of need
+Lately, data analysis in High Energy Physics (HEP), traditionally performed within the `ROOT`_ ecosystem, has been moving more and more towards Python.
+The possibility of carrying out purely Python-based analyses has become real thanks to the development of many open source Python packages,
+which have allowed to replace most ROOT functionality with Python-based packages.
 
+One of the aspects where this is still not possible is in the random generation of $n$-body phase space events, which are widely used in the field, for example to study kinematics
+of the particle decays of interest, or to perform importance sampling in the case of complex amplitude models.
+This has been traditionally done with the `TGenPhaseSpace`_ class, which is based of the GENBOD function of the CERNLIB FORTRAN libraries and which requires a full working ROOT installation. 
+
+This package aims to address this issue by providing a Tensorflow-based implementation of such function to generate $n$-body decays without requiring a ROOT installation.
+Additionally, an oft-needed functionality to generate complex decay chains, not included in TGenPhaseSpace, is also offered, leaving room for decaying resonances (which don't have a fixed mass, but can be seen as a broad peak).
+
+.. _ROOT: https://root.cern.ch
+.. _TGenPhaseSpace: https://root.cern.ch/doc/v610/classTGenPhaseSpace.html
 
 Installing
 ----------
