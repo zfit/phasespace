@@ -56,7 +56,7 @@ For the newest development version (in case you really need it), you can install
 How to use
 ----------
 
-The generation of simple n-body decays can be done using the `generate` function of `tfphasespace` with a 
+The generation of simple n-body decays can be done using the ``generate`` function of ``tfphasespace`` with a 
 very similar interface to ``TGenPhaseSpace``. For example, to generate :math:`B^0\to K\pi`, we would do::
 
    import tfphasespace
@@ -75,10 +75,10 @@ This generates tensorflow tensors, so no code has been executed yet. To run the 
 
    weights, particles = tf.Session().run([weights, particles])
 
-This returns an array of 1000 elements in the case of ``weights`` and a list of ``n_particles`` (2) arrays of $4\times1000$ shape,
-where each of the dimensions corresponds to one of the components of the generated Lorentz 4-vector.
+This returns an array of 1000 elements in the case of ``weights`` and a list of `n particles` (2) arrays of (4, 1000) shape,
+where each of the 4-dimensions corresponds to one of the components of the generated Lorentz 4-vector.
 
-Sequential decays can be handled with the ``Particle`` class (used internally by ``generate``) and its `set_children` method.
+Sequential decays can be handled with the ``Particle`` class (used internally by ``generate``) and its ``set_children`` method.
 As an example, to build the :math:`B^{0}\to K^{*}\gamma` decay in which :math:`K^*\to K\pi`, we would write::
 
    from tfphasespace import Particle
@@ -99,12 +99,12 @@ As an example, to build the :math:`B^{0}\to K^{*}\gamma` decay in which :math:`K
    with tf.Session() as sess:
       weights, particles = sess.run(bz.generate(B0_AT_REST, 1000))
 
-Where we have used the fact that `set_children` returns the parent particle.
-In this case, `particles` is a `dict` with the particle names as keys.
+Where we have used the fact that ``set_children`` returns the parent particle.
+In this case, ``particles` is a `dict`` with the particle names as keys.
 It is also important to note the mass is not necessary for the top particle, as it is determined
 from the input 4-momentum.
 
-More examples can be found in the `tests` folder and in the `documentation`_.
+More examples can be found in the ``tests`` folder and in the `documentation`_.
 
 .. _documentation: https://tfphasespace.readthedocs.io/en/latest/usage.html
 
