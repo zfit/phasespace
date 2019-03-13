@@ -63,7 +63,9 @@ How to use
 ----------
 
 The generation of simple `n`-body decays can be done using the ``generate`` function of ``phasespace`` with a
-very similar interface to ``TGenPhaseSpace``. For example, to generate :math:`B^0\to K\pi`, we would do::
+very similar interface to ``TGenPhaseSpace``. For example, to generate :math:`B^0\to K\pi`, we would do:
+
+.. code-block:: python
 
    import phasespace
    import tensorflow as tf
@@ -77,7 +79,9 @@ very similar interface to ``TGenPhaseSpace``. For example, to generate :math:`B^
                                             [PION_MASS, KAON_MASS],
                                             1000)
 
-This generates TensorFlow tensors, so no code has been executed yet. To run the TensorFlow graph, we simply do::
+This generates TensorFlow tensors, so no code has been executed yet. To run the TensorFlow graph, we simply do:
+
+.. code-block:: python
 
    with tf.Session() as sess:
       weights, particles = sess.run([weights, particles])
@@ -86,7 +90,9 @@ This returns an array of 1000 elements in the case of ``weights`` and a list of 
 where each of the 4-dimensions corresponds to one of the components of the generated Lorentz 4-vector.
 
 Sequential decays can be handled with the ``Particle`` class (used internally by ``generate``) and its ``set_children`` method.
-As an example, to build the :math:`B^{0}\to K^{*}\gamma` decay in which :math:`K^*\to K\pi`, we would write::
+As an example, to build the :math:`B^{0}\to K^{*}\gamma` decay in which :math:`K^*\to K\pi`, we would write:
+
+.. code-block:: python
 
    from phasespace import Particle
    import tensorflow as tf
@@ -107,7 +113,9 @@ As an example, to build the :math:`B^{0}\to K^{*}\gamma` decay in which :math:`K
       weights, particles = sess.run(bz.generate(B0_AT_REST, 1000))
 
 Where we have used the fact that ``set_children`` returns the parent particle.
-In this case, ``particles`` is a ``dict`` with the particle names as keys::
+In this case, ``particles`` is a ``dict`` with the particle names as keys:
+
+.. code-block:: pycon
 
    >>> particles
    {'K*': array([[-2259.88717495,   742.20158838, -1419.57804967, ...,
