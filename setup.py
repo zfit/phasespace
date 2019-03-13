@@ -34,7 +34,7 @@ setup(
         author="Albert Puig Navarro",
         author_email='albert.puig@cern.ch',
         classifiers=[
-            'Development Status :: 2 - Pre-Alpha',
+            'Development Status :: 4 - Beta',
             'Intended Audience :: Science/Research',
             'License :: OSI Approved :: BSD License',
             'Natural Language :: English',
