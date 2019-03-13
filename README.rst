@@ -2,6 +2,8 @@
 TensorFlow PhaseSpace
 =====================
 
+.. image:: https://zenodo.org/badge/172891230.svg
+   :target: https://zenodo.org/badge/latestdoi/172891230
 .. image:: https://img.shields.io/pypi/status/phasespace.svg
    :target: https://pypi.org/project/phasespace/
 .. image:: https://img.shields.io/pypi/pyversions/phasespace.svg
