@@ -58,23 +58,6 @@ def z_component(vector, axis=1):
     return tf.unstack(vector, axis=axis)[2]
 
 
-def vector(x, y, z):
-    """
-    Make a 3-vector from components
-    x, y, z : vector components
-    """
-    return tf.stack([x, y, z], axis=0)
-
-
-def scalar(x):
-    """
-    Create a scalar (e.g. tensor with only one component) which can be used to e.g. scale a vector
-    One cannot do e.g. Const(2.)*vector(x, y, z), needs to do scalar(Const(2))*vector(x, y, z)
-    """
-    return tf.stack([x], axis=1)
-    # return tf.expand_dims(x, axis=0)
-
-
 def mass(vector):
     """
     Calculate mass scalar for Lorentz 4-momentum
