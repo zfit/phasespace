@@ -10,6 +10,8 @@ TensorFlow PhaseSpace
    :target: https://pypi.org/project/phasespace/
 .. image:: https://travis-ci.org/zfit/phasespace.svg?branch=master
    :target: https://travis-ci.org/zfit/phasespace
+.. image:: https://coveralls.io/repos/github/zfit/phasespace/badge.svg?branch=master
+    :target: https://coveralls.io/github/zfit/phasespace?branch=master
 .. image:: https://readthedocs.org/projects/phasespace/badge/?version=stable
    :target: https://phasespace.readthedocs.io/en/latest/?badge=stable
    :alt: Documentation Status
