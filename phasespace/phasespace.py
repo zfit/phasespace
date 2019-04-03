@@ -255,16 +255,19 @@ class Particle:
         mass_from_stable = tf.reduce_sum([child.get_mass() for child in self.children
                                           if child.has_fixed_mass],
                                          axis=0)
-        max_mass = top_mass - mass_from_stable
+        cum_mass = _ZERO
+        max_mass_shape = (top_mass - mass_from_stable).shape
+        max_mass = lambda: top_mass - mass_from_stable
         masses = []
         for child in self.children:
             if child.has_fixed_mass:
                 masses.append(tf.broadcast_to(child.get_mass(), (1, n_events)))
             else:
                 # Recurse that particle to know the minimum mass we need to generate
-                min_mass = tf.broadcast_to(recurse_stable(child), max_mass.shape)
+                min_mass = lambda: tf.broadcast_to(recurse_stable(child), max_mass_shape)
                 mass = child.get_mass(min_mass, max_mass, n_events)
-                max_mass -= mass
+                cum_mass += mass
+                max_mass = (lambda c_mass=cum_mass: max_mass() - cum_mass)
                 masses.append(mass)
         masses = tf.concat(masses, axis=0)
         available_mass = top_mass - tf.reduce_sum(masses, axis=0)
