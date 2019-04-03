@@ -121,12 +121,4 @@ def metric_tensor():
     """
     return tf.constant([-1., -1., -1., 1.], dtype=tf.float64)
 
-
-def lorentz_dot_product(vec1, vec2):
-    """
-    Dot product of two lorentz vectors
-    return tf.tensordot(vec1,vec2,)?
-    """
-    return tf.reduce_sum(vec1 * vec2 * metric_tensor(), axis=-1)
-
 # EOF
