@@ -405,7 +405,7 @@ class Particle:
                         masses.append(child_mass)
                 # Find largest mass tensor
 
-                masses_shape = (mass.shape.as_list()[0] for mass in masses)
+                masses_shape = tuple(mass.shape.as_list()[0] for mass in masses)
                 if None in masses_shape:
                     masses_shape = tuple(tf.shape(mass) for mass in masses)
                     max_shape = tf.reduce_max(masses_shape)
