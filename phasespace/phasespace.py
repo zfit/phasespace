@@ -266,7 +266,7 @@ class Particle:
                 masses.append(tf.broadcast_to(child.get_mass(), (1, n_events)))
             else:
                 # Recurse that particle to know the minimum mass we need to generate
-                min_mass = tf.broadcast_to(recurse_stable(child), max_mass.shape)
+                min_mass = tf.broadcast_to(recurse_stable(child), tf.shape(max_mass))
                 mass = child.get_mass(min_mass, max_mass, n_events)
                 max_mass -= mass
                 masses.append(mass)
@@ -404,7 +404,14 @@ class Particle:
                     else:
                         masses.append(child_mass)
                 # Find largest mass tensor
-                max_shape = max(mass.shape.as_list()[0] for mass in masses)
+
+                masses_shape = (mass.shape.as_list()[0] for mass in masses)
+                if None in masses_shape:
+                    masses_shape = tuple(tf.shape(mass) for mass in masses)
+                    max_shape = tf.reduce_max(masses_shape)
+                else:
+                    max_shape = max(masses_shape)
+
                 masses = tf.convert_to_tensor([tf.broadcast_to(mass, (max_shape,)) for mass in masses])
                 if len(masses.shape.as_list()) == 1:
                     masses = tf.expand_dims(masses, axis=-1)
