@@ -114,6 +114,7 @@ def run_test(n_particles, test_prefix):
     plt.savefig(os.path.join(PLOT_DIR, '{}_weights.png'.format(test_prefix)))
     plt.clf()
     assert np.all(p_values > 0.05)
+    sess.close()
 
 
 @pytest.mark.flaky(3)  # Stats are limited

@@ -200,15 +200,17 @@ class Particle:
         momentum = process_list_to_tensor(momentum)
 
         # Check sanity of inputs
-        # TODO(Mayou36): change for n_events being a tensor/Variable
         if momentum.shape.ndims not in (1, 2):
             raise ValueError("Bad shape for momentum -> {}".format(momentum.shape.as_list()))
         # Check compatibility of inputs
         if momentum.shape.ndims == 2:
-            # TODO(Mayou36): use tf assertion?
             if n_events is not None:
-                momentum_shape = tf.convert_to_tensor(momentum.shape[1].value, preferred_dtype=tf.int64)
-                momentum_shape = tf.cast(momentum_shape, dtype=tf.int64)
+                momentum_shape = momentum.shape[1].value
+                if momentum_shape is None:
+                    momentum_shape = tf.shape(momentum, out_type=tf.int64)[1]
+                else:
+                    momentum_shape = tf.convert_to_tensor(momentum_shape, preferred_dtype=tf.int64)
+                    momentum_shape = tf.cast(momentum_shape, dtype=tf.int64)
                 assert_op = tf.assert_equal(n_events, momentum_shape,
                                             message="Conflicting inputs -> momentum_shape and n_events")
                 with tf.control_dependencies([assert_op]):
@@ -216,6 +218,8 @@ class Particle:
         if n_events is None:
             if momentum.shape.ndims == 2:
                 n_events = momentum.shape[1].value
+                if n_events is None:  # dynamic shape
+                    n_events = tf.shape(momentum, out_type=tf.int64)[1]
             else:
                 n_events = tf.constant(1, dtype=tf.int64)
         n_events = tf.convert_to_tensor(n_events, preferred_dtype=tf.int64)
