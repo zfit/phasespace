@@ -207,10 +207,10 @@ class Particle:
             if n_events is not None:
                 momentum_shape = momentum.shape[1].value
                 if momentum_shape is None:
-                    momentum_shape = tf.shape(momentum, out_type=tf.int64)[1]
+                    momentum_shape = tf.shape(momentum, out_type=tf.int32)[1]
                 else:
-                    momentum_shape = tf.convert_to_tensor(momentum_shape, preferred_dtype=tf.int64)
-                    momentum_shape = tf.cast(momentum_shape, dtype=tf.int64)
+                    momentum_shape = tf.convert_to_tensor(momentum_shape, preferred_dtype=tf.int32)
+                    momentum_shape = tf.cast(momentum_shape, dtype=tf.int32)
                 assert_op = tf.assert_equal(n_events, momentum_shape,
                                             message="Conflicting inputs -> momentum_shape and n_events")
                 with tf.control_dependencies([assert_op]):
@@ -219,11 +219,11 @@ class Particle:
             if momentum.shape.ndims == 2:
                 n_events = momentum.shape[1].value
                 if n_events is None:  # dynamic shape
-                    n_events = tf.shape(momentum, out_type=tf.int64)[1]
+                    n_events = tf.shape(momentum, out_type=tf.int32)[1]
             else:
-                n_events = tf.constant(1, dtype=tf.int64)
-        n_events = tf.convert_to_tensor(n_events, preferred_dtype=tf.int64)
-        n_events = tf.cast(n_events, dtype=tf.int64)
+                n_events = tf.constant(1, dtype=tf.int32)
+        n_events = tf.convert_to_tensor(n_events, preferred_dtype=tf.int32)
+        n_events = tf.cast(n_events, dtype=tf.int32)
         # Now preparation of tensors
         if momentum.shape.ndims == 1:
             momentum = tf.expand_dims(momentum, axis=-1)
@@ -312,9 +312,11 @@ class Particle:
                                                   zero_component,
                                                   tf.sqrt(tf.square(pds[part_num - 1]) + tf.square(masses[part_num]))],
                                                  axis=0))
-            cos_z = _TWO * tf.random.uniform((1, n_events), dtype=tf.float64) - _ONE
-            sin_z = tf.sqrt(_ONE - cos_z * cos_z)
-            ang_y = _TWO * tf.constant(pi, dtype=tf.float64) * tf.random.uniform((1, n_events), dtype=tf.float64)
+
+            with tf.control_dependencies([n_events]):
+                cos_z = _TWO * tf.random.uniform((1, n_events), dtype=tf.float64) - _ONE
+                sin_z = tf.sqrt(_ONE - cos_z * cos_z)
+                ang_y = _TWO * tf.constant(pi, dtype=tf.float64) * tf.random.uniform((1, n_events), dtype=tf.float64)
             cos_y = tf.math.cos(ang_y)
             sin_y = tf.math.sin(ang_y)
             # Do the rotations
@@ -449,8 +451,8 @@ class Particle:
 
         """
         if not (isinstance(n_events, tf.Variable) or n_events is None):
-            n_events = tf.convert_to_tensor(n_events, preferred_dtype=tf.int64)
-            n_events = tf.cast(n_events, dtype=tf.int64)
+            n_events = tf.convert_to_tensor(n_events, preferred_dtype=tf.int32)
+            n_events = tf.cast(n_events, dtype=tf.int32)
 
         weights, weights_max, parts, _ = self._recursive_generate(momentum=momentum, n_events=n_events,
                                                                   recalculate_max_weights=self.has_grandchildren)
