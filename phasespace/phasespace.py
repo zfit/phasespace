@@ -90,8 +90,9 @@ class Particle:
     def __init__(self, name, mass):  # noqa
         self.name = name
         self.children = []
-        if not callable(mass) and not tf.contrib.framework.is_tensor(mass):
-            mass = tf.constant(mass, dtype=tf.float64)
+        if not callable(mass) and not isinstance(mass, tf.Variable):
+            mass = tf.convert_to_tensor(mass, preferred_dtype=tf.float64)
+            mass = tf.cast(mass, tf.float64)
         self._mass = mass
 
     def _do_names_clash(self, particles):
@@ -459,7 +460,7 @@ class Particle:
             if boost_momentum is None or boost_momentum.shape.ndims == 1:
                 n_events = 1
             else:
-                n_events = boost_momentum.shape[1]
+                n_events = tf.shape(boost_momentum)[1]
         if not isinstance(n_events, tf.Variable):
             n_events = tf.convert_to_tensor(n_events, preferred_dtype=tf.int32)
             n_events = tf.cast(n_events, dtype=tf.int32)
