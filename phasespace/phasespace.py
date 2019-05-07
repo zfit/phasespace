@@ -358,7 +358,14 @@ class Particle:
                                for part in generated_particles]
         return tf.reshape(weights, (n_events,)), w_max, generated_particles, masses
 
-    def _recursive_generate(self, momentum, n_events, recalculate_max_weights):
+    def _recursive_generate(self, n_events, boost_to=None, recalculate_max_weights=False):
+        if boost_to is not None:
+            momentum = boost_to
+        else:
+            if self.has_fixed_mass:
+                momentum = tf.stack((0.0, 0.0, 0.0, self.get_mass()), axis=-1)
+            else:
+                raise ValueError("Cannot use resonance as top particle")
         weights, weights_max, parts, children_masses = self._generate(momentum, n_events)
         output_particles = {child.name: parts[child_num]
                             for child_num, child in enumerate(self.children)}
@@ -367,7 +374,9 @@ class Particle:
         for child_num, child in enumerate(self.children):
             if child.has_children:
                 child_weights, _, child_gen_particles, child_masses = \
-                    child._recursive_generate(parts[child_num], n_events, False)
+                    child._recursive_generate(n_events=n_events,
+                                              boost_to=parts[child_num],
+                                              recalculate_max_weights=False)
                 weights *= child_weights
                 output_particles.update(child_gen_particles)
                 output_masses.update(child_masses)
@@ -429,7 +438,7 @@ class Particle:
                           recurse_w_max(kin.mass(momentum), mass_tree[self.name])
         return weights, weights_max, output_particles, output_masses
 
-    def generate_unnormalized(self, n_events=None, boost_momentum=None):
+    def generate_unnormalized(self, n_events=None, boost_to=None):
         """Generate unnormalized n-body phase space.
 
         Note:
@@ -437,13 +446,13 @@ class Particle:
             are returned separately.
 
         Note:
-            If nor `n_events` nor `boost_momentum` is given, a single event is generated in the
+            If nor `n_events` nor `boost_to` is given, a single event is generated in the
             rest frame of the particle.
 
         Arguments:
             `n_events` (optional): Number of events to generate. If `None` (default),
             the number of events to generate is calculated from the shape of `boost`.
-            `boost_momentum`: Momentum vector of shape (4, x), where x is optional, where
+            `boost_to`: Momentum vector of shape (4, x), where x is optional, where
             the resulting events will be boosted to.
 
         Return:
@@ -456,34 +465,34 @@ class Particle:
 
         """
         if n_events is None:
-            if boost_momentum is None or boost_momentum.shape.ndims == 1:
+            if boost_to is None or boost_to.shape.ndims == 1:
                 n_events = 1
             else:
-                n_events = boost_momentum.shape[1]
+                n_events = boost_to.shape[1]
         if not isinstance(n_events, tf.Variable):
             n_events = tf.convert_to_tensor(n_events, preferred_dtype=tf.int32)
             n_events = tf.cast(n_events, dtype=tf.int32)
-        momentum = tf.stack((0.0, 0.0, 0.0, self.get_mass()), axis=-1)
-        weights, weights_max, parts, _ = self._recursive_generate(momentum=momentum, n_events=n_events,
+        weights, weights_max, parts, _ = self._recursive_generate(n_events=n_events,
+                                                                  boost_to=boost_to,
                                                                   recalculate_max_weights=self.has_grandchildren)
         return weights, weights_max, parts
 
-    def generate(self, n_events=None, boost_momentum=None):
+    def generate(self, n_events=None, boost_to=None):
         """Generate normalized n-body phase space.
 
-        Events are generated in the rest frame of the particle, unless `boost_momentum` is given.
+        Events are generated in the rest frame of the particle, unless `boost_to` is given.
 
         Note:
             In this method, the event weights are returned normalized to their maximum.
 
         Note:
-            If nor `n_events` nor `boost_momentum` is given, a single event is generated in the
+            If nor `n_events` nor `boost_to` is given, a single event is generated in the
             rest frame of the particle.
 
         Arguments:
             `n_events` (optional): Number of events to generate. If `None` (default),
             the number of events to generate is calculated from the shape of `boost`.
-            `boost_momentum`: Momentum vector of shape (4, x), where x is optional, where
+            `boost_to`: Momentum vector of shape (4, x), where x is optional, where
             the resulting events will be boosted to.
 
         Return:
@@ -495,13 +504,13 @@ class Particle:
             tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
 
         """
-        if n_events is None and boost_momentum is None:
+        if n_events is None and boost_to is None:
             n_events = 1
-        weights, weights_max, parts = self.generate_unnormalized(n_events, boost_momentum)
+        weights, weights_max, parts = self.generate_unnormalized(n_events, boost_to)
         return weights / weights_max, parts
 
 
-def generate(mass_top, masses, n_events=None, boost_momentum=None):
+def generate(mass_top, masses, n_events=None, boost_to=None):
     """Generate an n-body phasespace.
 
     Internally, this function uses `Particle` with a single generation of children.
@@ -518,7 +527,7 @@ def generate(mass_top, masses, n_events=None, boost_momentum=None):
     """
     top = Particle('top', mass_top).set_children(*[Particle(str(num + 1), mass=mass)
                                                    for num, mass in enumerate(masses)])
-    norm_weights, parts = top.generate(n_events=n_events, boost_momentum=boost_momentum)
+    norm_weights, parts = top.generate(n_events=n_events, boost_to=boost_to)
     return norm_weights, [parts[child.name] for child in top.children]
 
 # EOF
