@@ -115,13 +115,14 @@ class Particle:
         """Get the particle mass.
 
         If the particle is resonant, the mass function will be called with the
-        `min_mass` and `max_mass` parameters.
+        `min_mass`, `max_mass` and `n_events` parameters.
 
         Arguments:
             min_mass (tensor): Lower mass range. Defaults to None, which
                 is only valid in the case of fixed mass.
-            max_maxx (tensor): Upper mass range. Defaults to None, which
+            max_mass (tensor): Upper mass range. Defaults to None, which
                 is only valid in the case of fixed mass.
+            n_events (`tf.Tensor`): Number of events to produce. Has to be specified if the particle is resonant.
 
         Return:
             tensor: Mass.
@@ -230,7 +231,8 @@ class Particle:
             momentum = tf.expand_dims(momentum, axis=-1)
         return momentum, n_events
 
-    def _get_w_max(self, available_mass, masses):
+    @staticmethod
+    def _get_w_max(available_mass, masses):
         emmax = available_mass + masses[0, :]
         emmin = _ZERO
         w_max = _ONE
@@ -469,7 +471,7 @@ class Particle:
             if boost_to is None or boost_to.shape.ndims == 1:
                 n_events = 1
             else:
-                n_events = tf.shape(boost_momentum)[1]
+                n_events = tf.shape(boost_to)[1]
         if not isinstance(n_events, tf.Variable):
             n_events = tf.convert_to_tensor(n_events, preferred_dtype=tf.int32)
             n_events = tf.cast(n_events, dtype=tf.int32)
@@ -517,10 +519,11 @@ def generate(mass_top, masses, n_events=None, boost_to=None):
     Internally, this function uses `Particle` with a single generation of children.
 
     Arguments:
-        p_top (Tensor, list): Momentum of the top particle. Can be a list of 4-vectors.
+        mass_top (`tf.Tensor`, list): Mass of the top particle. Can be a list of 4-vectors.
         masses (list): Masses of the child particles.
         n_events (int, optional): Number of samples to generate. If n_events is None,
-            the number of events is deduced from `p_top`.
+            the number of events is deduced from `mass_top`.
+        boost_to (`tf.Tensor`): Momentum of the top particle.
 
     Return:
         Tensor: 4-momenta of the generated particles, with shape (4xn_particles, n_events).
