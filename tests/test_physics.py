@@ -76,7 +76,7 @@ def run_test(n_particles, test_prefix):
     n_events = tf.Variable(initial_value=first_run_n_events, dtype=tf.int64, use_resource=True)
     sess.run(n_events.initializer)
 
-    generate = phasespace.generate(decays.B0_AT_REST,
+    generate = phasespace.generate(decays.B0_MASS,
                                    [decays.PION_MASS] * n_particles,
                                    n_events)
     weights1, particles1 = sess.run(generate)  # only generate to test change in n_events
@@ -138,14 +138,14 @@ def test_four_body():
 def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
     n_events = 1000000
     if b_at_rest:
-        input_bs = decays.B0_AT_REST
+        booster = None
         rapidsim_getter = rapidsim.get_tree_in_b_rest_frame
     else:
-        input_bs = rapidsim.generate_fonll(decays.B0_MASS, 7, 'b', n_events)
+        booster = rapidsim.generate_fonll(decays.B0_MASS, 7, 'b', n_events)
         rapidsim_getter = rapidsim.get_tree
     with tf.Session() as sess:
         norm_weights, particles = sess.run(
-            decays.b0_to_kstar_gamma(kstar_width=kstar_width).generate(input_bs, n_events))
+            decays.b0_to_kstar_gamma(kstar_width=kstar_width).generate(n_events=n_events, boost_to=booster))
     rapidsim_parts = rapidsim_getter(os.path.join(BASE_PATH,
                                                   'data',
                                                   input_file),
@@ -211,15 +211,15 @@ def test_kstargamma_resonant_at_rest():
 def run_k1_gamma(input_file, k1_width, kstar_width, b_at_rest, suffix):
     n_events = 1000000
     if b_at_rest:
-        input_bs = decays.B0_AT_REST
+        booster = None
         rapidsim_getter = rapidsim.get_tree_in_b_rest_frame
     else:
-        input_bs = rapidsim.generate_fonll(decays.B0_MASS, 7, 'b', n_events)
+        booster = rapidsim.generate_fonll(decays.B0_MASS, 7, 'b', n_events)
         rapidsim_getter = rapidsim.get_tree
     with tf.Session() as sess:
         norm_weights, particles = sess.run(
                 decays.bp_to_k1_kstar_pi_gamma(k1_width=k1_width, kstar_width=kstar_width)
-                    .generate(input_bs, n_events))
+                    .generate(n_events=n_events, boost_to=booster))
     rapidsim_parts = rapidsim_getter(
             os.path.join(BASE_PATH,
                          'data',
