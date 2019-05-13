@@ -76,9 +76,9 @@ def run_test(n_particles, test_prefix):
     n_events = tf.Variable(initial_value=first_run_n_events, dtype=tf.int64, use_resource=True)
     sess.run(n_events.initializer)
 
-    generate = phasespace.generate(decays.B0_MASS,
-                                   [decays.PION_MASS] * n_particles,
-                                   n_events)
+    generate = phasespace.generate_decay(decays.B0_MASS,
+                                         [decays.PION_MASS] * n_particles,
+                                         n_events)
     weights1, particles1 = sess.run(generate)  # only generate to test change in n_events
     assert len(weights1) == first_run_n_events
 

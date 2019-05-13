@@ -11,7 +11,7 @@ __all__ = ['generate', 'Particle']
 
 import sys
 
-from .phasespace import generate, Particle
+from .phasespace import generate_decay, Particle
 
 if sys.version_info < (3, 6):
     warnings.warn("Python 3.5 is NOT supported officially and may be already broken. "
