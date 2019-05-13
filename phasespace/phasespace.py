@@ -535,20 +535,18 @@ class Particle:
             return gen_result
 
         sample = self.generate_tensor(n_events, boost_to)
-        weights, weights_max, parts = get_result(sample)
+        res = get_result(sample)
 
         try:
             if chunk_size:
-                yield weights / weights_max, parts
+                yield res
                 n_left = n_events - n_initial
                 while n_left > 0:
                     n_events.load(min(chunk_size, n_left), session=sess)
-                    weights, weights_max, parts = get_result(sample)
-                    yield weights / weights_max, parts
+                    yield get_result(sample)
                     n_left -= chunk_size
-                sess.close()
             else:
-                return weights / weights_max, parts
+                return res
         finally:
             if as_numpy:
                 sess.close()
