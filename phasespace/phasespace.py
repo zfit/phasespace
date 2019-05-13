@@ -438,7 +438,7 @@ class Particle:
             if len(momentum.shape.as_list()) == 1:
                 momentum = tf.expand_dims(momentum, axis=-1)
             weights_max = tf.ones_like(weights, dtype=tf.float64) * \
-                          recurse_w_max(kin.mass(momentum), mass_tree[self.name])
+                recurse_w_max(kin.mass(momentum), mass_tree[self.name])
         return weights, weights_max, output_particles, output_masses
 
     def generate_unnormalized(self, n_events=None, boost_to=None):
@@ -453,10 +453,10 @@ class Particle:
             rest frame of the particle.
 
         Arguments:
-            `n_events` (optional): Number of events to generate. If `None` (default),
-            the number of events to generate is calculated from the shape of `boost`.
-            `boost_to`: Momentum vector of shape (4, x), where x is optional, where
-            the resulting events will be boosted to.
+            n_events (optional): Number of events to generate. If `None` (default),
+                the number of events to generate is calculated from the shape of `boost`.
+            boost_to: Momentum vector of shape (4, x), where x is optional, where
+                the resulting events will be boosted to.
 
         Return:
             tuple: Event weights tensor of shape (n_events, ), max event weights tensor, of shape
@@ -480,7 +480,7 @@ class Particle:
                                                                   recalculate_max_weights=self.has_grandchildren)
         return weights, weights_max, parts
 
-    def generate(self, n_events=None, boost_to=None):
+    def generate(self, n_events=None, boost_to=None, as_numpy=True, chunk_size=None):
         """Generate normalized n-body phase space.
 
         Events are generated in the rest frame of the particle, unless `boost_to` is given.
@@ -493,10 +493,84 @@ class Particle:
             rest frame of the particle.
 
         Arguments:
-            `n_events` (optional): Number of events to generate. If `None` (default),
-            the number of events to generate is calculated from the shape of `boost`.
-            `boost_to`: Momentum vector of shape (4, x), where x is optional, where
-            the resulting events will be boosted to.
+            n_events (optional): Number of events to generate. If `None` (default),
+                the number of events to generate is calculated from the shape of `boost`.
+            boost_to (optional): Momentum vector of shape (4, x), where x is optional, where
+                the resulting events will be boosted to. If not specified, events are generated
+                in the rest frame of the particle.
+            as_numpy (bool, optional): Run the tensorflow graph and return a numpy object? Defaults
+                to True.
+            chunk_size (int, optional): Size of the chunks to divide the generation in. If specified,
+                and if chunk_size > n_events, the function returns an iterator. Can only be used
+                if `as_numpy=True`.
+
+        Return:
+            tuple: Normalized event weights tensor (or array) of shape (n_events, ), and generated
+            particles, a dictionary of tensors (or arrays) of shape (4, n_events) with particle names
+            as keys.
+
+        Raise:
+            tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
+            ValueError: If `chunk_size` is specified with `as_numpy=False`.
+
+        """
+        if chunk_size and not as_numpy:
+            raise ValueError("Cannot specify chunk_size without a numpy output.")
+        # Start tf session if needed
+        if as_numpy:
+            sess = tf.Session()
+        # Determine the number of events
+        if n_events is None and boost_to is None:
+            n_events = 1
+        # Convert n_events to a tf.Variable to perform graph caching
+        if chunk_size:
+            n_initial = min(n_events, chunk_size)
+            if not isinstance(n_events, tf.Variable):
+                n_events = tf.Variable(initial_value=n_initial,
+                                       dtype=tf.int64, use_resource=True)
+
+        def get_result(gen_result):
+            if as_numpy:
+                return sess.run(gen_result)
+            return gen_result
+
+        sample = self.generate_tensor(n_events, boost_to)
+        weights, weights_max, parts = get_result(sample)
+
+        try:
+            if chunk_size:
+                yield weights / weights_max, parts
+                n_left = n_events - n_initial
+                while n_left > 0:
+                    n_events.load(min(chunk_size, n_left), session=sess)
+                    weights, weights_max, parts = get_result(sample)
+                    yield weights / weights_max, parts
+                    n_left -= chunk_size
+                sess.close()
+            else:
+                return weights / weights_max, parts
+        finally:
+            if as_numpy:
+                sess.close()
+
+    def generate_tensor(self, n_events=None, boost_to=None):
+        """Generate normalized n-body phase space in tensor format.
+
+        Events are generated in the rest frame of the particle, unless `boost_to` is given.
+
+        Note:
+            In this method, the event weights are returned normalized to their maximum.
+
+        Note:
+            If nor `n_events` nor `boost_to` is given, a single event is generated in the
+            rest frame of the particle.
+
+        Arguments:
+            n_events (optional): Number of events to generate. If `None` (default),
+                the number of events to generate is calculated from the shape of `boost`.
+            boost_to (optional): Momentum vector of shape (4, x), where x is optional, where
+                the resulting events will be boosted to. If not specified, events are generated
+                in the rest frame of the particle.
 
         Return:
             tuple: Normalized event weights tensor of shape (n_events, ), and generated
@@ -513,10 +587,15 @@ class Particle:
         return weights / weights_max, parts
 
 
-def generate(mass_top, masses, n_events=None, boost_to=None):
+def generate_decay(mass_top: float, masses: list, n_events: int = 1, boost_to=None,
+                   as_numpy: bool = True):
     """Generate an n-body phasespace.
 
     Internally, this function uses `Particle` with a single generation of children.
+
+    Note:
+        This function doesn't cache so it may be slower on repeated calls. In that case
+        it's better to use :py:class:`Particle` directly.
 
     Arguments:
         mass_top (`tf.Tensor`, list): Mass of the top particle. Can be a list of 4-vectors.
@@ -531,7 +610,7 @@ def generate(mass_top, masses, n_events=None, boost_to=None):
     """
     top = Particle('top', mass_top).set_children(*[Particle(str(num + 1), mass=mass)
                                                    for num, mass in enumerate(masses)])
-    norm_weights, parts = top.generate(n_events=n_events, boost_to=boost_to)
+    norm_weights, parts = top.generate(n_events=n_events, boost_to=boost_to, as_numpy=as_numpy)
     return norm_weights, [parts[child.name] for child in top.children]
 
 # EOF
