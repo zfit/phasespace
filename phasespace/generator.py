@@ -14,7 +14,23 @@ class PhasespaceGenerator:
     """Handle generation of decays.
 
     Takes care of caching and running the session such that numpy arrays are
-    obtained.
+    obtained. This allows for generating in chunks without recreating the
+    graph.
+
+    Example:
+        Generate 100 events according to the `decay` decay chain.
+
+        >>> gen = decay.get_generator()
+        >>> weights, parts = gen.generate(n_events=100)
+
+    Example:
+        Generate 1000 events of the `decay` decay chain in chunks of 100.
+
+        >>> gen = decay.get_generator()
+        >>> particles = []
+        >>> for _ in range(10):
+        ...     weights, parts = gen.generate(n_events=100)
+        ...     particles.extend(parts)
 
     Arguments:
         phasespace.Particle: Decay to handle.
@@ -80,6 +96,6 @@ class PhasespaceGenerator:
         # Convert n_events to a tf.Variable to perform graph caching
         n_events = self.get_n_events(n_events)
         # Run generation
-        return self.ses.run(self.decay.generate(n_events, boost_to))
+        return self.sess.run(self.decay.generate(n_events, boost_to))
 
 # EOF
