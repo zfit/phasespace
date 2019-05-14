@@ -50,10 +50,6 @@ class PhasespaceGenerator:
         Note:
             In this method, the event weights are returned normalized to their maximum.
 
-        Note:
-            If nor `n_events` nor `boost_to` is given, a single event is generated in the
-            rest frame of the particle.
-
         Arguments:
             n_events (optional): Number of events to generate. If `None` (default),
                 the number of events to generate is calculated from the shape of `boost`.
@@ -68,11 +64,12 @@ class PhasespaceGenerator:
 
         Raise:
             tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
+            ValueError: If nor `n_events` nor `boost_to` are given.
 
         """
         # Determine the number of events
         if n_events is None and boost_to is None:
-            n_events = 1
+            raise ValueError("Nor n_events nor boost_to were specified.")
         # Convert n_events to a tf.Variable to perform graph caching
         n_events_var = self._n_events.load(n_events, session=self.sess)
         # Run generation
