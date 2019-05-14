@@ -54,7 +54,7 @@ class PhasespaceGenerator:
     def n_events(self):
         n_events_var = self._n_events_var
         if n_events_var is None:
-            n_events_var = tf.Variable(dtype=tf.int64, use_resource=True, expected_shape=())
+            n_events_var = tf.Variable(initial_value=-42, dtype=tf.int64, use_resource=True)
             self._n_events_var = n_events_var
         return n_events_var
 
