@@ -39,8 +39,24 @@ class PhasespaceGenerator:
 
     def __init__(self, decay):  # noqa
         self.decay = decay
-        self.sess = tf.Session()
-        self._n_events = tf.Variable(dtype=tf.int64, use_resource=True)
+        self._sess = None
+        self._n_events_var = None
+
+    @property
+    def sess(self):
+        sess = self._sess
+        if sess is None:
+            sess = tf.Session()
+            self._sess = sess
+        return sess
+
+    @property
+    def n_events(self):
+        n_events_var = self._n_events_var
+        if n_events_var is None:
+            n_events_var = tf.Variable(dtype=tf.int64, use_resource=True)
+            self._n_events_var = n_events_var
+        return n_events_var
 
     def generate(self, n_events=None, boost_to=None):
         """Generate normalized n-body phase space.
@@ -70,8 +86,9 @@ class PhasespaceGenerator:
         # Determine the number of events
         if n_events is None and boost_to is None:
             raise ValueError("Nor n_events nor boost_to were specified.")
+
         # Convert n_events to a tf.Variable to perform graph caching
-        n_events_var = self._n_events.load(n_events, session=self.sess)
+        n_events_var = self.n_events.load(n_events, session=self.sess)
         # Run generation
         return self.sess.run(self.decay.generate(n_events_var, boost_to))
 

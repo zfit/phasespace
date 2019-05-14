@@ -19,11 +19,6 @@ import tensorflow as tf
 import phasespace.kinematics as kin
 from phasespace.generator import PhasespaceGenerator
 
-# Useful constants
-_ZERO = tf.constant(0.0, dtype=tf.float64)
-_ONE = tf.constant(1.0, dtype=tf.float64)
-_TWO = tf.constant(2.0, dtype=tf.float64)
-
 
 def process_list_to_tensor(lst):
     """Convert a list to a tensor.
@@ -61,7 +56,7 @@ def pdk(a, b, c):
 
     """
     x = (a - b - c) * (a + b + c) * (a - b + c) * (a + b - c)
-    return tf.sqrt(x) / (_TWO * a)
+    return tf.sqrt(x) / (tf.constant(2.0, dtype=tf.float64) * a)
 
 
 class Particle:
@@ -235,8 +230,8 @@ class Particle:
     @staticmethod
     def _get_w_max(available_mass, masses):
         emmax = available_mass + masses[0, :]
-        emmin = _ZERO
-        w_max = _ONE
+        emmin = tf.constant(0.0, dtype=tf.float64)
+        w_max = tf.constant(1.0, dtype=tf.float64)
         for i in range(1, masses.shape.as_list()[0]):
             emmin += masses[i - 1, :]
             emmax += masses[i, :]
@@ -276,7 +271,7 @@ class Particle:
                 masses.append(mass)
         masses = tf.concat(masses, axis=0)
         available_mass = top_mass - tf.reduce_sum(masses, axis=0)
-        mass_check = tf.assert_greater_equal(available_mass, _ZERO,
+        mass_check = tf.assert_greater_equal(available_mass, tf.constant(0.0, dtype=tf.float64),
                                              message="Forbidden decay",
                                              name="mass_check")
         with tf.control_dependencies([mass_check]):
@@ -318,9 +313,12 @@ class Particle:
                                                  axis=0))
 
             with tf.control_dependencies([n_events]):
-                cos_z = _TWO * tf.random.uniform((1, n_events), dtype=tf.float64) - _ONE
-                sin_z = tf.sqrt(_ONE - cos_z * cos_z)
-                ang_y = _TWO * tf.constant(pi, dtype=tf.float64) * tf.random.uniform((1, n_events), dtype=tf.float64)
+                cos_z = tf.constant(2.0, dtype=tf.float64) * tf.random.uniform((1, n_events),
+                                                                               dtype=tf.float64) - tf.constant(1.0,
+                                                                                                               dtype=tf.float64)
+                sin_z = tf.sqrt(tf.constant(1.0, dtype=tf.float64) - cos_z * cos_z)
+                ang_y = tf.constant(2.0, dtype=tf.float64) * tf.constant(pi, dtype=tf.float64) * tf.random.uniform(
+                    (1, n_events), dtype=tf.float64)
             cos_y = tf.math.cos(ang_y)
             sin_y = tf.math.sin(ang_y)
             # Do the rotations
@@ -406,7 +404,7 @@ class Particle:
             def recurse_w_max(parent_mass, current_mass_tree):
                 available_mass = parent_mass - sum(get_flattened_values(current_mass_tree))
                 masses = []
-                w_max = tf.expand_dims(_ONE, axis=-1)
+                w_max = tf.expand_dims(tf.constant(1.0, dtype=tf.float64), axis=-1)
                 for child, child_mass in current_mass_tree.items():
                     if isinstance(child_mass, dict):
                         w_max *= recurse_w_max(parent_mass -
@@ -439,7 +437,7 @@ class Particle:
             if len(momentum.shape.as_list()) == 1:
                 momentum = tf.expand_dims(momentum, axis=-1)
             weights_max = tf.ones_like(weights, dtype=tf.float64) * \
-                recurse_w_max(kin.mass(momentum), mass_tree[self.name])
+                          recurse_w_max(kin.mass(momentum), mass_tree[self.name])
         return weights, weights_max, output_particles, output_masses
 
     def generate_unnormalized(self, n_events=None, boost_to=None):
@@ -552,6 +550,5 @@ def generate_decay(mass_top: float, masses: list, n_events: int = 1, boost_to=No
     else:
         norm_weights, parts = top.generate(n_events=n_events, boost_to=boost_to)
     return norm_weights, [parts[child.name] for child in top.children]
-
 
 # EOF
