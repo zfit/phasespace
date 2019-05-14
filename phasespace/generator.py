@@ -83,7 +83,14 @@ class PhasespaceGenerator:
 
         """
         # Convert n_events to a tf.Variable to perform graph caching
-        n_events_var = self.n_events.load(n_events, session=self.sess)
+        if isinstance(n_events, tf.Variable):
+            n_events_var = n_events
+        else:
+            if isinstance(n_events, tf.Tensor):
+                raise TypeError("Tensor currently not allowed for generate. Use Python integers.")
+            n_events_var = self.n_events
+            n_events_var.load(n_events, session=self.sess)
+
         # Run generation
         return self.sess.run(self.decay.generate(n_events_var, boost_to))
 
