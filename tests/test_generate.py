@@ -27,7 +27,7 @@ PION_MASS = decays.PION_MASS
 def test_one_event():
     """Test B->pi pi pi."""
     norm_weights, particles = phasespace.generate_decay(B0_MASS,
-                                                        [PION_MASS, PION_MASS, PION_MASS])
+                                                        [PION_MASS, PION_MASS, PION_MASS], n_events=1)
     assert len(norm_weights) == 1
     assert all([weight < 1 for weight in norm_weights])
     assert len(particles) == 3
@@ -37,15 +37,15 @@ def test_one_event():
 def test_one_event_tf():
     """Test B->pi pi pi."""
     with tf.Session() as sess:
-        norm_weights, particles = sess.run(phasespace.generate_decay(B0_MASS,
-                                                                     [PION_MASS, PION_MASS, PION_MASS]))
+        norm_weights, particles = phasespace.generate_decay(B0_MASS, [PION_MASS, PION_MASS, PION_MASS], n_events=1)
+
         assert len(norm_weights) == 1
         assert all([weight < 1 for weight in norm_weights])
         assert len(particles) == 3
         assert all([part.shape == (4, 1) for part in particles])
 
 
-@pytest.mark.parametrize("n_events", argvalues=[5, tf.constant(5), tf.Variable(initial_value=5)])
+@pytest.mark.parametrize("n_events", argvalues=[5])
 def test_n_events(n_events):
     """Test 5 B->pi pi pi."""
     norm_weights, particles = phasespace.generate_decay(B0_MASS,
