@@ -78,7 +78,7 @@ def run_test(n_particles, test_prefix):
 
     generate = phasespace.generate_decay(decays.B0_MASS,
                                          [decays.PION_MASS] * n_particles,
-                                         n_events)
+                                         n_events, as_numpy=False)
     weights1, particles1 = sess.run(generate)  # only generate to test change in n_events
     assert len(weights1) == first_run_n_events
 
