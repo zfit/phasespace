@@ -58,7 +58,7 @@ class PhasespaceGenerator:
             self._n_events_var = n_events_var
         return n_events_var
 
-    def generate(self, n_events=None, boost_to=None):
+    def generate(self, n_events, boost_to=None):
         """Generate normalized n-body phase space.
 
         Events are generated in the rest frame of the particle, unless `boost_to` is given.
@@ -67,8 +67,7 @@ class PhasespaceGenerator:
             In this method, the event weights are returned normalized to their maximum.
 
         Arguments:
-            n_events (optional): Number of events to generate. If `None` (default),
-                the number of events to generate is calculated from the shape of `boost`.
+            n_events (int): Number of events to generate.
             boost_to (optional): Momentum vector of shape (4, x), where x is optional, where
                 the resulting events will be boosted to. If not specified, events are generated
                 in the rest frame of the particle.
@@ -80,13 +79,9 @@ class PhasespaceGenerator:
 
         Raise:
             tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
-            ValueError: If nor `n_events` nor `boost_to` are given.
+            ValueError: If `n_events` and the size of `boost_to` don't match. See `Particle.generate_unnormalized`.
 
         """
-        # Determine the number of events
-        if n_events is None and boost_to is None:
-            raise ValueError("Nor n_events nor boost_to were specified.")
-
         # Convert n_events to a tf.Variable to perform graph caching
         n_events_var = self.n_events.load(n_events, session=self.sess)
         # Run generation
