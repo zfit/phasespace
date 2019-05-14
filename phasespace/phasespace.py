@@ -17,6 +17,7 @@ from math import pi
 import tensorflow as tf
 
 import phasespace.kinematics as kin
+from phasespace.generator import PhasespaceGenerator
 
 # Useful constants
 _ZERO = tf.constant(0.0, dtype=tf.float64)
@@ -480,78 +481,7 @@ class Particle:
                                                                   recalculate_max_weights=self.has_grandchildren)
         return weights, weights_max, parts
 
-    def generate(self, n_events=None, boost_to=None, as_numpy=True, chunk_size=None):
-        """Generate normalized n-body phase space.
-
-        Events are generated in the rest frame of the particle, unless `boost_to` is given.
-
-        Note:
-            In this method, the event weights are returned normalized to their maximum.
-
-        Note:
-            If nor `n_events` nor `boost_to` is given, a single event is generated in the
-            rest frame of the particle.
-
-        Arguments:
-            n_events (optional): Number of events to generate. If `None` (default),
-                the number of events to generate is calculated from the shape of `boost`.
-            boost_to (optional): Momentum vector of shape (4, x), where x is optional, where
-                the resulting events will be boosted to. If not specified, events are generated
-                in the rest frame of the particle.
-            as_numpy (bool, optional): Run the tensorflow graph and return a numpy object? Defaults
-                to True.
-            chunk_size (int, optional): Size of the chunks to divide the generation in. If specified,
-                and if chunk_size > n_events, the function returns an iterator. Can only be used
-                if `as_numpy=True`.
-
-        Return:
-            tuple: Normalized event weights tensor (or array) of shape (n_events, ), and generated
-            particles, a dictionary of tensors (or arrays) of shape (4, n_events) with particle names
-            as keys.
-
-        Raise:
-            tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
-            ValueError: If `chunk_size` is specified with `as_numpy=False`.
-
-        """
-        if chunk_size and not as_numpy:
-            raise ValueError("Cannot specify chunk_size without a numpy output.")
-        # Start tf session if needed
-        if as_numpy:
-            sess = tf.Session()
-        # Determine the number of events
-        if n_events is None and boost_to is None:
-            n_events = 1
-        # Convert n_events to a tf.Variable to perform graph caching
-        if chunk_size:
-            n_initial = min(n_events, chunk_size)
-            if not isinstance(n_events, tf.Variable):
-                n_events = tf.Variable(initial_value=n_initial,
-                                       dtype=tf.int64, use_resource=True)
-
-        def get_result(gen_result):
-            if as_numpy:
-                return sess.run(gen_result)
-            return gen_result
-
-        sample = self.generate_tensor(n_events, boost_to)
-        res = get_result(sample)
-
-        try:
-            if chunk_size:
-                yield res
-                n_left = n_events - n_initial
-                while n_left > 0:
-                    n_events.load(min(chunk_size, n_left), session=sess)
-                    yield get_result(sample)
-                    n_left -= chunk_size
-            else:
-                return res
-        finally:
-            if as_numpy:
-                sess.close()
-
-    def generate_tensor(self, n_events=None, boost_to=None):
+    def generate(self, n_events=None, boost_to=None):
         """Generate normalized n-body phase space in tensor format.
 
         Events are generated in the rest frame of the particle, unless `boost_to` is given.
@@ -584,6 +514,15 @@ class Particle:
         weights, weights_max, parts = self.generate_unnormalized(n_events, boost_to)
         return weights / weights_max, parts
 
+    def get_generator(self):
+        """Get numpy phasespace generator.
+
+        Return:
+            phasespace.generator.PhasespaceGenerator
+
+        """
+        return PhasespaceGenerator(self)
+
 
 def generate_decay(mass_top: float, masses: list, n_events: int = 1, boost_to=None,
                    as_numpy: bool = True):
@@ -608,7 +547,11 @@ def generate_decay(mass_top: float, masses: list, n_events: int = 1, boost_to=No
     """
     top = Particle('top', mass_top).set_children(*[Particle(str(num + 1), mass=mass)
                                                    for num, mass in enumerate(masses)])
-    norm_weights, parts = top.generate(n_events=n_events, boost_to=boost_to, as_numpy=as_numpy)
+    if as_numpy:
+        norm_weights, parts = top.get_generator().generate(n_events=n_events, boost_to=boost_to)
+    else:
+        norm_weights, parts = top.generate(n_events=n_events, boost_to=boost_to)
     return norm_weights, [parts[child.name] for child in top.children]
+
 
 # EOF
