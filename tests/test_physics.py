@@ -142,6 +142,7 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
         rapidsim_getter = rapidsim.get_tree_in_b_rest_frame
     else:
         booster = rapidsim.generate_fonll(decays.B0_MASS, 7, 'b', n_events)
+        booster = booster.transpose()
         rapidsim_getter = rapidsim.get_tree
     with tf.Session() as sess:
         norm_weights, particles = sess.run(
@@ -162,6 +163,7 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
     p_values = {}
     for ref_name, ref_part in rapidsim_parts.items():
         tf_part = name_matching[ref_name]
+        ref_part = ref_part.transpose()  # for consistency
         for coord, coord_name in enumerate(('px', 'py', 'pz', 'e')):
             range_ = (-3000 if coord % 4 != 3 else 0, 3000)
             ref_histo = make_norm_histo(ref_part[:, coord], range_=range_)
