@@ -22,7 +22,7 @@ def spatial_component(vector):
     Return spatial components of the input Lorentz vector
         vector : input Lorentz vector (where indexes 0-2 are space, index 3 is time)
     """
-    return tf.transpose(tf.stack(tf.unstack(vector, axis=1)[0:3]))
+    return tf.gather(vector, indices=[0, 1, 2], axis=-1)
 
 
 def time_component(vector):
@@ -30,7 +30,7 @@ def time_component(vector):
     Return time component of the input Lorentz vector
         vector : input Lorentz vector (where indexes 0-2 are space, index 3 is time)
     """
-    return tf.expand_dims(tf.unstack(vector, axis=1)[3], axis=-1)
+    return tf.gather(vector, indices=[3], axis=-1)
 
 
 def x_component(vector):
@@ -38,7 +38,7 @@ def x_component(vector):
     Return spatial X component of the input Lorentz or 3-vector
         vector : input vector
     """
-    return tf.expand_dims(tf.unstack(vector, axis=1)[0], axis=-1)
+    return tf.gather(vector, indices=[0], axis=-1)
 
 
 def y_component(vector):
@@ -46,7 +46,7 @@ def y_component(vector):
     Return spatial Y component of the input Lorentz or 3-vector
         vector : input vector
     """
-    return tf.expand_dims(tf.unstack(vector, axis=1)[1], axis=-1)
+    return tf.gather(vector, indices=[1], axis=-1)
 
 
 def z_component(vector):
@@ -54,7 +54,7 @@ def z_component(vector):
     Return spatial Z component of the input Lorentz or 3-vector
         vector : input vector
     """
-    return tf.expand_dims(tf.unstack(vector, axis=1)[2], axis=-1)
+    return tf.gather(vector, indices=[2], axis=-1)
 
 
 def mass(vector):
@@ -62,10 +62,8 @@ def mass(vector):
     Calculate mass scalar for Lorentz 4-momentum
         vector : input Lorentz momentum vector
     """
-    return tf.expand_dims(
-        tf.sqrt(tf.reduce_sum(tf.square(vector) * metric_tensor(),
-                              axis=1)),
-        axis=-1)
+    return tf.sqrt(tf.reduce_sum(tf.square(vector) * metric_tensor(),
+                                 axis=-1, keepdims=True))
 
 
 def lorentz_vector(space, time):
@@ -74,7 +72,7 @@ def lorentz_vector(space, time):
         space : 3-vector of spatial components
         time  : time component
     """
-    return tf.concat([space, time], axis=1)
+    return tf.concat([space, time], axis=-1)
 
 
 def lorentz_boost(vector, boostvector):
