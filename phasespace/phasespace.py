@@ -13,6 +13,7 @@ The code is based on the GENBOD function (W515 from CERNLIB), documented in
 """
 
 from math import pi
+from typing import Union, Dict, Tuple, Optional
 
 import tensorflow as tf
 
@@ -127,7 +128,8 @@ class Particle:
             return dup_names
         return None
 
-    def get_mass(self, min_mass=None, max_mass=None, n_events=None):
+    def get_mass(self, min_mass: tf.Tensor = None, max_mass: tf.Tensor = None,
+                 n_events: Union[tf.Tensor, tf.Variable] = None) -> tf.Tensor:
         """Get the particle mass.
 
         If the particle is resonant, the mass function will be called with the
@@ -443,7 +445,9 @@ class Particle:
                                      (n_events,))
         return weights, weights_max, output_particles, output_masses
 
-    def generate_tensor(self, n_events, boost_to=None, normalize_weights=True):
+    def generate_tensor(self, n_events: Union[int, tf.Tensor, tf.Variable],
+                        boost_to: Optional[tf.Tensor] = None,
+                        normalize_weights: bool = True) -> Tuple[tf.Tensor, Dict[str, tf.Tensor]]:
         """Generate normalized n-body phase space as tensorflow tensors.
 
         Events are generated in the rest frame of the particle, unless `boost_to` is given.
@@ -476,8 +480,8 @@ class Particle:
 
         """
         if boost_to is not None:
-            message = f"The number of events requested ({n_events}) doesn't match the boost_to input size " \
-                f"of {boost_to.shape}"
+            message = (f"The number of events requested ({n_events}) doesn't match the boost_to input size "
+                       f"of {boost_to.shape}")
             assert_op = tf.assert_equal(tf.shape(boost_to)[0], tf.shape(n_events), message=message)
             with tf.control_dependencies([assert_op]):
                 boost_to = tf.identity(boost_to)
@@ -490,7 +494,7 @@ class Particle:
                                                                   recalculate_max_weights=self.has_grandchildren)
         return (weights / weights_max, parts) if normalize_weights else (weights, weights_max, parts)
 
-    def generate(self, n_events, boost_to=None, normalize_weights=True):
+    def generate(self, n_events: int, boost_to=None, normalize_weights: bool = True):
         """Generate normalized n-body phase space as numpy arrays.
 
         Events are generated in the rest frame of the particle, unless `boost_to` is given.
@@ -527,7 +531,7 @@ class Particle:
             n_events_var = n_events
         else:
             if isinstance(n_events, tf.Tensor):
-                raise TypeError("Tensor currently not allowed for generate. Use Python integers.")
+                raise TypeError("Tensor currently not allowed for generate. Use Python integers or `tf.Variable`.")
             n_events_var = self._n_events
             n_events_var.load(n_events, session=self._sess)
         # Run generation
