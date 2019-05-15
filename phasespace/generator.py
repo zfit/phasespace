@@ -44,6 +44,7 @@ class PhasespaceGenerator:
 
     @property
     def sess(self):
+        """tf.Session: Internal session object."""
         sess = self._sess
         if sess is None:
             sess = tf.Session()
@@ -52,6 +53,7 @@ class PhasespaceGenerator:
 
     @property
     def n_events(self):
+        """tf.Variable: Number of events to generate."""
         n_events_var = self._n_events_var
         if n_events_var is None:
             n_events_var = tf.Variable(initial_value=-42, dtype=tf.int64, use_resource=True)
@@ -68,8 +70,8 @@ class PhasespaceGenerator:
 
         Arguments:
             n_events (int): Number of events to generate.
-            boost_to (optional): Momentum vector of shape (4, x), where x is optional, where
-                the resulting events will be boosted to. If not specified, events are generated
+            boost_to (optional): Momentum vector of shape (x, 4), where x is optional, to where
+                the resulting events will be boosted. If not specified, events are generated
                 in the rest frame of the particle.
 
         Return:

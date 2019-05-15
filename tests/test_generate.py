@@ -31,7 +31,7 @@ def test_one_event():
     assert len(norm_weights) == 1
     assert all([weight < 1 for weight in norm_weights])
     assert len(particles) == 3
-    assert all([part.shape == (4, 1) for part in particles])
+    assert all([part.shape == (1, 4) for part in particles])
 
 
 def test_one_event_tf():
@@ -42,7 +42,7 @@ def test_one_event_tf():
         assert len(norm_weights) == 1
         assert all([weight < 1 for weight in norm_weights])
         assert len(particles) == 3
-        assert all([part.shape == (4, 1) for part in particles])
+        assert all([part.shape == (1, 4) for part in particles])
 
 
 @pytest.mark.parametrize("n_events", argvalues=[5])
@@ -54,7 +54,7 @@ def test_n_events(n_events):
     assert len(norm_weights) == 5
     assert all([weight < 1 for weight in norm_weights])
     assert len(particles) == 3
-    assert all([part.shape == (4, 5) for part in particles])
+    assert all([part.shape == (5, 4) for part in particles])
 
 
 if __name__ == "__main__":

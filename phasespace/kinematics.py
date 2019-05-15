@@ -10,52 +10,51 @@
 import tensorflow as tf
 
 
-def scalar_product(vec1, vec2, axis=1):
+def scalar_product(vec1, vec2):
     """
     Calculate scalar product of two 3-vectors
     """
-    return tf.reduce_sum(vec1 * vec2, axis=axis)
+    return tf.reduce_sum(vec1 * vec2, axis=1)
 
 
-def spatial_component(vector, axis=1):
+def spatial_component(vector):
     """
     Return spatial components of the input Lorentz vector
         vector : input Lorentz vector (where indexes 0-2 are space, index 3 is time)
     """
-    return tf.stack(tf.unstack(vector, axis=axis)[0:3])
-    # return vector[:, 0:3]
+    return tf.transpose(tf.stack(tf.unstack(vector, axis=1)[0:3]))
 
 
-def time_component(vector, axis=1):
+def time_component(vector):
     """
     Return time component of the input Lorentz vector
         vector : input Lorentz vector (where indexes 0-2 are space, index 3 is time)
     """
-    return tf.unstack(vector, axis=axis)[3]
+    return tf.expand_dims(tf.unstack(vector, axis=1)[3], axis=-1)
 
 
-def x_component(vector, axis=1):
+def x_component(vector):
     """
     Return spatial X component of the input Lorentz or 3-vector
         vector : input vector
     """
-    return tf.unstack(vector, axis=axis)[0]
+    return tf.expand_dims(tf.unstack(vector, axis=1)[0], axis=-1)
 
 
-def y_component(vector, axis=1):
+def y_component(vector):
     """
     Return spatial Y component of the input Lorentz or 3-vector
         vector : input vector
     """
-    return tf.unstack(vector, axis=axis)[1]
+    return tf.expand_dims(tf.unstack(vector, axis=1)[1], axis=-1)
 
 
-def z_component(vector, axis=1):
+def z_component(vector):
     """
     Return spatial Z component of the input Lorentz or 3-vector
         vector : input vector
     """
-    return tf.unstack(vector, axis=axis)[2]
+    return tf.expand_dims(tf.unstack(vector, axis=1)[2], axis=-1)
 
 
 def mass(vector):
@@ -63,8 +62,10 @@ def mass(vector):
     Calculate mass scalar for Lorentz 4-momentum
         vector : input Lorentz momentum vector
     """
-    return tf.sqrt(tf.reduce_sum(tf.square(vector) * tf.reshape(metric_tensor(), (4, 1)), axis=0))
-    # return tf.sqrt(tf.reduce_sum(vector * vector * metric_tensor(), axis=0))
+    return tf.expand_dims(
+        tf.sqrt(tf.reduce_sum(tf.square(vector) * metric_tensor(),
+                              axis=1)),
+        axis=-1)
 
 
 def lorentz_vector(space, time):
@@ -73,25 +74,25 @@ def lorentz_vector(space, time):
         space : 3-vector of spatial components
         time  : time component
     """
-    return tf.concat([space, tf.stack([time], axis=0)], axis=0)
+    return tf.concat([space, time], axis=1)
 
 
-def lorentz_boost(vector, boostvector, dim_axis=1):
+def lorentz_boost(vector, boostvector):
     """
     Perform Lorentz boost
         vector :     4-vector to be boosted
         boostvector: boost vector. Can be either 3-vector or 4-vector (only spatial components
         are used)
     """
-    boost = spatial_component(boostvector, axis=dim_axis)
-    b2 = scalar_product(boost, boost, dim_axis)
+    boost = spatial_component(boostvector)
+    b2 = tf.expand_dims(scalar_product(boost, boost), axis=-1)
 
     def boost_fn():
         gamma = 1. / tf.sqrt(1. - b2)
         gamma2 = (gamma - 1.0) / b2
-        ve = time_component(vector, axis=dim_axis)
-        vp = spatial_component(vector, axis=dim_axis)
-        bp = scalar_product(vp, boost, dim_axis)
+        ve = time_component(vector)
+        vp = spatial_component(vector)
+        bp = tf.expand_dims(scalar_product(vp, boost), axis=-1)
         vp2 = vp + (gamma2 * bp + gamma * ve) * boost
         ve2 = gamma * (ve + bp)
         return lorentz_vector(vp2, ve2)
@@ -107,12 +108,12 @@ def lorentz_boost(vector, boostvector, dim_axis=1):
 
 def beta(vector, axis=1):
     """Calculate beta of a given 4-vector"""
-    return mass(vector) / time_component(vector, axis=axis)
+    return mass(vector) / time_component(vector)
 
 
-def boost_components(vector, axis=1):
+def boost_components(vector):
     """Get the boost components of a given vector."""
-    return spatial_component(vector, axis=axis) / time_component(vector, axis=axis)
+    return spatial_component(vector) / time_component(vector)
 
 
 def metric_tensor():
