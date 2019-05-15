@@ -333,11 +333,11 @@ class Particle:
                                                           tf.square(masses[:, part_num]))],
                                                  axis=1))
             with tf.control_dependencies([n_events]):
-                cos_z = tf.constant(2.0, dtype=tf.float64) * tf.random.uniform((n_events, 1), dtype=tf.float64) \
-                        - tf.constant(1.0, dtype=tf.float64)
+                cos_z = (tf.constant(2.0, dtype=tf.float64) * tf.random.uniform((n_events, 1), dtype=tf.float64)
+                         - tf.constant(1.0, dtype=tf.float64))
                 sin_z = tf.sqrt(tf.constant(1.0, dtype=tf.float64) - cos_z * cos_z)
-                ang_y = tf.constant(2.0, dtype=tf.float64) * tf.constant(pi, dtype=tf.float64) * \
-                        tf.random.uniform((n_events, 1), dtype=tf.float64)
+                ang_y = (tf.constant(2.0, dtype=tf.float64) * tf.constant(pi, dtype=tf.float64)
+                         * tf.random.uniform((n_events, 1), dtype=tf.float64))
             cos_y = tf.math.cos(ang_y)
             sin_y = tf.math.sin(ang_y)
             # Do the rotations
@@ -480,7 +480,7 @@ class Particle:
                 f"of {boost_to.shape}"
             assert_op = tf.assert_equal(tf.shape(boost_to)[0], tf.shape(n_events), message=message)
             with tf.control_dependencies([assert_op]):
-                boost_to = tf.identidy(boost_to)
+                boost_to = tf.identity(boost_to)
 
         if not isinstance(n_events, tf.Variable):
             n_events = tf.convert_to_tensor(n_events, preferred_dtype=tf.int64)

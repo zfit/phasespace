@@ -7,7 +7,7 @@ __author__ = """Albert Puig Navarro"""
 __email__ = 'albert.puig@cern.ch'
 __version__ = '0.9.0'
 
-__all__ = ['generate', 'Particle']
+__all__ = ['generate_decay', 'Particle']
 
 import sys
 
