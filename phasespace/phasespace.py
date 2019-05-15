@@ -459,7 +459,8 @@ class Particle:
 
         """
         if boost_to is not None and boost_to.shape[0] != n_events:
-            raise ValueError("The number of events requested doesn't match the boost_to input size")
+            raise ValueError(f"The number of events requested ({n_events}) doesn't match the boost_to input size "
+                             f"of {boost_to.shape}")
         if not isinstance(n_events, tf.Variable):
             n_events = tf.convert_to_tensor(n_events, preferred_dtype=tf.int64)
             n_events = tf.cast(n_events, dtype=tf.int64)
