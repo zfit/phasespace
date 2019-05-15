@@ -17,7 +17,6 @@ from math import pi
 import tensorflow as tf
 
 import phasespace.kinematics as kin
-from phasespace.generator import PhasespaceGenerator
 
 
 def process_list_to_tensor(lst):
@@ -83,6 +82,8 @@ class Particle:
 
     """
 
+    _sess_obj = None
+
     def __init__(self, name, mass):  # noqa
         self.name = name
         self.children = []
@@ -90,6 +91,25 @@ class Particle:
             mass = tf.convert_to_tensor(mass, preferred_dtype=tf.float64)
             mass = tf.cast(mass, tf.float64)
         self._mass = mass
+        self._n_events_var = None
+
+    @property
+    def _sess(self):
+        """tf.Session: Internal session object."""
+        sess = self._sess_obj
+        if sess is None:
+            sess = tf.Session()
+            self._sess_obj = sess
+        return sess
+
+    @property
+    def _n_events(self):
+        """tf.Variable: Number of events to generate."""
+        n_events_var = self._n_events_var
+        if n_events_var is None:
+            n_events_var = tf.Variable(initial_value=-42, dtype=tf.int64, use_resource=True, trainable=False)
+            self._n_events_var = n_events_var
+        return n_events_var
 
     def _do_names_clash(self, particles):
         def get_list_of_names(part):
@@ -410,18 +430,6 @@ class Particle:
                         masses.append(sum(get_flattened_values(child_mass)))
                     else:
                         masses.append(child_mass)
-                # Find largest mass tensor
-                # masses_shape = tuple(mass.shape.as_list()[0] for mass in masses)
-                # if None in masses_shape:
-                #     masses_shape = tuple(tf.shape(mass) for mass in masses)
-                #     max_shape = tf.reduce_max(masses_shape)
-                # else:
-                #     max_shape = max(masses_shape)
-
-                # masses = tf.convert_to_tensor([tf.broadcast_to(mass, (max_shape,)) for mass in masses])
-                # if len(masses.shape.as_list()) == 1:
-                #     masses = tf.expand_dims(masses, axis=-1)
-                # w_max *= self._get_w_max(available_mass, masses)
                 masses = tf.stack(masses, axis=1)
                 w_max *= self._get_w_max(available_mass, masses)
                 return w_max
@@ -435,27 +443,36 @@ class Particle:
                                      (n_events,))
         return weights, weights_max, output_particles, output_masses
 
-    def generate_unnormalized(self, n_events, boost_to=None):
-        """Generate unnormalized n-body phase space.
+    def generate_tensor(self, n_events, boost_to=None, normalize_weights=True):
+        """Generate normalized n-body phase space as tensorflow tensors.
+
+        Events are generated in the rest frame of the particle, unless `boost_to` is given.
 
         Note:
-            In this method, the event weights and their normalization (the maximum weight)
-            are returned separately.
+            In this method, the event weights are returned normalized to their maximum.
 
         Arguments:
-            n_events (int, tf.Variable): Number of events to generate.
-            boost_to (optional): Momentum vector of shape (x, 4), where x is optional, where
-                the resulting events will be boosted to. If not specified, events are generated
+            n_events (int): Number of events to generate.
+            boost_to (optional): Momentum vector of shape (x, 4), where x is optional, to where
+                the resulting events will be boosted. If not specified, events are generated
                 in the rest frame of the particle.
+            normalize_weights (bool, optional): Normalize the event weight to its max?
 
         Return:
-            tuple: Event weights tensor of shape (n_events, ), max event weights tensor, of shape
-            (n_events, ), and generated particles, a dictionary of tensors of shape (n_events, 4)
-            with particle names as keys.
+            tuple: Result of the generation, which varies with the value of `normalize_weights`:
+
+                + If True, the tuple elements are the normalized event weights as a tensor of shape
+                (n_events, ), and the momenta generated particles as a dictionary of tensors of shape
+                (4, n_events) with particle names as keys.
+
+                + If False, the tuple weights are the unnormalized event weights as a tensor of shape
+                (n_events, ), the maximum per-event weights as a tensor of shape (n_events, ) and the
+                momenta generated particles as a dictionary of tensors of shape (4, n_events) with particle
+                names as keys.
 
         Raise:
             tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
-            ValueError: If `n_events` and the size of `boost_to` don't match.
+            ValueError: If `n_events` and the size of `boost_to` don't match. See `Particle.generate_unnormalized`.
 
         """
         if boost_to is not None and boost_to.shape[0] != n_events:
@@ -467,47 +484,50 @@ class Particle:
         weights, weights_max, parts, _ = self._recursive_generate(n_events=n_events,
                                                                   boost_to=boost_to,
                                                                   recalculate_max_weights=self.has_grandchildren)
-        return weights, weights_max, parts
+        return (weights / weights_max, parts) if normalize_weights else (weights, weights_max, parts)
 
-    def generate(self, n_events, boost_to=None):
-        """Generate normalized n-body phase space in tensor format.
+    def generate(self, n_events, boost_to=None, normalize_weights=True):
+        """Generate normalized n-body phase space as numpy arrays.
 
         Events are generated in the rest frame of the particle, unless `boost_to` is given.
 
         Note:
             In this method, the event weights are returned normalized to their maximum.
 
-        Note:
-            If nor `n_events` nor `boost_to` is given, a single event is generated in the
-            rest frame of the particle.
-
         Arguments:
-            n_events (int, tf.Variable): Number of events to generate.
-            boost_to (optional): Momentum vector of shape (4, x), where x is optional, where
-                the resulting events will be boosted to. If not specified, events are generated
+            n_events (int): Number of events to generate.
+            boost_to (optional): Momentum vector of shape (x, 4), where x is optional, to where
+                the resulting events will be boosted. If not specified, events are generated
                 in the rest frame of the particle.
+            normalize_weights (bool, optional): Normalize the event weight to its max?
 
         Return:
-            tuple: Normalized event weights tensor of shape (n_events, ), and generated
-            particles, a dictionary of tensors of shape (4, n_events) with particle names
-            as keys.
+            tuple: Result of the generation, which varies with the value of `normalize_weights`:
+
+                + If True, the tuple elements are the normalized event weights as an array of shape
+                (n_events, ), and the momenta generated particles as a dictionary of arrays of shape
+                (4, n_events) with particle names as keys.
+
+                + If False, the tuple weights are the unnormalized event weights as an array of shape
+                (n_events, ), the maximum per-event weights as an array of shape (n_events, ) and the
+                momenta generated particles as a dictionary of arrays of shape (4, n_events) with particle
+                names as keys.
 
         Raise:
             tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
             ValueError: If `n_events` and the size of `boost_to` don't match. See `Particle.generate_unnormalized`.
 
         """
-        weights, weights_max, parts = self.generate_unnormalized(n_events, boost_to)
-        return weights / weights_max, parts
-
-    def get_generator(self):
-        """Get numpy phasespace generator.
-
-        Return:
-            phasespace.generator.PhasespaceGenerator
-
-        """
-        return PhasespaceGenerator(self)
+        # Convert n_events to a tf.Variable to perform graph caching
+        if isinstance(n_events, tf.Variable):
+            n_events_var = n_events
+        else:
+            if isinstance(n_events, tf.Tensor):
+                raise TypeError("Tensor currently not allowed for generate. Use Python integers.")
+            n_events_var = self._n_events
+            n_events_var.load(n_events, session=self._sess)
+        # Run generation
+        return self._sess.run(self.generate_tensor(n_events_var, boost_to, normalize_weights))
 
 
 def generate_decay(mass_top: float, masses: list, n_events: int, boost_to=None,
@@ -536,10 +556,10 @@ def generate_decay(mass_top: float, masses: list, n_events: int, boost_to=None,
     """
     top = Particle('top', mass_top).set_children(*[Particle(str(num + 1), mass=mass)
                                                    for num, mass in enumerate(masses)])
-    if as_numpy:
-        norm_weights, parts = top.get_generator().generate(n_events=n_events, boost_to=boost_to)
-    else:
-        norm_weights, parts = top.generate(n_events=n_events, boost_to=boost_to)
+    norm_weights, parts = top.generate(n_events=n_events,
+                                       boost_to=boost_to,
+                                       normalize_weights=True) if as_numpy \
+        else top.generate_tensor(n_events=n_events, boost_to=boost_to, normalize_weights=True)
     return norm_weights, [parts[child.name] for child in top.children]
 
 # EOF
