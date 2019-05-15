@@ -30,8 +30,8 @@ def b0_to_kstar_gamma(kstar_width=KSTARZ_WIDTH):
         ones = tf.ones((1, n_events), dtype=tf.float64)
         kstar_mass = KSTARZ_MASS * ones
         if kstar_width > 0:
-            min_mass = tf.broadcast_to(min_mass, (1, n_events))
-            max_mass = tf.broadcast_to(max_mass, (1, n_events))
+            min_mass = tf.broadcast_to(min_mass, (n_events, 1))
+            max_mass = tf.broadcast_to(max_mass, (n_events, 1))
             kstar_mass = tfp.distributions.TruncatedNormal(loc=kstar_mass,
                                                            scale=ones * kstar_width,
                                                            low=min_mass,
@@ -51,8 +51,8 @@ def bp_to_k1_kstar_pi_gamma(k1_width=K1_WIDTH, kstar_width=KSTARZ_WIDTH):
         ones = tf.ones((1, n_events), dtype=tf.float64)
         masses = mass * ones
         if width > 0:
-            min_mass = tf.broadcast_to(min_mass, (1, n_events))
-            max_mass = tf.broadcast_to(max_mass, (1, n_events))
+            min_mass = tf.broadcast_to(min_mass, (n_events, 1))
+            max_mass = tf.broadcast_to(max_mass, (n_events, 1))
             masses = tfp.distributions.TruncatedNormal(loc=masses,
                                                        scale=ones * width,
                                                        low=min_mass,
