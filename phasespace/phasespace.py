@@ -248,13 +248,13 @@ class Particle:
 
     @staticmethod
     def _get_w_max(available_mass, masses):
-        emmax = available_mass + masses[:, 0]
+        emmax = available_mass + tf.gather(masses, indices=[0], axis=1)
         emmin = tf.zeros_like(emmax, dtype=tf.float64)
         w_max = tf.ones_like(emmax, dtype=tf.float64)
-        for i in range(1, masses.shape.as_list()[1]):
-            emmin += masses[:, i - 1]
-            emmax += masses[:, i]
-            w_max *= pdk(emmax, emmin, masses[:, i])
+        for i in range(1, masses.shape[1].value):
+            emmin += tf.gather(masses, [i - 1], axis=1)
+            emmax += tf.gather(masses, [i], axis=1)
+            w_max *= pdk(emmax, emmin, tf.gather(masses, [i], axis=1))
         return w_max
 
     def _generate(self, momentum, n_events):
@@ -288,10 +288,10 @@ class Particle:
                 mass = child.get_mass(min_mass, max_mass, n_events)
                 max_mass -= mass
                 masses.append(mass)
-        masses = tf.expand_dims(tf.concat(masses, axis=1), axis=-1)
-        if len(masses.shape.as_list()) == 1:
+        masses = tf.concat(masses, axis=-1)
+        if masses.shape.ndims == 1:
             masses = tf.expand_dims(masses, axis=0)
-        available_mass = top_mass - tf.reduce_sum(masses, axis=1)
+        available_mass = top_mass - tf.reduce_sum(masses, axis=1, keepdims=True)
         mass_check = tf.assert_greater_equal(available_mass, tf.zeros_like(available_mass, dtype=tf.float64),
                                              message="Forbidden decay",
                                              name="mass_check")
@@ -538,7 +538,7 @@ class Particle:
         return self._sess.run(self.generate_tensor(n_events_var, boost_to, normalize_weights))
 
 
-def generate_decay(mass_top: float, masses: list, n_events: int, boost_to=None,
+def generate_decay(mass_top: float, masses: list, n_events: Union[int, tf.Variable], boost_to=None,
                    as_numpy: bool = True):
     """Generate an n-body phasespace.
 
