@@ -241,10 +241,11 @@ def run_k1_gamma(input_file, k1_width, kstar_width, b_at_rest, suffix):
     p_values = {}
     for ref_name, ref_part in rapidsim_parts.items():
         tf_part = name_matching[ref_name]
+        ref_part = ref_part.transpose()  # to be consistent with internal shape (nevents, nobs)
         for coord, coord_name in enumerate(('px', 'py', 'pz', 'e')):
             range_ = (-3000 if coord % 4 != 3 else 0, 3000)
-            ref_histo = make_norm_histo(ref_part[coord], range_=range_)
-            tf_histo = make_norm_histo(particles[tf_part][coord], range_=range_, weights=norm_weights)
+            ref_histo = make_norm_histo(ref_part[:, coord], range_=range_)
+            tf_histo = make_norm_histo(particles[tf_part][:, coord], range_=range_, weights=norm_weights)
             plt.hist(x if coord % 4 != 3 else e, weights=tf_histo, alpha=0.5, label='phasespace', bins=100)
             plt.hist(x if coord % 4 != 3 else e, weights=ref_histo, alpha=0.5, label='RapidSim', bins=100)
             plt.legend(loc='upper right')
