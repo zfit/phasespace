@@ -11,76 +11,95 @@ import tensorflow as tf
 
 
 def scalar_product(vec1, vec2):
-    """
-    Calculate scalar product of two 3-vectors
+    """Calculate scalar product of two 3-vectors.
+
+    Arguments:
+        vec1: First vector.
+        vec2: Second vector.
+
     """
     return tf.reduce_sum(vec1 * vec2, axis=1)
 
 
 def spatial_component(vector):
-    """
-    Return spatial components of the input Lorentz vector
-        vector : input Lorentz vector (where indexes 0-2 are space, index 3 is time)
+    """Extract spatial components of the input Lorentz vector.
+
+    Arguments:
+        vector: Input Lorentz vector (where indexes 0-2 are space, index 3 is time).
+
     """
     return tf.gather(vector, indices=[0, 1, 2], axis=-1)
 
 
 def time_component(vector):
-    """
-    Return time component of the input Lorentz vector
-        vector : input Lorentz vector (where indexes 0-2 are space, index 3 is time)
+    """Extract time component of the input Lorentz vector.
+
+    Arguments:
+        vector: Input Lorentz vector (where indexes 0-2 are space, index 3 is time).
+
     """
     return tf.gather(vector, indices=[3], axis=-1)
 
 
 def x_component(vector):
-    """
-    Return spatial X component of the input Lorentz or 3-vector
-        vector : input vector
+    """Extract spatial X component of the input Lorentz or 3-vector.
+
+    Arguments:
+        vector: Input vector.
+
     """
     return tf.gather(vector, indices=[0], axis=-1)
 
 
 def y_component(vector):
-    """
-    Return spatial Y component of the input Lorentz or 3-vector
-        vector : input vector
+    """Extract spatial Y component of the input Lorentz or 3-vector.
+
+    Arguments:
+        vector: Input vector.
     """
     return tf.gather(vector, indices=[1], axis=-1)
 
 
 def z_component(vector):
-    """
-    Return spatial Z component of the input Lorentz or 3-vector
-        vector : input vector
+    """Extract spatial Z component of the input Lorentz or 3-vector.
+
+    Arguments:
+        vector: Input vector.
+
     """
     return tf.gather(vector, indices=[2], axis=-1)
 
 
 def mass(vector):
-    """
-    Calculate mass scalar for Lorentz 4-momentum
-        vector : input Lorentz momentum vector
+    """Calculate mass scalar for Lorentz 4-momentum.
+
+    Arguments:
+        vector: Input Lorentz momentum vector.
+
     """
     return tf.sqrt(tf.reduce_sum(tf.square(vector) * metric_tensor(),
                                  axis=-1, keepdims=True))
 
 
 def lorentz_vector(space, time):
-    """
-    Make a Lorentz vector from spatial and time components
-        space : 3-vector of spatial components
-        time  : time component
+    """Make a Lorentz vector from spatial and time components.
+
+    Arguments:
+        space: 3-vector of spatial components.
+        time: Time component.
+
     """
     return tf.concat([space, time], axis=-1)
 
 
 def lorentz_boost(vector, boostvector):
-    """
-    Perform Lorentz boost
-        vector :     4-vector to be boosted
-        boostvector: boost vector. Can be either 3-vector or 4-vector (only spatial components
-        are used)
+    """Perform Lorentz boost.
+
+    Arguments:
+        vector: 4-vector to be boosted
+        boostvector: Boost vector. Can be either 3-vector or 4-vector, since only
+            spatial components are used.
+
     """
     boost = spatial_component(boostvector)
     b2 = tf.expand_dims(scalar_product(boost, boost), axis=-1)
@@ -105,19 +124,28 @@ def lorentz_boost(vector, boostvector):
 
 
 def beta(vector):
-    """Calculate beta of a given 4-vector"""
+    """Calculate beta of a given 4-vector.
+
+    Arguments:
+        vector: Input Lorentz momentum vector.
+
+    """
     return mass(vector) / time_component(vector)
 
 
 def boost_components(vector):
-    """Get the boost components of a given vector."""
+    """Get the boost components of a given 4-vector.
+
+    Arguments:
+        vector: Input Lorentz momentum vector.
+
+    """
     return spatial_component(vector) / time_component(vector)
 
 
 def metric_tensor():
-    """
-    Metric tensor for Lorentz space (constant)
-    """
+    """Metric tensor for Lorentz space (constant)."""
     return tf.constant([-1., -1., -1., 1.], dtype=tf.float64)
 
 # EOF
+
