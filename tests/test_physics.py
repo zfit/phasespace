@@ -85,11 +85,11 @@ def run_test(n_particles, test_prefix):
     # change n_events and run again
     n_events.load(main_run_n_events, session=sess)
     weights, particles = sess.run(generate)
-    parts = np.concatenate(particles, axis=0)
-    histos = [make_norm_histo(parts[coord],
+    parts = np.concatenate(particles, axis=1)
+    histos = [make_norm_histo(parts[:, coord],
                               range_=(-3000 if coord % 4 != 3 else 0, 3000),
                               weights=weights)
-              for coord in range(parts.shape[0])]
+              for coord in range(parts.shape[1])]
     weight_histos = make_norm_histo(weights, range_=(0, 1))
     ref_histos, ref_weights = create_ref_histos(n_particles)
     p_values = np.array([ks_2samp(histos[coord], ref_histos[coord])[1]
@@ -164,8 +164,8 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
         tf_part = name_matching[ref_name]
         for coord, coord_name in enumerate(('px', 'py', 'pz', 'e')):
             range_ = (-3000 if coord % 4 != 3 else 0, 3000)
-            ref_histo = make_norm_histo(ref_part[coord], range_=range_)
-            tf_histo = make_norm_histo(particles[tf_part][coord], range_=range_, weights=norm_weights)
+            ref_histo = make_norm_histo(ref_part[:, coord], range_=range_)
+            tf_histo = make_norm_histo(particles[tf_part][:, coord], range_=range_, weights=norm_weights)
             plt.hist(x if coord % 4 != 3 else e, weights=tf_histo, alpha=0.5, label='phasespace', bins=100)
             plt.hist(x if coord % 4 != 3 else e, weights=ref_histo, alpha=0.5, label='RapidSim', bins=100)
             plt.legend(loc='upper right')

@@ -49,7 +49,7 @@ def test_kstargamma():
     assert all([weight < 1 for weight in norm_weights])
     assert len(particles) == 4
     assert set(particles.keys()) == {'K*0', 'gamma', 'K+', 'pi-'}
-    assert all([part.shape == (4, 1000) for part in particles.values()])
+    assert all([part.shape == (1000, 4) for part in particles.values()])
 
 
 def test_k1gamma():
@@ -60,7 +60,7 @@ def test_k1gamma():
     assert all([weight < 1 for weight in norm_weights])
     assert len(particles) == 6
     assert set(particles.keys()) == {'K1+', 'K*0', 'gamma', 'K+', 'pi-', 'pi+'}
-    assert all([part.shape == (4, 1000) for part in particles.values()])
+    assert all([part.shape == (1000, 4) for part in particles.values()])
 
 
 if __name__ == "__main__":
