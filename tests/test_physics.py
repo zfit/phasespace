@@ -144,9 +144,8 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
         booster = rapidsim.generate_fonll(decays.B0_MASS, 7, 'b', n_events)
         booster = booster.transpose()
         rapidsim_getter = rapidsim.get_tree
-    with tf.Session() as sess:
-        norm_weights, particles = sess.run(
-            decays.b0_to_kstar_gamma(kstar_width=kstar_width).generate(n_events=n_events, boost_to=booster))
+        norm_weights, particles = decays.b0_to_kstar_gamma(kstar_width=kstar_width).generate(n_events=n_events,
+                                                                                             boost_to=booster)
     rapidsim_parts = rapidsim_getter(os.path.join(BASE_PATH,
                                                   'data',
                                                   input_file),
@@ -221,14 +220,14 @@ def run_k1_gamma(input_file, k1_width, kstar_width, b_at_rest, suffix):
         rapidsim_getter = rapidsim.get_tree
     with tf.Session() as sess:
         norm_weights, particles = sess.run(
-                decays.bp_to_k1_kstar_pi_gamma(k1_width=k1_width, kstar_width=kstar_width)
-                    .generate(n_events=n_events, boost_to=booster))
+            decays.bp_to_k1_kstar_pi_gamma(k1_width=k1_width, kstar_width=kstar_width)
+                .generate(n_events=n_events, boost_to=booster))
     rapidsim_parts = rapidsim_getter(
-            os.path.join(BASE_PATH,
-                         'data',
-                         input_file),
-            'Bp_0',
-            ('K1_1270_p_0', 'Kst0_0', 'gamma_0', 'Kp_0', 'pim_0', 'pip_0'))
+        os.path.join(BASE_PATH,
+                     'data',
+                     input_file),
+        'Bp_0',
+        ('K1_1270_p_0', 'Kst0_0', 'gamma_0', 'Kp_0', 'pim_0', 'pip_0'))
     name_matching = {'K1_1270_p_0': 'K1+',
                      'Kst0_0': 'K*0',
                      'gamma_0': 'gamma',
