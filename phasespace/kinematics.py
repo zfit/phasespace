@@ -106,7 +106,7 @@ def lorentz_boost(vector, boostvector):
     return boosted_vector
 
 
-def beta(vector, axis=1):
+def beta(vector):
     """Calculate beta of a given 4-vector"""
     return mass(vector) / time_component(vector)
 
