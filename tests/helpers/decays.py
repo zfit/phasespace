@@ -27,7 +27,7 @@ def b0_to_kstar_gamma(kstar_width=KSTARZ_WIDTH):
     """Generate B0 -> K*gamma."""
 
     def kstar_mass(min_mass, max_mass, n_events):
-        ones = tf.ones((1, n_events), dtype=tf.float64)
+        ones = tf.ones((n_events, 1), dtype=tf.float64)
         kstar_mass = KSTARZ_MASS * ones
         if kstar_width > 0:
             min_mass = tf.broadcast_to(min_mass, (n_events, 1))
@@ -48,7 +48,7 @@ def bp_to_k1_kstar_pi_gamma(k1_width=K1_WIDTH, kstar_width=KSTARZ_WIDTH):
     """Generate B+ -> K1 (-> K* (->K pi) pi) gamma."""
 
     def res_mass(mass, width, min_mass, max_mass, n_events):
-        ones = tf.ones((1, n_events), dtype=tf.float64)
+        ones = tf.ones((n_events, 1), dtype=tf.float64)
         masses = mass * ones
         if width > 0:
             min_mass = tf.broadcast_to(min_mass, (n_events, 1))

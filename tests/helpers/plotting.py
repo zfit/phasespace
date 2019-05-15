@@ -19,7 +19,7 @@ def make_norm_histo(array, range_, weights=None):
 def mass(vector):
     """Calculate mass scalar for Lorentz 4-momentum."""
     return np.sqrt(np.sum(vector * vector * np.reshape(np.array([-1., -1., -1., 1.]),
-                                                       (4, 1)),
-                          axis=0))
+                                                       (1, 4)),
+                          axis=1))
 
 # EOF
