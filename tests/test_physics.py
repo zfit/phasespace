@@ -66,7 +66,7 @@ def create_ref_histos(n_pions):
                             weights=weights)
             for pion in pions.values()
             for coord, array in enumerate([pion.x, pion.y, pion.z, pion.E])], \
-           make_norm_histo(weights, range_=(0, 1))
+           make_norm_histo(weights, range_=(0, 1+1e-8))
 
 
 def run_test(n_particles, test_prefix):
@@ -90,7 +90,7 @@ def run_test(n_particles, test_prefix):
                               range_=(-3000 if coord % 4 != 3 else 0, 3000),
                               weights=weights)
               for coord in range(parts.shape[1])]
-    weight_histos = make_norm_histo(weights, range_=(0, 1))
+    weight_histos = make_norm_histo(weights, range_=(0, 1+1e-8))
     ref_histos, ref_weights = create_ref_histos(n_particles)
     p_values = np.array([ks_2samp(histos[coord], ref_histos[coord])[1]
                          for coord, _ in enumerate(histos)] +
@@ -136,6 +136,7 @@ def test_four_body():
 
 
 def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
+    """Run B0->K*gamma test."""
     n_events = 1000000
     if b_at_rest:
         booster = None
@@ -144,8 +145,8 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
         booster = rapidsim.generate_fonll(decays.B0_MASS, 7, 'b', n_events)
         booster = booster.transpose()
         rapidsim_getter = rapidsim.get_tree
-        norm_weights, particles = decays.b0_to_kstar_gamma(kstar_width=kstar_width).generate(n_events=n_events,
-                                                                                             boost_to=booster)
+    norm_weights, particles = decays.b0_to_kstar_gamma(kstar_width=kstar_width) \
+        .generate(n_events=n_events, boost_to=booster)
     rapidsim_parts = rapidsim_getter(os.path.join(BASE_PATH,
                                                   'data',
                                                   input_file),
@@ -210,6 +211,7 @@ def test_kstargamma_resonant_at_rest():
 
 
 def run_k1_gamma(input_file, k1_width, kstar_width, b_at_rest, suffix):
+    """Run B+ -> K1gamma test."""
     n_events = 1000000
     if b_at_rest:
         booster = None
@@ -218,10 +220,8 @@ def run_k1_gamma(input_file, k1_width, kstar_width, b_at_rest, suffix):
         booster = rapidsim.generate_fonll(decays.B0_MASS, 7, 'b', n_events)
         booster = booster.transpose()
         rapidsim_getter = rapidsim.get_tree
-    with tf.Session() as sess:
-        norm_weights, particles = sess.run(
-            decays.bp_to_k1_kstar_pi_gamma(k1_width=k1_width, kstar_width=kstar_width)
-                .generate(n_events=n_events, boost_to=booster))
+    norm_weights, particles = decays.bp_to_k1_kstar_pi_gamma(k1_width=k1_width, kstar_width=kstar_width) \
+        .generate(n_events=n_events, boost_to=booster)
     rapidsim_parts = rapidsim_getter(
         os.path.join(BASE_PATH,
                      'data',

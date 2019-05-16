@@ -151,7 +151,11 @@ class Particle:
         """
         if self._mass is None:
             raise ValueError("Mass has not been configured!")
-        return self._mass if self.has_fixed_mass else self._mass(min_mass, max_mass, n_events)
+        if self.has_fixed_mass:
+            mass = self._mass
+        else:
+            mass = self._mass(min_mass, max_mass, n_events)
+        return mass
 
     @property
     def has_fixed_mass(self):
@@ -263,10 +267,9 @@ class Particle:
         p_top, n_events = self._preprocess(momentum, n_events)
         top_mass = tf.broadcast_to(kin.mass(p_top), (n_events, 1))
         n_particles = len(self.children)
-
         # Prepare masses
         def recurse_stable(part):
-            output_mass = tf.zeros(tuple(), dtype=tf.float64)
+            output_mass = 0
             for child in part.children:
                 if child.has_fixed_mass:
                     output_mass += child.get_mass()
@@ -274,9 +277,11 @@ class Particle:
                     output_mass += recurse_stable(child)
             return output_mass
 
-        mass_from_stable = tf.reduce_sum([child.get_mass() for child in self.children
-                                          if child.has_fixed_mass],
-                                         axis=0)
+        mass_from_stable = tf.broadcast_to(
+            tf.reduce_sum([child.get_mass() for child in self.children
+                           if child.has_fixed_mass],
+                          axis=0),
+            (n_events, 1))
         max_mass = top_mass - mass_from_stable
         masses = []
         for child in self.children:
@@ -284,13 +289,13 @@ class Particle:
                 masses.append(tf.broadcast_to(child.get_mass(), (n_events, 1)))
             else:
                 # Recurse that particle to know the minimum mass we need to generate
-                min_mass = tf.broadcast_to(recurse_stable(child), tf.shape(max_mass))
+                min_mass = tf.broadcast_to(recurse_stable(child), (n_events, 1))
                 mass = child.get_mass(min_mass, max_mass, n_events)
                 max_mass -= mass
-                masses.append(mass)
+                masses.append(tf.reshape(mass, (n_events, 1)))
         masses = tf.concat(masses, axis=-1)
-        if masses.shape.ndims == 1:
-            masses = tf.expand_dims(masses, axis=0)
+        # if masses.shape.ndims == 1:
+        #     masses = tf.expand_dims(masses, axis=0)
         available_mass = top_mass - tf.reduce_sum(masses, axis=1, keepdims=True)
         mass_check = tf.assert_greater_equal(available_mass, tf.zeros_like(available_mass, dtype=tf.float64),
                                              message="Forbidden decay",
@@ -308,23 +313,23 @@ class Particle:
                            axis=1)
         if random.shape[1].value is None:
             random.set_shape((None, n_particles))
-        random = tf.expand_dims(random, axis=-1)
+        # random = tf.expand_dims(random, axis=-1)
         sum_ = tf.zeros((n_events, 1), dtype=tf.float64)
         inv_masses = []
         # TODO(Mayou36): rewrite with cumsum?
         for i in range(n_particles):
-            sum_ += masses[:, i]
-            inv_masses.append(random[:, i] * available_mass + sum_)
+            sum_ += tf.gather(masses, [i], axis=1)
+            inv_masses.append(tf.gather(random, [i], axis=1) * available_mass + sum_)
         pds = []
         # Calculate weights of the events
         for i in range(n_particles - 1):
-            pds.append(pdk(inv_masses[i + 1], inv_masses[i], masses[:, i + 1]))
+            pds.append(pdk(inv_masses[i + 1], inv_masses[i], tf.gather(masses, [i + 1], axis=1)))
         weights = tf.reduce_prod(pds, axis=0)
         zero_component = tf.zeros_like(pds[0], dtype=tf.float64)
         generated_particles = [tf.concat([zero_component,
                                           pds[0],
                                           zero_component,
-                                          tf.sqrt(tf.square(pds[0]) + tf.square(masses[:, 0]))],
+                                          tf.sqrt(tf.square(pds[0]) + tf.square(tf.gather(masses, [0], axis=1)))],
                                          axis=1)]
         part_num = 1
         while True:
@@ -332,7 +337,7 @@ class Particle:
                                                   -pds[part_num - 1],
                                                   zero_component,
                                                   tf.sqrt(tf.square(pds[part_num - 1]) +
-                                                          tf.square(masses[:, part_num]))],
+                                                          tf.square(tf.gather(masses, [part_num], axis=1)))],
                                                  axis=1))
             with tf.control_dependencies([n_events]):
                 cos_z = (tf.constant(2.0, dtype=tf.float64) * tf.random.uniform((n_events, 1), dtype=tf.float64)
@@ -387,7 +392,7 @@ class Particle:
         weights, weights_max, parts, children_masses = self._generate(momentum, n_events)
         output_particles = {child.name: parts[child_num]
                             for child_num, child in enumerate(self.children)}
-        output_masses = {child.name: children_masses[:, child_num]
+        output_masses = {child.name: tf.gather(children_masses, [child_num], axis=1)
                          for child_num, child in enumerate(self.children)}
         for child_num, child in enumerate(self.children):
             if child.has_children:
@@ -432,7 +437,7 @@ class Particle:
                         masses.append(sum(get_flattened_values(child_mass)))
                     else:
                         masses.append(child_mass)
-                masses = tf.stack(masses, axis=1)
+                masses = tf.concat(masses, axis=1)
                 w_max *= self._get_w_max(available_mass, masses)
                 return w_max
 
