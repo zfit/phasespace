@@ -154,6 +154,8 @@ class Particle:
         if self.has_fixed_mass:
             mass = self._mass
         else:
+            min_mass = tf.reshape(min_mass, (n_events, ))
+            max_mass = tf.reshape(max_mass, (n_events, ))
             mass = self._mass(min_mass, max_mass, n_events)
         return mass
 
