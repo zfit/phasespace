@@ -86,8 +86,11 @@ a list. For example, to generate :math:`B^0\to K\pi`, we would do:
 
 This returns a numpy array of 1000 elements in the case of ``weights`` and a list of `n particles` (2) arrays of (1000, 4) shape,
 where each of the 4-dimensions corresponds to one of the components of the generated Lorentz 4-vector.
+All particles are generated in the rest frame of the top particle; boosting to a certain momentum (or list of momenta) can be
+achieved by passing the momenta to the `boost_to` argument.
+
 Behind the scenes, this function runs the TensorFlow graph, but no caching of the graph or reusing the session is performed.
-If we want to get the graph to avoid an immediate execution, we can use the `as_numpy` flag. Then, to produce a similar result
+If we want to get the graph to avoid an immediate execution, we can use the `as_numpy` flag. Then, to produce the equivalent result
 to the previous example, we simply do:
 
 .. code-block:: python

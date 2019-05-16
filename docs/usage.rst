@@ -156,7 +156,7 @@ very similar interface to ``TGenPhaseSpace``. For example, to generate :math:`B^
                                             [PION_MASS, KAON_MASS],
                                             N_EVENTS)
 
-In this case, since particles are unnamed, the ``particles`` object contains a list of (4, `N_EVENTS`) tensors in the order
+In this case, since particles are unnamed, the ``particles`` object contains a list of (`N_EVENTS`, 4) tensors in the order
 of the particles specified in the ``generate`` call.
 
 Internally, this function builds a decay chain using ``Particle``, and therefore the same considerations as before apply;
