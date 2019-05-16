@@ -1,6 +1,6 @@
-=====================
-TensorFlow PhaseSpace
-=====================
+==========
+PhaseSpace
+==========
 
 .. image:: https://zenodo.org/badge/172891230.svg
    :target: https://zenodo.org/badge/latestdoi/172891230
@@ -50,13 +50,13 @@ Additionally, an oft-needed functionality to generate complex decay chains, not 
 Installing
 ----------
 
-To install TensorFlow PhaseSpace, run this command in your terminal:
+To install `phasespace`, run this command in your terminal:
 
 .. code-block:: console
 
     $ pip install phasespace
 
-This is the preferred method to install TensorFlow PhaseSpace, as it will always install the most recent stable release.
+This is the preferred method to install `phasespace`, as it will always install the most recent stable release.
 
 For the newest development version (in case you really need it), you can install the version from git with
 
@@ -69,31 +69,37 @@ How to use
 ----------
 
 The generation of simple `n`-body decays can be done using the ``generate`` function of ``phasespace`` with a
-very similar interface to ``TGenPhaseSpace``. For example, to generate :math:`B^0\to K\pi`, we would do:
+very simple interface: one needs to pass the mass of the top particle and the masses of the children particle as
+a list. For example, to generate :math:`B^0\to K\pi`, we would do:
 
 .. code-block:: python
 
    import phasespace
-   import tensorflow as tf
 
    B0_MASS = 5279.58
-   B0_AT_REST = [0.0, 0.0, 0.0, B0_MASS]
    PION_MASS = 139.57018
    KAON_MASS = 493.677
 
-   weights, particles = phasespace.generate(B0_AT_REST,
+   weights, particles = phasespace.generate(B0_MASS,
                                             [PION_MASS, KAON_MASS],
-                                            1000)
+                                            n_events=1000)
 
-This generates TensorFlow tensors, so no code has been executed yet. To run the TensorFlow graph, we simply do:
+This returns a numpy array of 1000 elements in the case of ``weights`` and a list of `n particles` (2) arrays of (1000, 4) shape,
+where each of the 4-dimensions corresponds to one of the components of the generated Lorentz 4-vector.
+Behind the scenes, this function runs the TensorFlow graph, but no caching of the graph or reusing the session is performed.
+If we want to get the graph to avoid an immediate execution, we can use the `as_numpy` flag. Then, to produce a similar result
+to the previous example, we simply do:
 
 .. code-block:: python
 
-   with tf.Session() as sess:
-      weights, particles = sess.run([weights, particles])
+   import tensorflow as tf
 
-This returns an array of 1000 elements in the case of ``weights`` and a list of `n particles` (2) arrays of (4, 1000) shape,
-where each of the 4-dimensions corresponds to one of the components of the generated Lorentz 4-vector.
+   with tf.Session() as sess:
+       weights, particles = phasespace.generate(B0_MASS,
+                                                [PION_MASS, KAON_MASS],
+                                                n_events=1000,
+                                                as_numpy=False)
+       weights, particles = sess.run([weights, particles])
 
 Sequential decays can be handled with the ``Particle`` class (used internally by ``generate``) and its ``set_children`` method.
 As an example, to build the :math:`B^{0}\to K^{*}\gamma` decay in which :math:`K^*\to K\pi`, we would write:
@@ -101,10 +107,8 @@ As an example, to build the :math:`B^{0}\to K^{*}\gamma` decay in which :math:`K
 .. code-block:: python
 
    from phasespace import Particle
-   import tensorflow as tf
 
    B0_MASS = 5279.58
-   B0_AT_REST = [0.0, 0.0, 0.0, B0_MASS]
    KSTARZ_MASS = 895.81
    PION_MASS = 139.57018
    KAON_MASS = 493.677
@@ -113,10 +117,9 @@ As an example, to build the :math:`B^{0}\to K^{*}\gamma` decay in which :math:`K
    kaon = Particle('K+', KAON_MASS)
    kstar = Particle('K*', KSTARZ_MASS).set_children(pion, kaon)
    gamma = Particle('gamma', 0)
-   bz = Particle('B0').set_children(kstar, gamma)
+   bz = Particle('B0', B0_MASS).set_children(kstar, gamma)
 
-   with tf.Session() as sess:
-      weights, particles = sess.run(bz.generate(B0_AT_REST, 1000))
+   weights, particles = bz.generate(n_events=1000)
 
 Where we have used the fact that ``set_children`` returns the parent particle.
 In this case, ``particles`` is a ``dict`` with the particle names as keys:
@@ -124,41 +127,51 @@ In this case, ``particles`` is a ``dict`` with the particle names as keys:
 .. code-block:: pycon
 
    >>> particles
-   {'K*': array([[-2259.88717495,   742.20158838, -1419.57804967, ...,
-            385.51632682,   890.89417859, -1938.80489221],
-         [ -491.3119786 , -2348.67021741, -2049.19459865, ...,
-            -932.58261761, -1054.16217965, -1669.40481126],
-         [-1106.5946257 ,   711.27644522,  -598.85626591, ...,
-         -2356.84025605, -2160.57372728,  -164.77965753],
-         [ 2715.78804872,  2715.78804872,  2715.78804872, ...,
-            2715.78804872,  2715.78804872,  2715.78804872]]),
-   'K+': array([[-1918.74294565,   363.10302225,  -830.13803095, ...,
-               9.28960349,   850.87382095,  -895.29815921],
-         [ -566.15415012,  -956.94044749, -1217.14751182, ...,
-            -243.52446264, -1095.04308712, -1078.03237584],
-         [-1108.26109897,   534.79579335,  -652.41135612, ...,
-            -901.56453631, -2069.39723754,  -244.1159568 ],
-         [ 2339.67191226,  1255.90698132,  1685.21060224, ...,
-            1056.37401241,  2539.53293518,  1505.66336806]]),
-   'gamma': array([[2259.88717495, -742.20158838, 1419.57804967, ..., -385.51632682,
-         -890.89417859, 1938.80489221],
-         [ 491.3119786 , 2348.67021741, 2049.19459865, ...,  932.58261761,
-         1054.16217965, 1669.40481126],
-         [1106.5946257 , -711.27644522,  598.85626591, ..., 2356.84025605,
-         2160.57372728,  164.77965753],
-         [2563.79195128, 2563.79195128, 2563.79195128, ..., 2563.79195128,
-         2563.79195128, 2563.79195128]]),
-   'pi+': array([[ -341.14422931,   379.09856613,  -589.44001872, ...,
-            376.22672333,    40.02035764, -1043.506733  ],
-         [   74.84217153, -1391.72976992,  -832.04708683, ...,
-            -689.05815497,    40.88090746,  -591.37243542],
-         [    1.66647327,   176.48065186,    53.55509021, ...,
-         -1455.27571974,   -91.17648974,    79.33629927],
-         [  376.11613646,  1459.8810674 ,  1030.57744648, ...,
-            1659.41403631,   176.25511354,  1210.12468065]])}
+   {'K*': array([[ 1732.79325872, -1632.88873127,   950.85807735,  2715.78804872],
+          [-1633.95329448,   239.88921123, -1961.0402768 ,  2715.78804872],
+          [  407.15613764, -2236.6569286 , -1185.16616251,  2715.78804872],
+          ...,
+          [ 1091.64603395, -1301.78721269,  1920.07503991,  2715.78804872],
+          [ -517.3125083 ,  1901.39296899,  1640.15905194,  2715.78804872],
+          [  656.56413668,  -804.76922982,  2343.99214816,  2715.78804872]]),
+    'K+': array([[  750.08077976,  -547.22569019,   224.6920906 ,  1075.30490935],
+          [-1499.90049089,   289.19714633, -1935.27960292,  2514.43047106],
+          [   97.64746732, -1236.68112923,  -381.09526192,  1388.47607911],
+          ...,
+          [  508.66157459,  -917.93523639,  1474.7064148 ,  1876.11771642],
+          [ -212.28646168,   540.26381432,   610.86656669,   976.63988936],
+          [  177.16656666,  -535.98777569,   946.12636904,  1207.28744488]]),
+    'gamma': array([[-1732.79325872,  1632.88873127,  -950.85807735,  2563.79195128],
+          [ 1633.95329448,  -239.88921123,  1961.0402768 ,  2563.79195128],
+          [ -407.15613764,  2236.6569286 ,  1185.16616251,  2563.79195128],
+          ...,
+          [-1091.64603395,  1301.78721269, -1920.07503991,  2563.79195128],
+          [  517.3125083 , -1901.39296899, -1640.15905194,  2563.79195128],
+          [ -656.56413668,   804.76922982, -2343.99214816,  2563.79195128]]),
+    'pi+': array([[  982.71247896, -1085.66304109,   726.16598675,  1640.48313937],
+          [ -134.0528036 ,   -49.3079351 ,   -25.76067389,   201.35757766],
+          [  309.50867032,  -999.97579937,  -804.0709006 ,  1327.31196961],
+          ...,
+          [  582.98445936,  -383.85197629,   445.36862511,   839.6703323 ],
+          [ -305.02604662,  1361.12915468,  1029.29248526,  1739.14815935],
+          [  479.39757002,  -268.78145413,  1397.86577911,  1508.50060384]])}
 
-It is also important to note the mass is not necessary for the top particle, as it is determined
-from the input 4-momentum.
+The `Particle` class is able to cache the graphs so it is possible to generate in a loop
+without overhead:
+
+.. code-block:: pycon
+
+    for i in range(10):
+        weights, particles = bz.generate(n_events=1000)
+        ...
+        (do something with weights and particles)
+        ...
+
+This way of generating is recommended in the case of large samples, as it allows to benefit from
+parallelisation while at the same time keep the memory usage low.
+
+If we want to operate with the TensorFlow graph instead, we can use the `generate_tensor` method
+of `Particle`, which has the same signature as `generate`.
 
 More examples can be found in the ``tests`` folder and in the `documentation`_.
 
