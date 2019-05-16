@@ -50,13 +50,13 @@ Additionally, an oft-needed functionality to generate complex decay chains, not 
 Installing
 ----------
 
-To install `phasespace`, run this command in your terminal:
+To install ``phasespace``, run this command in your terminal:
 
 .. code-block:: console
 
     $ pip install phasespace
 
-This is the preferred method to install `phasespace`, as it will always install the most recent stable release.
+This is the preferred method to install ``phasespace``, as it will always install the most recent stable release.
 
 For the newest development version (in case you really need it), you can install the version from git with
 
@@ -84,10 +84,10 @@ a list. For example, to generate :math:`B^0\to K\pi`, we would do:
                                             [PION_MASS, KAON_MASS],
                                             n_events=1000)
 
-This returns a numpy array of 1000 elements in the case of ``weights`` and a list of `n particles` (2) arrays of (1000, 4) shape,
+This returns a numpy array of 1000 elements in the case of ``weights`` and a list of ``n particles`` (2) arrays of (1000, 4) shape,
 where each of the 4-dimensions corresponds to one of the components of the generated Lorentz 4-vector.
 All particles are generated in the rest frame of the top particle; boosting to a certain momentum (or list of momenta) can be
-achieved by passing the momenta to the `boost_to` argument.
+achieved by passing the momenta to the ``boost_to`` argument.
 
 Behind the scenes, this function runs the TensorFlow graph, but no caching of the graph or reusing the session is performed.
 If we want to get the graph to avoid an immediate execution, we can use the `as_numpy` flag. Then, to produce the equivalent result

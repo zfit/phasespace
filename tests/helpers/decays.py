@@ -29,8 +29,6 @@ def b0_to_kstar_gamma(kstar_width=KSTARZ_WIDTH):
         ones = tf.ones((n_events, ), dtype=tf.float64)
         kstar_mass = KSTARZ_MASS * ones
         if kstar_width > 0:
-            min_mass = tf.reshape(min_mass, (n_events, ))
-            max_mass = tf.reshape(max_mass, (n_events, ))
             kstar_mass = tfp.distributions.TruncatedNormal(loc=kstar_mass,
                                                            scale=ones * kstar_width,
                                                            low=min_mass,
