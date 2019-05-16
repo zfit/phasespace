@@ -25,13 +25,12 @@ KSTARZ_WIDTH = 47.4
 
 def b0_to_kstar_gamma(kstar_width=KSTARZ_WIDTH):
     """Generate B0 -> K*gamma."""
-
     def kstar_mass(min_mass, max_mass, n_events):
-        ones = tf.ones((n_events, 1), dtype=tf.float64)
+        ones = tf.ones((n_events, ), dtype=tf.float64)
         kstar_mass = KSTARZ_MASS * ones
         if kstar_width > 0:
-            min_mass = tf.broadcast_to(min_mass, (n_events, 1))
-            max_mass = tf.broadcast_to(max_mass, (n_events, 1))
+            min_mass = tf.reshape(min_mass, (n_events, ))
+            max_mass = tf.reshape(max_mass, (n_events, ))
             kstar_mass = tfp.distributions.TruncatedNormal(loc=kstar_mass,
                                                            scale=ones * kstar_width,
                                                            low=min_mass,
@@ -46,13 +45,12 @@ def b0_to_kstar_gamma(kstar_width=KSTARZ_WIDTH):
 
 def bp_to_k1_kstar_pi_gamma(k1_width=K1_WIDTH, kstar_width=KSTARZ_WIDTH):
     """Generate B+ -> K1 (-> K* (->K pi) pi) gamma."""
-
     def res_mass(mass, width, min_mass, max_mass, n_events):
-        ones = tf.ones((n_events, 1), dtype=tf.float64)
+        ones = tf.ones((n_events,), dtype=tf.float64)
         masses = mass * ones
         if width > 0:
-            min_mass = tf.broadcast_to(min_mass, (n_events, 1))
-            max_mass = tf.broadcast_to(max_mass, (n_events, 1))
+            min_mass = tf.reshape(min_mass, (n_events,))
+            max_mass = tf.reshape(max_mass, (n_events,))
             masses = tfp.distributions.TruncatedNormal(loc=masses,
                                                        scale=ones * width,
                                                        low=min_mass,
