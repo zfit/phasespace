@@ -23,9 +23,11 @@ from .helpers import decays
 B0_MASS = decays.B0_MASS
 PION_MASS = decays.PION_MASS
 
+
 def setup_method():
     phasespace.Particle._sess.close()
     tf.reset_default_graph()
+
 
 def test_one_event():
     """Test B->pi pi pi."""
@@ -63,8 +65,26 @@ def test_n_events(n_events):
     assert all([part.shape == (5, 4) for part in particles])
 
 
+def test_cache():
+    from phasespace import Particle
+
+    mother_particle = Particle('mother', 10000)
+    daughter1 = Particle('daughter1', mass=2000)
+    _ = mother_particle.set_children(daughter1, Particle('daughter2', mass=1000))
+    assert not mother_particle._cache_valid
+    _ = mother_particle.generate(n_events=8)
+    assert mother_particle._cache is not None
+    assert mother_particle._cache_valid
+
+    daughter1.set_children(Particle('daugther21', mass=100),
+                           Particle('daughter22', mass=500))
+    assert not mother_particle._cache_valid
+    _ = mother_particle.generate(n_events=8)
+    assert mother_particle._cache_valid
+
+
 if __name__ == "__main__":
     test_one_event()
     test_n_events(5)
 
-# EOF
+    # EOF
