@@ -3,6 +3,8 @@ Welcome to TensorFlow PhaseSpace's documentation!
 
 .. include:: ../README.rst
 
+   authors
+
 
 Table of Contents
 =================
@@ -15,9 +17,4 @@ Table of Contents
    contributing
    authors
    history
-..
-   Indices and tables
-   ==================
-   * :ref:`genindex`
-   * :ref:`modindex`
-   * :ref:`search`
+
