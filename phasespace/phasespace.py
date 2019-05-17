@@ -556,7 +556,7 @@ class Particle:
             n_events_var.load(n_events, session=self._sess)
         # Run generation
         generate_tf = self._cache
-        if generate_tf is None or not self._cache_valid:
+        if generate_tf is None or not self._cache_valid or boost_to is not None:
             generate_tf = self.generate_tensor(n_events_var, boost_to, normalize_weights)
             self._cache = generate_tf
             self._set_cache_validity(True, propagate=True)
