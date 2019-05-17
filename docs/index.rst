@@ -1,11 +1,6 @@
 Welcome to TensorFlow PhaseSpace's documentation!
 =================================================
 
-.. include:: ../README.rst
-
-   authors
-
-
 Table of Contents
 =================
 
@@ -17,4 +12,9 @@ Table of Contents
    contributing
    authors
    history
+
+.. include:: ../README.rst
+
+.. include::   authors.rst
+
 
