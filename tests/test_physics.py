@@ -41,6 +41,10 @@ BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 PLOT_DIR = os.path.join(BASE_PATH, 'tests', 'plots')
 
 
+def setup_method():
+    phasespace.Particle._sess.close()
+    tf.reset_default_graph()
+
 def create_ref_histos(n_pions):
     """Load reference histogram data."""
     ref_dir = os.path.join(BASE_PATH, 'data')
