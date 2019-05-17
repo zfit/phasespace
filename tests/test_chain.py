@@ -20,6 +20,11 @@ sys.path.append(os.path.dirname(__file__))
 
 from .helpers import decays
 
+def setup_method():
+    Particle._sess.close()
+    tf.reset_default_graph()
+
+
 
 def test_name_clashes():
     """Test clashes in particle naming."""

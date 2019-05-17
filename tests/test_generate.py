@@ -23,6 +23,9 @@ from .helpers import decays
 B0_MASS = decays.B0_MASS
 PION_MASS = decays.PION_MASS
 
+def setup_method():
+    phasespace.Particle._sess.close()
+    tf.reset_default_graph()
 
 def test_one_event():
     """Test B->pi pi pi."""

@@ -13,7 +13,7 @@ The code is based on the GENBOD function (W515 from CERNLIB), documented in
 """
 
 from math import pi
-from typing import Union, Dict, Tuple, Optional
+from typing import Union, Dict, Tuple, Optional, Callable
 
 import tensorflow as tf
 
@@ -64,7 +64,7 @@ class Particle:
 
     Instances of this class can be combined with each other to build decay chains,
     which can then be used to generate phase space events through the `generate`
-    method.
+    or `generate_tensor` method.
 
     A `Particle` must have a `name`, which is ensured not to clash with any others in
     the decay chain.
@@ -85,7 +85,7 @@ class Particle:
 
     _sess_obj = None
 
-    def __init__(self, name, mass):  # noqa
+    def __init__(self, name: str, mass: Union[Callable, int, float]) -> None:  # noqa
         self.name = name
         self.children = []
         if not callable(mass) and not isinstance(mass, tf.Variable):
@@ -93,6 +93,7 @@ class Particle:
             mass = tf.cast(mass, tf.float64)
         self._mass = mass
         self._n_events_var = None
+        self._cache = None
 
     @property
     def _sess(self):
@@ -136,14 +137,14 @@ class Particle:
         `min_mass`, `max_mass` and `n_events` parameters.
 
         Arguments:
-            min_mass (tensor): Lower mass range. Defaults to None, which
+            min_mass (`tf.Tensor`): Lower mass range. Defaults to None, which
                 is only valid in the case of fixed mass.
-            max_mass (tensor): Upper mass range. Defaults to None, which
+            max_mass (`tf.Tensor`): Upper mass range. Defaults to None, which
                 is only valid in the case of fixed mass.
             n_events (`tf.Tensor`): Number of events to produce. Has to be specified if the particle is resonant.
 
         Return:
-            tensor: Mass.
+            `tf.Tensor`: Mass.
 
         Raise:
             ValueError: If the mass is requested and has not been set.
@@ -154,8 +155,8 @@ class Particle:
         if self.has_fixed_mass:
             mass = self._mass
         else:
-            min_mass = tf.reshape(min_mass, (n_events, ))
-            max_mass = tf.reshape(max_mass, (n_events, ))
+            min_mass = tf.reshape(min_mass, (n_events,))
+            max_mass = tf.reshape(max_mass, (n_events,))
             mass = self._mass(min_mass, max_mass, n_events)
         return mass
 
@@ -179,6 +180,7 @@ class Particle:
             KeyError: If there is a particle name clash.
 
         """
+        self._cache = None
         if self.children:
             raise ValueError("Children already set!")
         # Check name clashes
@@ -269,6 +271,7 @@ class Particle:
         p_top, n_events = self._preprocess(momentum, n_events)
         top_mass = tf.broadcast_to(kin.mass(p_top), (n_events, 1))
         n_particles = len(self.children)
+
         # Prepare masses
         def recurse_stable(part):
             output_mass = 0
@@ -542,7 +545,10 @@ class Particle:
             n_events_var = self._n_events
             n_events_var.load(n_events, session=self._sess)
         # Run generation
-        return self._sess.run(self.generate_tensor(n_events_var, boost_to, normalize_weights))
+        generate_tf = self._cache
+        if generate_tf is None:
+            generate_tf = self.generate_tensor(n_events_var, boost_to, normalize_weights)
+        return self._sess.run(generate_tf)
 
 
 def generate_decay(mass_top: float, masses: list, n_events: Union[int, tf.Variable], boost_to=None,
