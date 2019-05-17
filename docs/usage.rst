@@ -174,4 +174,3 @@ For example, to generate :math:`B^0\to K\pi`, one would do:
 Internally, this function builds a decay chain using ``Particle``, and therefore the same considerations as before apply.
 To avoid running the TensorFlow graph, one can set the ``as_numpy`` flag to ``False`` to get the graphs instead of the
 numpy arrays.
-
