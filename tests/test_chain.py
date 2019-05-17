@@ -45,9 +45,20 @@ def test_name_clashes():
                                         .set_children(Particle('K+', mass=decays.KAON_MASS),
                                                       Particle('pi-_1', mass=decays.PION_MASS)))
 
-def test_wrong_daughters():
+def test_wrong_children():
+    """Test wrong number of children."""
     with pytest.raises(ValueError):
         Particle('Top', 0).set_children(Particle('Kstarz0', mass=decays.KSTARZ_MASS))
+
+
+def test_grandchildren():
+    """Test that grandchildren detection is correct."""
+    top = Particle('Top', 0)
+    assert not top.has_children
+    assert not top.has_grandchildren
+    assert not top.set_children(Particle('Child1', mass=decays.KSTARZ_MASS),
+                                Particle('Child2', mass=decays.KSTARZ_MASS)).has_grandchildren
+
 
 def test_kstargamma():
     """Test B0 -> K*gamma."""
