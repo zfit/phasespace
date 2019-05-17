@@ -193,7 +193,7 @@ class Particle:
         self._set_cache_validity(False)
         if self.children:
             raise ValueError("Children already set!")
-        if len(children <= 1):
+        if len(children) <= 1:
             raise ValueError(f"Have to set at least 2 children, not {len(children)} for a particle to decay")
         # Check name clashes
         name_clash = self._do_names_clash(children)
