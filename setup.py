@@ -33,6 +33,8 @@ test_requirements = requirements_dev[requirements_dev_split + 1:]  # +1: skip em
 setup(
         author="Albert Puig Navarro",
         author_email='albert.puig@cern.ch',
+        maintainer="zfit",
+        maintainer_email='zfit@physik.uzh.ch',
         classifiers=[
             'Development Status :: 4 - Beta',
             'Intended Audience :: Science/Research',
@@ -51,7 +53,7 @@ setup(
         name='phasespace',
         packages=find_packages(include=['phasespace']),
         setup_requires=setup_requirements,
-        python_requires=">=3.5",
+        python_requires=">=3.6",
         test_suite='tests',
         tests_require=test_requirements,
         url='https://github.com/zfit/phasespace',
