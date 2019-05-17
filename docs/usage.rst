@@ -40,9 +40,9 @@ class (which returns the class itself). As an example, to build the :math:`B^{0}
 Phasespace events can be generated using the ``generate`` method, which gets the number of events to generate as input.
 The method returns:
 
-    + The normalized weights of each event, as an array of dimension (n_events,).
-    + The 4-momenta of the generated particles as values of a dictionary with the particle name as key. These momenta
-    are expressed as arrays of dimension (n_events, 4).
+- The normalized weights of each event, as an array of dimension (n_events,).
+- The 4-momenta of the generated particles as values of a dictionary with the particle name as key. These momenta
+  are expressed as arrays of dimension (n_events, 4).
 
 .. code-block:: python
 
@@ -149,10 +149,10 @@ Shortcut for simple decays
 
 The generation of simple `n`-body decays can be done using the ``generate`` function of ``phasespace``, which takes
 
-    + The mass of the top particle.
-    + The mass of children particles as a list.
-    + The number of events to generate.
-    + The optional ``boost_to`` tensor.
+- The mass of the top particle.
+- The mass of children particles as a list.
+- The number of events to generate.
+- The optional ``boost_to`` tensor.
 
 For example, to generate :math:`B^0\to K\pi`, one would do:
 
