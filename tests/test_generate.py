@@ -73,13 +73,19 @@ def test_cache():
     _ = mother_particle.set_children(daughter1, Particle('daughter2', mass=1000))
     assert not mother_particle._cache_valid
     _ = mother_particle.generate(n_events=8)
+    tensor1 = mother_particle._cache
+    _ = mother_particle.generate(n_events=5)
+    tensor1_too = mother_particle._cache
+    assert tensor1 is tensor1_too
     assert mother_particle._cache is not None
     assert mother_particle._cache_valid
 
     daughter1.set_children(Particle('daugther21', mass=100),
                            Particle('daughter22', mass=500))
     assert not mother_particle._cache_valid
-    _ = mother_particle.generate(n_events=8)
+    _ = mother_particle.generate(n_events=3)
+    tensor2 = mother_particle._cache
+    assert tensor2 is not tensor1
     assert mother_particle._cache_valid
 
 

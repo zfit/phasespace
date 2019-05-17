@@ -45,6 +45,9 @@ def test_name_clashes():
                                         .set_children(Particle('K+', mass=decays.KAON_MASS),
                                                       Particle('pi-_1', mass=decays.PION_MASS)))
 
+def test_wrong_daughters():
+    with pytest.raises(ValueError):
+        Particle('Top', 0).set_children(Particle('Kstarz0', mass=decays.KSTARZ_MASS))
 
 def test_kstargamma():
     """Test B0 -> K*gamma."""
