@@ -15,7 +15,3 @@ Table of Contents
    contributing
    authors
    history
-
-
-
-
