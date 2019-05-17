@@ -5,6 +5,7 @@ watchdog
 flake8
 Sphinx
 twine
+sphinx_bootstrap_theme
 
 pytest
 pytest-cov
