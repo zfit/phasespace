@@ -165,6 +165,16 @@ class Particle:
         """bool: Is the mass a callable function?"""
         return not callable(self._mass)
 
+    @property
+    def _cache_valid(self):
+        return self._own_cache_valid and all(child._cache_valid for child in self.children)
+
+    def _set_cache_validity(self, valid, propagate=False):
+        self._own_cache_valid = valid
+        if propagate:
+            for child in self.children:
+                child._set_cache_validity(valid, propagate=propagate)
+
     def set_children(self, *children):
         """Assign children.
 
@@ -180,7 +190,7 @@ class Particle:
             KeyError: If there is a particle name clash.
 
         """
-        self._cache = None
+        self._set_cache_validity(False)
         if self.children:
             raise ValueError("Children already set!")
         # Check name clashes
@@ -546,8 +556,10 @@ class Particle:
             n_events_var.load(n_events, session=self._sess)
         # Run generation
         generate_tf = self._cache
-        if generate_tf is None:
+        if generate_tf is None or not self._cache_valid:
             generate_tf = self.generate_tensor(n_events_var, boost_to, normalize_weights)
+            self._cache = generate_tf
+            self._set_cache_validity(True, propagate=True)
         return self._sess.run(generate_tf)
 
 
