@@ -150,8 +150,6 @@ class Particle:
             ValueError: If the mass is requested and has not been set.
 
         """
-        if self._mass is None:
-            raise ValueError("Mass has not been configured!")
         if self.has_fixed_mass:
             mass = self._mass
         else:

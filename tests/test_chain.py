@@ -60,6 +60,29 @@ def test_grandchildren():
                                 Particle('Child2', mass=decays.KSTARZ_MASS)).has_grandchildren
 
 
+def test_reset_children():
+    """Test when children are set twice."""
+    top = Particle('Top', 0).set_children(Particle('Child1', mass=decays.KSTARZ_MASS),
+                                          Particle('Child2', mass=decays.KSTARZ_MASS))
+    with pytest.raises(ValueError):
+        top.set_children(Particle('Child3', mass=decays.KSTARZ_MASS),
+                         Particle('Child4', mass=decays.KSTARZ_MASS))
+
+
+def test_no_children():
+    """Test when no children have been configured."""
+    top = Particle('Top', 0)
+    with pytest.raises(ValueError):
+        top.generate(n_events=1)
+
+
+def test_resonance_top():
+    """Test when a resonance is used as the top particle."""
+    kstar = decays.b0_to_kstar_gamma().children[0]
+    with pytest.raises(ValueError):
+        kstar.generate(n_events=1)
+
+
 def test_kstargamma():
     """Test B0 -> K*gamma."""
     norm_weights, particles = decays.b0_to_kstar_gamma().generate(n_events=1000)
