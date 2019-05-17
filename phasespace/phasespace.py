@@ -186,13 +186,15 @@ class Particle:
 
         Raise:
             ValueError: If there is an inconsistency in the parent/children relationship, ie,
-            if children were already set, or if their parent was.
+            if children were already set, if their parent was or if less than two children were given.
             KeyError: If there is a particle name clash.
 
         """
         self._set_cache_validity(False)
         if self.children:
             raise ValueError("Children already set!")
+        if len(children <= 1):
+            raise ValueError(f"Have to set at least 2 children, not {len(children)} for a particle to decay")
         # Check name clashes
         name_clash = self._do_names_clash(children)
         if name_clash:
