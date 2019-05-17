@@ -17,7 +17,7 @@ from typing import Union, Dict, Tuple, Optional, Callable
 
 import tensorflow as tf
 
-import phasespace.kinematics as kin
+from . import kinematics as kin
 
 
 def process_list_to_tensor(lst):
