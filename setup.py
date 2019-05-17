@@ -36,7 +36,7 @@ setup(
     maintainer="zfit",
     maintainer_email='zfit@physik.uzh.ch',
     classifiers=[
-        'Development Status:: 5 - Production / Stable',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
