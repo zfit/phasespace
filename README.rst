@@ -58,7 +58,7 @@ To install ``phasespace``, run this command in your terminal:
 
 This is the preferred method to install ``phasespace``, as it will always install the most recent stable release.
 
-For the newest development version (in case you really need it), you can install the version from git with
+For the newest development version, which may be unstable, you can install the version from git with
 
 .. code-block:: console
 
