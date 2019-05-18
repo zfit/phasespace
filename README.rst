@@ -2,8 +2,8 @@
 PhaseSpace
 ==========
 
-.. image:: https://zenodo.org/badge/172891230.svg
-   :target: https://zenodo.org/badge/latestdoi/172891230
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.2591993.svg
+   :target: https://doi.org/10.5281/zenodo.2591993
 .. image:: https://img.shields.io/pypi/status/phasespace.svg
    :target: https://pypi.org/project/phasespace/
 .. image:: https://img.shields.io/pypi/pyversions/phasespace.svg
