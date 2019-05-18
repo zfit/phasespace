@@ -27,6 +27,11 @@ and tries to follow it as closely as possible.
 
 Detailed documentation, including the API, can be found in https://phasespace.readthedocs.io.
 
+Join our gitter channel for questions and comments: |Gitter|
+
+.. |Gitter| image:: https://badges.gitter.im/zfit/phasespace.svg
+   :target: https://gitter.im/zfit/phasespace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
+
 Free software: BSD-3-Clause.
 
 [1]  F. James, Monte Carlo Phase Space, CERN 68-15 (1968)

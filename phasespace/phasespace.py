@@ -66,13 +66,15 @@ class Particle:
     which can then be used to generate phase space events through the `generate`
     or `generate_tensor` method.
 
-    A `Particle` must have a `name`, which is ensured not to clash with any others in
-    the decay chain.
-    It may also have:
-
-        + Mass, which can be either a number or a function to generate it according to
+    A `Particle` must have
+        + a `name`, which is ensured not to clash with any others in
+            the decay chain.
+        + a `mass`, which can be either a number or a function to generate it according to
             a certain distribution. In this case, the particle is not considered as having a
             fixed mass and the `has_fixed_mass` method will return False.
+
+    It may also have:
+
         + Children, ie, decay products, which are also `Particle` instances.
 
 
