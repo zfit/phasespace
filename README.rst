@@ -15,9 +15,6 @@ PhaseSpace
 .. image:: https://readthedocs.org/projects/phasespace/badge/?version=stable
    :target: https://phasespace.readthedocs.io/en/latest/?badge=stable
    :alt: Documentation Status
-.. image:: https://badges.gitter.im/zfit/phasespace.svg
-   :alt: Join the chat at https://gitter.im/zfit/phasespace
-   :target: https://gitter.im/zfit/phasespace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
 Python implementation of the Raubold and Lynch method for `n`-body events using
 TensorFlow as a backend.
@@ -27,7 +24,7 @@ and tries to follow it as closely as possible.
 
 Detailed documentation, including the API, can be found in https://phasespace.readthedocs.io.
 
-Join our gitter channel for questions and comments: |Gitter|
+Write in our gitter channel for questions and comments: |Gitter|
 
 .. |Gitter| image:: https://badges.gitter.im/zfit/phasespace.svg
    :target: https://gitter.im/zfit/phasespace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
