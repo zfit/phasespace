@@ -15,7 +15,10 @@ PhaseSpace
 .. image:: https://readthedocs.org/projects/phasespace/badge/?version=stable
    :target: https://phasespace.readthedocs.io/en/latest/?badge=stable
    :alt: Documentation Status
-
+.. image:: https://badges.gitter.im/zfit/phasespace.svg
+   :target: https://gitter.im/zfit/phasespace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
+   :alt: Gitter chat
+   
 Python implementation of the Raubold and Lynch method for `n`-body events using
 TensorFlow as a backend.
 
@@ -23,15 +26,27 @@ The code is based on the GENBOD function (W515 from CERNLIB), documented in [1]
 and tries to follow it as closely as possible.
 
 Detailed documentation, including the API, can be found in https://phasespace.readthedocs.io.
+Don't hesitate to join our `gitter`_ channel for questions and comments.
 
-Write in our gitter channel for questions and comments: |Gitter|
+If you use phasespace in a scientific publication we would appreciate citations to the `zenodo`_ publication:
 
-.. |Gitter| image:: https://badges.gitter.im/zfit/phasespace.svg
-   :target: https://gitter.im/zfit/phasespace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
+.. code-block:: bibtex
+
+   @article{albert puig_jonas eschle_2019,
+    title={phasespace: n-body phase space generation in Python},
+    DOI={10.5281/zenodo.2926058},
+    publisher={Zenodo},
+    author={Albert Puig and Jonas Eschle},
+    year={2019},
+    month={Mar}}
 
 Free software: BSD-3-Clause.
 
 [1]  F. James, Monte Carlo Phase Space, CERN 68-15 (1968)
+
+.. _zenodo: https://doi.org/10.5281/zenodo.2591993
+.. _Gitter: https://gitter.im/zfit/phasespace
+
 
 Why?
 ----
