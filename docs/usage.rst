@@ -120,7 +120,7 @@ events, and should return a `tf.Tensor` with the generated masses and shape (nev
 are the `TensorFlow Probability distributions <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions>`_
 or, for more customized mass shapes, the
 `zfit pdfs <https://zfit.github.io/zfit/model.html#tensor-sampling>`_ *(currently an
-experimental features is needed, contact the `zfit developers <https://github.com/zfit/zfit>`_ to learn more).*
+experimental feature is needed, contact the `zfit developers <https://github.com/zfit/zfit>`_ to learn more).*
 
 Following with the same example as above, and approximating the resonance shape by a gaussian, we could
 write the :math:`B^{0}\to K^{*}\gamma` decay chain as (more details can be found in ``tests/helpers/decays.py``):
