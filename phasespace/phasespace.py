@@ -179,7 +179,7 @@ class Particle:
         """Assign children.
 
         Arguments:
-            children (list[Particle]): Children to assign to the current particle.
+            children (Particle): Two or more children to assign to the current particle.
 
         Return:
             self
