@@ -70,7 +70,8 @@ class Particle:
         + a `name`, which is ensured not to clash with any others in
             the decay chain.
         + a `mass`, which can be either a number or a function to generate it according to
-            a certain distribution. In this case, the particle is not considered as having a
+            a certain distribution. The returned Tensor needs to have shape (nevents,).
+            In this case, the particle is not considered as having a
             fixed mass and the `has_fixed_mass` method will return False.
 
     It may also have:
@@ -146,7 +147,7 @@ class Particle:
             n_events (`tf.Tensor`): Number of events to produce. Has to be specified if the particle is resonant.
 
         Return:
-            `tf.Tensor`: Mass.
+            `tf.Tensor`: Mass of the particles, either a scalar or shape (nevents,)
 
         Raise:
             ValueError: If the mass is requested and has not been set.

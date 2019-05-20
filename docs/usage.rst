@@ -116,7 +116,11 @@ can be performed using normal python loops without loss in performance:
 
 To generate the mass of a resonance, we need to give a function as its mass instead of a floating number.
 This function should take as input the per-event lower mass allowed, per-event upper mass allowed and the number of
-events, and should return a `tf.Tensor` with the generated masses.
+events, and should return a `tf.Tensor` with the generated masses and shape (nevents,). Well suited for this task
+are the `TensorFlow Probability distributions <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions>`_
+or, for more customized mass shapes, the
+`zfit pdfs <https://zfit.github.io/zfit/model.html#tensor-sampling>`_ *(currently an
+experimental features is needed, contact the `zfit developers <https://github.com/zfit/zfit>`_ to learn more).*
 
 Following with the same example as above, and approximating the resonance shape by a gaussian, we could
 write the :math:`B^{0}\to K^{*}\gamma` decay chain as (more details can be found in ``tests/helpers/decays.py``):
@@ -130,13 +134,18 @@ write the :math:`B^{0}\to K^{*}\gamma` decay chain as (more details can be found
    KSTARZ_MASS = 895.81
    KSTARZ_WIDTH = 47.4
 
-   def kstar_mass(min_mass, max_mass, n_events):
-       ones = tf.ones((n_events, ), dtype=tf.float64)
-       kstar_mass = KSTARZ_MASS * ones
-       return tfp.distributions.TruncatedNormal(loc=kstar_mass,
-                                                scale=ones * KSTARZ_WIDTH,
-                                                low=min_mass,
-                                                high=max_mass).sample()
+    def res_mass(mass, width, min_mass, max_mass, n_events):
+        mass = tf.cast(mass, tf.float64)
+        width = tf.cast(width, tf.float64)
+        min_mass = tf.cast(min_mass, tf.float64)
+        max_mass = tf.cast(max_mass, tf.float64)
+
+        masses = tf.broadcast_to(mass, shape=(n_events,))
+        masses = tfp.distributions.TruncatedNormal(loc=masses,
+                                                   scale=width,
+                                                   low=min_mass,
+                                                   high=max_mass).sample()
+        return masses
 
    bz = Particle('B0', B0_MASS).set_children(Particle('K*0', mass=kstar_mass)
                                              .set_children(Particle('K+', mass=KAON_MASS),
