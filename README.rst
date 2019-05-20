@@ -32,7 +32,7 @@ If you use phasespace in a scientific publication we would appreciate citations 
 
 .. code-block:: bibtex
 
-   @article{albert puig_jonas eschle_2019,
+   @article{phasespace-2019,
     title={phasespace: n-body phase space generation in Python},
     DOI={10.5281/zenodo.2926058},
     publisher={Zenodo},
