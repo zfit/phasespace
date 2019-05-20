@@ -134,18 +134,19 @@ write the :math:`B^{0}\to K^{*}\gamma` decay chain as (more details can be found
    KSTARZ_MASS = 895.81
    KSTARZ_WIDTH = 47.4
 
-    def res_mass(mass, width, min_mass, max_mass, n_events):
-        mass = tf.cast(mass, tf.float64)
-        width = tf.cast(width, tf.float64)
+     def kstar_mass(min_mass, max_mass, n_events):
         min_mass = tf.cast(min_mass, tf.float64)
         max_mass = tf.cast(max_mass, tf.float64)
+        kstar_width_cast = tf.cast(KSTARZ_WIDTH, tf.float64)
+        kstar_mass_cast = tf.cast(KSTARZ_MASS, dtype=tf.float64)
 
-        masses = tf.broadcast_to(mass, shape=(n_events,))
-        masses = tfp.distributions.TruncatedNormal(loc=masses,
-                                                   scale=width,
-                                                   low=min_mass,
-                                                   high=max_mass).sample()
-        return masses
+        kstar_mass = tf.broadcast_to(kstar_mass_cast, shape=(n_events,))
+        if kstar_width > 0:
+            kstar_mass = tfp.distributions.TruncatedNormal(loc=kstar_mass,
+                                                           scale=kstar_width_cast,
+                                                           low=min_mass,
+                                                           high=max_mass).sample()
+        return kstar_mass
 
    bz = Particle('B0', B0_MASS).set_children(Particle('K*0', mass=kstar_mass)
                                              .set_children(Particle('K+', mass=KAON_MASS),
