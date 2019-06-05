@@ -157,7 +157,7 @@ write the :math:`B^{0}\to K^{*}\gamma` decay chain as (more details can be found
 Shortcut for simple decays
 --------------------------
 
-The generation of simple `n`-body decays can be done using the ``generate`` function of ``phasespace``, which takes
+The generation of simple `n`-body decays can be done using the ``generate_decay`` function of ``phasespace``, which takes
 
 - The mass of the top particle.
 - The mass of children particles as a list.
@@ -176,9 +176,9 @@ For example, to generate :math:`B^0\to K\pi`, one would do:
    PION_MASS = 139.57018
    KAON_MASS = 493.677
 
-   weights, particles = phasespace.generate(B0_MASS,
-                                            [PION_MASS, KAON_MASS],
-                                            n_events=N_EVENTS)
+   weights, particles = phasespace.generate_decay(B0_MASS,
+                                                  [PION_MASS, KAON_MASS],
+                                                  n_events=N_EVENTS)
 
 
 Internally, this function builds a decay chain using ``Particle``, and therefore the same considerations as before apply.

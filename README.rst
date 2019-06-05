@@ -50,16 +50,23 @@ Free software: BSD-3-Clause.
 
 Why?
 ----
-Lately, data analysis in High Energy Physics (HEP), traditionally performed within the `ROOT`_ ecosystem, has been moving more and more towards Python.
-The possibility of carrying out purely Python-based analyses has become real thanks to the development of many open source Python packages,
+Lately, data analysis in High Energy Physics (HEP), traditionally performed within the `ROOT`_ ecosystem,
+has been moving more and more towards Python.
+The possibility of carrying out purely Python-based analyses has become real thanks to the
+development of many open source Python packages,
 which have allowed to replace most ROOT functionality with Python-based packages.
 
-One of the aspects where this is still not possible is in the random generation of `n`-body phase space events, which are widely used in the field, for example to study kinematics
+One of the aspects where this is still not possible is in the random generation of `n`-body phase space events,
+which are widely used in the field, for example to study kinematics
 of the particle decays of interest, or to perform importance sampling in the case of complex amplitude models.
-This has been traditionally done with the `TGenPhaseSpace`_ class, which is based of the GENBOD function of the CERNLIB FORTRAN libraries and which requires a full working ROOT installation.
+This has been traditionally done with the `TGenPhaseSpace`_ class, which is based of the GENBOD function of the
+CERNLIB FORTRAN libraries and which requires a full working ROOT installation.
 
-This package aims to address this issue by providing a TensorFlow-based implementation of such function to generate `n`-body decays without requiring a ROOT installation.
-Additionally, an oft-needed functionality to generate complex decay chains, not included in ``TGenPhaseSpace``, is also offered, leaving room for decaying resonances (which don't have a fixed mass, but can be seen as a broad peak).
+This package aims to address this issue by providing a TensorFlow-based implementation of such a function
+to generate `n`-body decays without requiring a ROOT installation.
+Additionally, an oft-needed functionality to generate complex decay chains, not included in ``TGenPhaseSpace``,
+is also offered, leaving room for decaying resonances (which don't have a fixed mass, but can be seen as a
+broad peak).
 
 .. _ROOT: https://root.cern.ch
 .. _TGenPhaseSpace: https://root.cern.ch/doc/master/classTGenPhaseSpace.html
@@ -85,7 +92,7 @@ For the newest development version, which may be unstable, you can install the v
 How to use
 ----------
 
-The generation of simple `n`-body decays can be done using the ``generate`` function of ``phasespace`` with a
+The generation of simple `n`-body decays can be done using the ``generate_decay`` function of ``phasespace`` with a
 very simple interface: one needs to pass the mass of the top particle and the masses of the children particle as
 a list. For example, to generate :math:`B^0\to K\pi`, we would do:
 
@@ -97,9 +104,9 @@ a list. For example, to generate :math:`B^0\to K\pi`, we would do:
    PION_MASS = 139.57018
    KAON_MASS = 493.677
 
-   weights, particles = phasespace.generate(B0_MASS,
-                                            [PION_MASS, KAON_MASS],
-                                            n_events=1000)
+   weights, particles = phasespace.generate_decay(B0_MASS,
+                                                  [PION_MASS, KAON_MASS],
+                                                   n_events=1000)
 
 This returns a numpy array of 1000 elements in the case of ``weights`` and a list of ``n particles`` (2) arrays of (1000, 4) shape,
 where each of the 4-dimensions corresponds to one of the components of the generated Lorentz 4-vector.
@@ -115,10 +122,10 @@ to the previous example, we simply do:
    import tensorflow as tf
 
    with tf.Session() as sess:
-       weights, particles = phasespace.generate(B0_MASS,
-                                                [PION_MASS, KAON_MASS],
-                                                n_events=1000,
-                                                as_numpy=False)
+       weights, particles = phasespace.generate_decay(B0_MASS,
+                                                      [PION_MASS, KAON_MASS],
+                                                      n_events=1000,
+                                                      as_numpy=False)
        weights, particles = sess.run([weights, particles])
 
 Sequential decays can be handled with the ``Particle`` class (used internally by ``generate``) and its ``set_children`` method.
@@ -205,8 +212,10 @@ Physics validation is performed continuously in the included tests (``tests/test
 This validation is performed at two levels:
 
 - In simple `n`-body decays, the results of ``phasespace`` are checked against ``TGenPhaseSpace``.
-- For sequential decays, the results of ``phasespace`` are checked against `RapidSim`_, a "fast Monte Carlo generator for simulation of heavy-quark hadron decays".
-  In the case of resonances, differences are expected because our tests don't include proper modelling of their mass shape, as it would require the introduction of
+- For sequential decays, the results of ``phasespace`` are checked against `RapidSim`_, a "fast Monte Carlo generator
+  for simulation of heavy-quark hadron decays".
+  In the case of resonances, differences are expected because our tests don't include proper modelling of their
+  mass shape, as it would require the introduction of
   further dependencies. However, the results of the comparison can be expected visually.
 
 The results of all physics validation performed by the ``tests_physics.py`` test are written in ``tests/plots``.
