@@ -39,7 +39,7 @@ this latter application also uses ``TGenPhaseSpace``, but adds features such as 
 
 In summary, ``phasespace`` is designed to fill an important gap in the recent paradigm shift of particle physics analysis towards integration with the scientific Python ecosystem. To do so it also has more advanced functionality than its C++-based predecessors.
 With its ease of use, clear interface and direct interoperability with other packages, ``phasespace`` provides a solid foundation to build upon in the quest for a full Python-based particle physics analysis software stack.
-The source code for ``phasespace`` has been archived to Zenodo with the linked DOI: [@zenodo]
+The source code for ``phasespace`` has been archived to Zenodo with the linked DOI: [@zenodo].
 
 # Acknowledgements
 
