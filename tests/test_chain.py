@@ -103,6 +103,12 @@ def test_k1gamma():
     assert all([part.shape == (1000, 4) for part in particles.values()])
 
 
+def test_repr():
+    """Test string representation."""
+    b0 = decays.b0_to_kstar_gamma()
+    assert str(b0) == "<phasespace.Particle: name='B0' children=[K*0, gamma]>"
+
+
 if __name__ == "__main__":
     test_name_clashes()
     test_kstargamma()

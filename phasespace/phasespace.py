@@ -98,6 +98,10 @@ class Particle:
         self._n_events_var = None
         self._cache = None
 
+    def __repr__(self):
+        return "<phasespace.Particle: name='{}' children=[{}]>".format(self.name,
+                                                                       ', '.join(child.name for child in self.children))
+
     @property
     def _sess(self):
         """tf.Session: Internal session object."""
