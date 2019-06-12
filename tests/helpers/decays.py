@@ -11,7 +11,7 @@ import tensorflow as tf
 
 import tensorflow_probability as tfp
 
-from phasespace import Particle
+from phasespace import GenParticle
 
 # Use RapidSim values (https://github.com/gcowan/RapidSim/blob/master/config/particles.dat)
 B0_MASS = 5279.58
@@ -25,7 +25,6 @@ KSTARZ_WIDTH = 47.4
 
 def b0_to_kstar_gamma(kstar_width=KSTARZ_WIDTH):
     """Generate B0 -> K*gamma."""
-
     def kstar_mass(min_mass, max_mass, n_events):
         min_mass = tf.cast(min_mass, tf.float64)
         max_mass = tf.cast(max_mass, tf.float64)
@@ -40,15 +39,14 @@ def b0_to_kstar_gamma(kstar_width=KSTARZ_WIDTH):
                                                            high=max_mass).sample()
         return kstar_mass
 
-    return Particle('B0', B0_MASS).set_children(Particle('K*0', mass=kstar_mass)
-                                                .set_children(Particle('K+', mass=KAON_MASS),
-                                                              Particle('pi-', mass=PION_MASS)),
-                                                Particle('gamma', mass=0.0))
+    return GenParticle('B0', B0_MASS).set_children(GenParticle('K*0', mass=kstar_mass)
+                                                   .set_children(GenParticle('K+', mass=KAON_MASS),
+                                                                 GenParticle('pi-', mass=PION_MASS)),
+                                                   GenParticle('gamma', mass=0.0))
 
 
 def bp_to_k1_kstar_pi_gamma(k1_width=K1_WIDTH, kstar_width=KSTARZ_WIDTH):
     """Generate B+ -> K1 (-> K* (->K pi) pi) gamma."""
-
     def res_mass(mass, width, min_mass, max_mass, n_events):
         mass = tf.cast(mass, tf.float64)
         width = tf.cast(width, tf.float64)
@@ -69,11 +67,11 @@ def bp_to_k1_kstar_pi_gamma(k1_width=K1_WIDTH, kstar_width=KSTARZ_WIDTH):
     def kstar_mass(min_mass, max_mass, n_events):
         return res_mass(KSTARZ_MASS, kstar_width, min_mass, max_mass, n_events)
 
-    return Particle('B+', B0_MASS).set_children(Particle('K1+', mass=k1_mass)
-                                                .set_children(Particle('K*0', mass=kstar_mass)
-                                                              .set_children(Particle('K+', mass=KAON_MASS),
-                                                                            Particle('pi-', mass=PION_MASS)),
-                                                              Particle('pi+', mass=PION_MASS)),
-                                                Particle('gamma', mass=0.0))
+    return GenParticle('B+', B0_MASS).set_children(GenParticle('K1+', mass=k1_mass)
+                                                   .set_children(GenParticle('K*0', mass=kstar_mass)
+                                                                 .set_children(GenParticle('K+', mass=KAON_MASS),
+                                                                               GenParticle('pi-', mass=PION_MASS)),
+                                                                 GenParticle('pi+', mass=PION_MASS)),
+                                                   GenParticle('gamma', mass=0.0))
 
 # EOF

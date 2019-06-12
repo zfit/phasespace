@@ -11,7 +11,7 @@ import pytest
 
 import tensorflow as tf
 
-from phasespace import Particle
+from phasespace import GenParticle
 
 import os
 import sys
@@ -21,7 +21,7 @@ sys.path.append(os.path.dirname(__file__))
 from .helpers import decays
 
 def setup_method():
-    Particle._sess.close()
+    GenParticle._sess.close()
     tf.reset_default_graph()
 
 
@@ -30,48 +30,48 @@ def test_name_clashes():
     """Test clashes in particle naming."""
     # In children
     with pytest.raises(KeyError):
-        Particle('Top', 0).set_children(Particle('Kstarz', mass=decays.KSTARZ_MASS),
-                                        Particle('Kstarz', mass=decays.KSTARZ_MASS))
+        GenParticle('Top', 0).set_children(GenParticle('Kstarz', mass=decays.KSTARZ_MASS),
+                                           GenParticle('Kstarz', mass=decays.KSTARZ_MASS))
     # With itself
     with pytest.raises(KeyError):
-        Particle('Top', 0).set_children(Particle('Top', mass=decays.KSTARZ_MASS),
-                                        Particle('Kstarz', mass=decays.KSTARZ_MASS))
+        GenParticle('Top', 0).set_children(GenParticle('Top', mass=decays.KSTARZ_MASS),
+                                           GenParticle('Kstarz', mass=decays.KSTARZ_MASS))
     # In grandchildren
     with pytest.raises(KeyError):
-        Particle('Top', 0).set_children(Particle('Kstarz0', mass=decays.KSTARZ_MASS)
-                                        .set_children(Particle('K+', mass=decays.KAON_MASS),
-                                                      Particle('pi-', mass=decays.PION_MASS)),
-                                        Particle('Kstarz0', mass=decays.KSTARZ_MASS)
-                                        .set_children(Particle('K+', mass=decays.KAON_MASS),
-                                                      Particle('pi-_1', mass=decays.PION_MASS)))
+        GenParticle('Top', 0).set_children(GenParticle('Kstarz0', mass=decays.KSTARZ_MASS)
+                                           .set_children(GenParticle('K+', mass=decays.KAON_MASS),
+                                                         GenParticle('pi-', mass=decays.PION_MASS)),
+                                           GenParticle('Kstarz0', mass=decays.KSTARZ_MASS)
+                                           .set_children(GenParticle('K+', mass=decays.KAON_MASS),
+                                                         GenParticle('pi-_1', mass=decays.PION_MASS)))
 
 def test_wrong_children():
     """Test wrong number of children."""
     with pytest.raises(ValueError):
-        Particle('Top', 0).set_children(Particle('Kstarz0', mass=decays.KSTARZ_MASS))
+        GenParticle('Top', 0).set_children(GenParticle('Kstarz0', mass=decays.KSTARZ_MASS))
 
 
 def test_grandchildren():
     """Test that grandchildren detection is correct."""
-    top = Particle('Top', 0)
+    top = GenParticle('Top', 0)
     assert not top.has_children
     assert not top.has_grandchildren
-    assert not top.set_children(Particle('Child1', mass=decays.KSTARZ_MASS),
-                                Particle('Child2', mass=decays.KSTARZ_MASS)).has_grandchildren
+    assert not top.set_children(GenParticle('Child1', mass=decays.KSTARZ_MASS),
+                                GenParticle('Child2', mass=decays.KSTARZ_MASS)).has_grandchildren
 
 
 def test_reset_children():
     """Test when children are set twice."""
-    top = Particle('Top', 0).set_children(Particle('Child1', mass=decays.KSTARZ_MASS),
-                                          Particle('Child2', mass=decays.KSTARZ_MASS))
+    top = GenParticle('Top', 0).set_children(GenParticle('Child1', mass=decays.KSTARZ_MASS),
+                                             GenParticle('Child2', mass=decays.KSTARZ_MASS))
     with pytest.raises(ValueError):
-        top.set_children(Particle('Child3', mass=decays.KSTARZ_MASS),
-                         Particle('Child4', mass=decays.KSTARZ_MASS))
+        top.set_children(GenParticle('Child3', mass=decays.KSTARZ_MASS),
+                         GenParticle('Child4', mass=decays.KSTARZ_MASS))
 
 
 def test_no_children():
     """Test when no children have been configured."""
-    top = Particle('Top', 0)
+    top = GenParticle('Top', 0)
     with pytest.raises(ValueError):
         top.generate(n_events=1)
 
@@ -107,8 +107,8 @@ def test_repr():
     """Test string representation."""
     b0 = decays.b0_to_kstar_gamma()
     kst = b0.children[0]
-    assert str(b0) == "<phasespace.Particle: name='B0' mass=5279.58 children=[K*0, gamma]>"
-    assert str(kst) == "<phasespace.Particle: name='K*0' mass=variable children=[K+, pi-]>"
+    assert str(b0) == "<phasespace.GenParticle: name='B0' mass=5279.58 children=[K*0, gamma]>"
+    assert str(kst) == "<phasespace.GenParticle: name='K*0' mass=variable children=[K+, pi-]>"
 
 
 if __name__ == "__main__":
