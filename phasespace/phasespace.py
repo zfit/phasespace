@@ -91,12 +91,20 @@ class Particle:
     def __init__(self, name: str, mass: Union[Callable, int, float]) -> None:  # noqa
         self.name = name
         self.children = []
+        self._mass_val = mass
         if not callable(mass) and not isinstance(mass, tf.Variable):
             mass = tf.convert_to_tensor(mass, preferred_dtype=tf.float64)
             mass = tf.cast(mass, tf.float64)
         self._mass = mass
         self._n_events_var = None
         self._cache = None
+
+    def __repr__(self):
+        return "<phasespace.Particle: name='{}' mass={} children=[{}]>".format(self.name,
+                                                                               f"{self._mass_val:.2f}"
+                                                                               if self.has_fixed_mass
+                                                                               else "variable",
+                                                                               ', '.join(child.name for child in self.children))
 
     @property
     def _sess(self):
