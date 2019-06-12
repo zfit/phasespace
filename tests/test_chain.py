@@ -106,7 +106,9 @@ def test_k1gamma():
 def test_repr():
     """Test string representation."""
     b0 = decays.b0_to_kstar_gamma()
-    assert str(b0) == "<phasespace.Particle: name='B0' children=[K*0, gamma]>"
+    kst = b0.children[0]
+    assert str(b0) == "<phasespace.Particle: name='B0' mass=5279.58 children=[K*0, gamma]>"
+    assert str(kst) == "<phasespace.Particle: name='K*0' mass=variable children=[K+, pi-]>"
 
 
 if __name__ == "__main__":
