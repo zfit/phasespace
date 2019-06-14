@@ -162,7 +162,7 @@ The generation of simple `n`-body decay chains can be done using the ``nbody_dec
 - The mass of the top particle.
 - The mass of children particles as a list.
 - The name of the top particle (optional).
-- The names of the children particles, also optional.
+- The names of the children particles (optional).
 
 If the names are not given, `top` and `p_{i}` are assigned. For example, to generate :math:`B^0\to K\pi`, one would do:
 
