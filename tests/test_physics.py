@@ -80,16 +80,16 @@ def run_test(n_particles, test_prefix):
     n_events = tf.Variable(initial_value=first_run_n_events, dtype=tf.int64, use_resource=True)
     sess.run(n_events.initializer)
 
-    generate = phasespace.generate_decay(decays.B0_MASS,
-                                         [decays.PION_MASS] * n_particles,
-                                         n_events, as_numpy=False)
-    weights1, particles1 = sess.run(generate)  # only generate to test change in n_events
+    generate = phasespace.nbody_decay(decays.B0_MASS,
+                                      [decays.PION_MASS] * n_particles) \
+        .generate_tensor(n_events)
+    weights1, _ = sess.run(generate)  # only generate to test change in n_events
     assert len(weights1) == first_run_n_events
 
     # change n_events and run again
     n_events.load(main_run_n_events, session=sess)
     weights, particles = sess.run(generate)
-    parts = np.concatenate(particles, axis=1)
+    parts = np.concatenate([particles[f"p_{part_num}"] for part_num in range(n_particles)], axis=1)
     histos = [make_norm_histo(parts[:, coord],
                               range_=(-3000 if coord % 4 != 3 else 0, 3000),
                               weights=weights)

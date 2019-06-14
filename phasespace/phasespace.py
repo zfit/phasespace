@@ -581,36 +581,34 @@ class Particle:
                         "For more information, see: https://github.com/zfit/phasespace/issues/22")
 
 
-def generate_decay(mass_top: float, masses: list, n_events: Union[int, tf.Variable], boost_to=None,
-                   as_numpy: bool = True):
-    """Generate an n-body phasespace.
+def nbody_decay(mass_top: float, masses: list, top_name: str = '', names: list = None):
+    """Shortcut to build an n-body decay of a GenParticle.
 
-    Internally, this function uses `GenParticle` with a single generation of children.
-
-    Note:
-        This function doesn't cache so it may be slower on repeated calls. In that case
-        it's better to use :py:class:`GenParticle` directly.
+    If the particle names are not given, the top particle is called 'top' and the
+    children 'p_{i}', where i corresponds to their position in the `masses` sequence.
 
     Arguments:
         mass_top (`tf.Tensor`, list): Mass of the top particle. Can be a list of 4-vectors.
         masses (list): Masses of the child particles.
-        n_events (int): Number of samples to generate.
-        boost_to (`tf.Tensor` or array, optional): Momenta to boost the generated events to.
-            If not specified, events are generated in the rest frame of the top particle.
-        as_numpy(bool, optional): Return numpy arrays instead of tensorflow tensors? Defaults
-            to True.
+        name_top (str, optional): Name of the top particle. If not given, the top particle is
+            named top.
+        names (list, optional): Names of the child particles. If not given, they are build as
+            'p_{i}', where i is given by their ordering in the `masses` list.
 
     Return:
-        Tensor: 4-momenta of the generated particles, with shape (4xn_particles, n_events).
-        ValueError: If nor `n_events` nor `boost_to` are given.
+        `GenParticle`: Particle decay.
+
+    Raise:
+        ValueError: If the length of `masses` and `names` doesn't match.
 
     """
-    top = GenParticle('top', mass_top).set_children(*[GenParticle(str(num + 1), mass=mass)
-                                                      for num, mass in enumerate(masses)])
-    norm_weights, parts = top.generate(n_events=n_events,
-                                       boost_to=boost_to,
-                                       normalize_weights=True) if as_numpy \
-        else top.generate_tensor(n_events=n_events, boost_to=boost_to, normalize_weights=True)
-    return norm_weights, [parts[child.name] for child in top.children]
+    if not top_name:
+        top_name = 'top'
+    if not names:
+        names = [f"p_{num}" for num in range(len(masses))]
+    if len(names) != len(masses):
+        raise ValueError("Mismatch in length between children masses and their names.")
+    return GenParticle(top_name, mass_top).set_children(*[GenParticle(names[num], mass=mass)
+                                                          for num, mass in enumerate(masses)])
 
 # EOF

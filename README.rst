@@ -92,9 +92,10 @@ For the newest development version, which may be unstable, you can install the v
 How to use
 ----------
 
-The generation of simple `n`-body decays can be done using the ``generate_decay`` function of ``phasespace`` with a
-very simple interface: one needs to pass the mass of the top particle and the masses of the children particle as
-a list. For example, to generate :math:`B^0\to K\pi`, we would do:
+The generation of simple `n`-body decays can be done using the ``nbody_decay`` shortcut to create a decay chain
+with a very simple interface: one needs to pass the mass of the top particle and the masses of the children particle as
+a list, optionally giving the names of the particles. Then, the `generate` method can be used to produce the desired sample.
+For example, to generate :math:`B^0\to K\pi`, we would do:
 
 .. code-block:: python
 
@@ -104,9 +105,8 @@ a list. For example, to generate :math:`B^0\to K\pi`, we would do:
    PION_MASS = 139.57018
    KAON_MASS = 493.677
 
-   weights, particles = phasespace.generate_decay(B0_MASS,
-                                                  [PION_MASS, KAON_MASS],
-                                                   n_events=1000)
+   weights, particles = phasespace.nbody_decay(B0_MASS,
+                                               [PION_MASS, KAON_MASS]).generate(n_events=1000)
 
 This returns a numpy array of 1000 elements in the case of ``weights`` and a list of ``n particles`` (2) arrays of (1000, 4) shape,
 where each of the 4-dimensions corresponds to one of the components of the generated Lorentz 4-vector.
@@ -114,7 +114,7 @@ All particles are generated in the rest frame of the top particle; boosting to a
 achieved by passing the momenta to the ``boost_to`` argument.
 
 Behind the scenes, this function runs the TensorFlow graph, but no caching of the graph or reusing the session is performed.
-If we want to get the graph to avoid an immediate execution, we can use the `as_numpy` flag. Then, to produce the equivalent result
+If we want to get the graph to avoid an immediate execution, we can use the `generate_tensor` method. Then, to produce the equivalent result
 to the previous example, we simply do:
 
 .. code-block:: python
@@ -122,10 +122,8 @@ to the previous example, we simply do:
    import tensorflow as tf
 
    with tf.Session() as sess:
-       weights, particles = phasespace.generate_decay(B0_MASS,
-                                                      [PION_MASS, KAON_MASS],
-                                                      n_events=1000,
-                                                      as_numpy=False)
+       weights, particles = phasespace.nbody_decay(B0_MASS,
+                                                   [PION_MASS, KAON_MASS]).generate_tensor(n_events=1000)
        weights, particles = sess.run([weights, particles])
 
 Sequential decays can be handled with the ``GenParticle`` class (used internally by ``generate``) and its ``set_children`` method.
