@@ -573,6 +573,14 @@ class GenParticle:
         return self._sess.run(generate_tf)
 
 
+# legacy class to warn user about name change
+class Particle:
+
+    def __init__(self):
+        raise NameError("'Particle' has been renamed to 'GenParticle'. Please update your code accordingly."
+                        "For more information, see: https://github.com/zfit/phasespace/issues/22")
+
+
 def generate_decay(mass_top: float, masses: list, n_events: Union[int, tf.Variable], boost_to=None,
                    as_numpy: bool = True):
     """Generate an n-body phasespace.
