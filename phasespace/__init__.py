@@ -9,6 +9,6 @@ __maintainer__ = "zfit"
 
 __credits__ = ["Jonas Eschle <jonas.eschle@cern.ch>"]
 
-__all__ = ['generate_decay', 'Particle']
+__all__ = ['generate_decay', 'GenParticle']
 
-from .phasespace import generate_decay, Particle
+from .phasespace import generate_decay, GenParticle

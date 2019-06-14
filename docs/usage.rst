@@ -2,7 +2,7 @@
 Usage
 =====
 
-The base of ``phasespace`` is the ``Particle`` object.
+The base of ``phasespace`` is the ``GenParticle`` object.
 This object, which represents a particle, either stable or decaying, has only one mandatory argument, its name.
 
 In most cases (except for the top particle of a decay), one wants to also specify its mass, which can be either
@@ -18,24 +18,24 @@ These mass functions get three arguments, and must return a ``TensorFlow`` Tenso
 This function signature allows to handle threshold effects cleanly, giving enough information to produce kinematically
 allowed decays (NB: ``phasespace`` will throw an error if a kinematically forbidden decay is requested).
 
-With these considerations in mind, one can build a decay chain by using the ``set_children`` method of the ``Particle``
+With these considerations in mind, one can build a decay chain by using the ``set_children`` method of the ``GenParticle``
 class (which returns the class itself). As an example, to build the :math:`B^{0}\to K^{*}\gamma` decay in which
 :math:`K^*\to K\pi` with a fixed mass, we would write:
 
 .. code-block:: python
 
-   from phasespace import Particle
+   from phasespace import GenParticle
 
    B0_MASS = 5279.58
    KSTARZ_MASS = 895.81
    PION_MASS = 139.57018
    KAON_MASS = 493.677
 
-   pion = Particle('pi+', PION_MASS)
-   kaon = Particle('K+', KAON_MASS)
-   kstar = Particle('K*', KSTARZ_MASS).set_children(pion, kaon)
-   gamma = Particle('gamma', 0)
-   bz = Particle('B0', B0_MASS).set_children(kstar, gamma)
+   pion = GenParticle('pi+', PION_MASS)
+   kaon = GenParticle('K+', KAON_MASS)
+   kstar = GenParticle('K*', KSTARZ_MASS).set_children(pion, kaon)
+   gamma = GenParticle('gamma', 0)
+   bz = GenParticle('B0', B0_MASS).set_children(kstar, gamma)
 
 Phasespace events can be generated using the ``generate`` method, which gets the number of events to generate as input.
 The method returns:
@@ -129,7 +129,7 @@ write the :math:`B^{0}\to K^{*}\gamma` decay chain as (more details can be found
 
    import tensorflow as tf
    import tensorflow_probability as tfp
-   from phasespace import Particle
+   from phasespace import GenParticle
 
    KSTARZ_MASS = 895.81
    KSTARZ_WIDTH = 47.4
@@ -148,10 +148,10 @@ write the :math:`B^{0}\to K^{*}\gamma` decay chain as (more details can be found
                                                            high=max_mass).sample()
         return kstar_mass
 
-   bz = Particle('B0', B0_MASS).set_children(Particle('K*0', mass=kstar_mass)
-                                             .set_children(Particle('K+', mass=KAON_MASS),
-                                                           Particle('pi-', mass=PION_MASS)),
-                                             Particle('gamma', mass=0.0))
+   bz = GenParticle('B0', B0_MASS).set_children(GenParticle('K*0', mass=kstar_mass)
+                                                .set_children(GenParticle('K+', mass=KAON_MASS),
+                                                              GenParticle('pi-', mass=PION_MASS)),
+                                                GenParticle('gamma', mass=0.0))
 
 
 Shortcut for simple decays
@@ -181,6 +181,6 @@ For example, to generate :math:`B^0\to K\pi`, one would do:
                                                   n_events=N_EVENTS)
 
 
-Internally, this function builds a decay chain using ``Particle``, and therefore the same considerations as before apply.
+Internally, this function builds a decay chain using ``GenParticle``, and therefore the same considerations as before apply.
 To avoid running the TensorFlow graph, one can set the ``as_numpy`` flag to ``False`` to get the graphs instead of the
 numpy arrays.

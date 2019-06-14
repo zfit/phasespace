@@ -128,23 +128,23 @@ to the previous example, we simply do:
                                                       as_numpy=False)
        weights, particles = sess.run([weights, particles])
 
-Sequential decays can be handled with the ``Particle`` class (used internally by ``generate``) and its ``set_children`` method.
+Sequential decays can be handled with the ``GenParticle`` class (used internally by ``generate``) and its ``set_children`` method.
 As an example, to build the :math:`B^{0}\to K^{*}\gamma` decay in which :math:`K^*\to K\pi`, we would write:
 
 .. code-block:: python
 
-   from phasespace import Particle
+   from phasespace import GenParticle
 
    B0_MASS = 5279.58
    KSTARZ_MASS = 895.81
    PION_MASS = 139.57018
    KAON_MASS = 493.677
 
-   pion = Particle('pi+', PION_MASS)
-   kaon = Particle('K+', KAON_MASS)
-   kstar = Particle('K*', KSTARZ_MASS).set_children(pion, kaon)
-   gamma = Particle('gamma', 0)
-   bz = Particle('B0', B0_MASS).set_children(kstar, gamma)
+   pion = GenParticle('pi+', PION_MASS)
+   kaon = GenParticle('K+', KAON_MASS)
+   kstar = GenParticle('K*', KSTARZ_MASS).set_children(pion, kaon)
+   gamma = GenParticle('gamma', 0)
+   bz = GenParticle('B0', B0_MASS).set_children(kstar, gamma)
 
    weights, particles = bz.generate(n_events=1000)
 
@@ -183,7 +183,7 @@ In this case, ``particles`` is a ``dict`` with the particle names as keys:
           [ -305.02604662,  1361.12915468,  1029.29248526,  1739.14815935],
           [  479.39757002,  -268.78145413,  1397.86577911,  1508.50060384]])}
 
-The `Particle` class is able to cache the graphs so it is possible to generate in a loop
+The `GenParticle` class is able to cache the graphs so it is possible to generate in a loop
 without overhead:
 
 .. code-block:: pycon
@@ -198,7 +198,7 @@ This way of generating is recommended in the case of large samples, as it allows
 parallelisation while at the same time keep the memory usage low.
 
 If we want to operate with the TensorFlow graph instead, we can use the `generate_tensor` method
-of `Particle`, which has the same signature as `generate`.
+of `GenParticle`, which has the same signature as `generate`.
 
 More examples can be found in the ``tests`` folder and in the `documentation`_.
 

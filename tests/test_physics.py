@@ -42,7 +42,7 @@ PLOT_DIR = os.path.join(BASE_PATH, 'tests', 'plots')
 
 
 def setup_method():
-    phasespace.Particle._sess.close()
+    phasespace.GenParticle._sess.close()
     tf.reset_default_graph()
 
 def create_ref_histos(n_pions):

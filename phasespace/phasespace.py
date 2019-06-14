@@ -59,14 +59,14 @@ def pdk(a, b, c):
     return tf.sqrt(x) / (tf.constant(2.0, dtype=tf.float64) * a)
 
 
-class Particle:
+class GenParticle:
     """Representation of a particle.
 
     Instances of this class can be combined with each other to build decay chains,
     which can then be used to generate phase space events through the `generate`
     or `generate_tensor` method.
 
-    A `Particle` must have
+    A `GenParticle` must have
         + a `name`, which is ensured not to clash with any others in
             the decay chain.
         + a `mass`, which can be either a number or a function to generate it according to
@@ -76,7 +76,7 @@ class Particle:
 
     It may also have:
 
-        + Children, ie, decay products, which are also `Particle` instances.
+        + Children, ie, decay products, which are also `GenParticle` instances.
 
 
     Arguments:
@@ -100,11 +100,10 @@ class Particle:
         self._cache = None
 
     def __repr__(self):
-        return "<phasespace.Particle: name='{}' mass={} children=[{}]>".format(self.name,
-                                                                               f"{self._mass_val:.2f}"
-                                                                               if self.has_fixed_mass
-                                                                               else "variable",
-                                                                               ', '.join(child.name for child in self.children))
+        return "<phasespace.GenParticle: name='{}' mass={} children=[{}]>" \
+            .format(self.name,
+                    f"{self._mass_val:.2f}" if self.has_fixed_mass else "variable",
+                    ', '.join(child.name for child in self.children))
 
     @property
     def _sess(self):
@@ -188,7 +187,7 @@ class Particle:
         """Assign children.
 
         Arguments:
-            children (Particle): Two or more children to assign to the current particle.
+            children (GenParticle): Two or more children to assign to the current particle.
 
         Return:
             self
@@ -507,7 +506,7 @@ class Particle:
 
         Raise:
             tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
-            ValueError: If `n_events` and the size of `boost_to` don't match. See `Particle.generate_unnormalized`.
+            ValueError: If `n_events` and the size of `boost_to` don't match. See `GenParticle.generate_unnormalized`.
 
         """
         if boost_to is not None:
@@ -554,7 +553,7 @@ class Particle:
 
         Raise:
             tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
-            ValueError: If `n_events` and the size of `boost_to` don't match. See `Particle.generate_unnormalized`.
+            ValueError: If `n_events` and the size of `boost_to` don't match. See `GenParticle.generate_unnormalized`.
 
         """
         # Convert n_events to a tf.Variable to perform graph caching
@@ -574,15 +573,23 @@ class Particle:
         return self._sess.run(generate_tf)
 
 
+# legacy class to warn user about name change
+class Particle:
+
+    def __init__(self):
+        raise NameError("'Particle' has been renamed to 'GenParticle'. Please update your code accordingly."
+                        "For more information, see: https://github.com/zfit/phasespace/issues/22")
+
+
 def generate_decay(mass_top: float, masses: list, n_events: Union[int, tf.Variable], boost_to=None,
                    as_numpy: bool = True):
     """Generate an n-body phasespace.
 
-    Internally, this function uses `Particle` with a single generation of children.
+    Internally, this function uses `GenParticle` with a single generation of children.
 
     Note:
         This function doesn't cache so it may be slower on repeated calls. In that case
-        it's better to use :py:class:`Particle` directly.
+        it's better to use :py:class:`GenParticle` directly.
 
     Arguments:
         mass_top (`tf.Tensor`, list): Mass of the top particle. Can be a list of 4-vectors.
@@ -598,8 +605,8 @@ def generate_decay(mass_top: float, masses: list, n_events: Union[int, tf.Variab
         ValueError: If nor `n_events` nor `boost_to` are given.
 
     """
-    top = Particle('top', mass_top).set_children(*[Particle(str(num + 1), mass=mass)
-                                                   for num, mass in enumerate(masses)])
+    top = GenParticle('top', mass_top).set_children(*[GenParticle(str(num + 1), mass=mass)
+                                                      for num, mass in enumerate(masses)])
     norm_weights, parts = top.generate(n_events=n_events,
                                        boost_to=boost_to,
                                        normalize_weights=True) if as_numpy \

@@ -25,7 +25,7 @@ PION_MASS = decays.PION_MASS
 
 
 def setup_method():
-    phasespace.Particle._sess.close()
+    phasespace.GenParticle._sess.close()
     tf.reset_default_graph()
 
 
@@ -66,11 +66,11 @@ def test_n_events(n_events):
 
 
 def test_cache():
-    from phasespace import Particle
+    from phasespace import GenParticle
 
-    mother_particle = Particle('mother', 10000)
-    daughter1 = Particle('daughter1', mass=2000)
-    _ = mother_particle.set_children(daughter1, Particle('daughter2', mass=1000))
+    mother_particle = GenParticle('mother', 10000)
+    daughter1 = GenParticle('daughter1', mass=2000)
+    _ = mother_particle.set_children(daughter1, GenParticle('daughter2', mass=1000))
     assert not mother_particle._cache_valid
     _ = mother_particle.generate(n_events=8)
     tensor1 = mother_particle._cache
@@ -80,8 +80,8 @@ def test_cache():
     assert mother_particle._cache is not None
     assert mother_particle._cache_valid
 
-    daughter1.set_children(Particle('daugther21', mass=100),
-                           Particle('daughter22', mass=500))
+    daughter1.set_children(GenParticle('daugther21', mass=100),
+                           GenParticle('daughter22', mass=500))
     assert not mother_particle._cache_valid
     _ = mother_particle.generate(n_events=3)
     tensor2 = mother_particle._cache
