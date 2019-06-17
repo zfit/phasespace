@@ -611,4 +611,11 @@ def nbody_decay(mass_top: float, masses: list, top_name: str = '', names: list =
     return GenParticle(top_name, mass_top).set_children(*[GenParticle(names[num], mass=mass)
                                                           for num, mass in enumerate(masses)])
 
+
+def generate_decay(*args, **kwargs):
+    """Deprecated."""
+    raise NameError("'generate_decay' has been removed. A similar behavior can be accomplished with 'nbody_decay'. "
+                    "For more information see https://github.com/zfit/phasespace/issues/22")
+
+
 # EOF
