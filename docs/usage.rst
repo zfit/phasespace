@@ -157,14 +157,14 @@ write the :math:`B^{0}\to K^{*}\gamma` decay chain as (more details can be found
 Shortcut for simple decays
 --------------------------
 
-The generation of simple `n`-body decays can be done using the ``generate_decay`` function of ``phasespace``, which takes
+The generation of simple `n`-body decay chains can be done using the ``nbody_decay`` function of ``phasespace``, which takes
 
 - The mass of the top particle.
 - The mass of children particles as a list.
-- The number of events to generate.
-- The optional ``boost_to`` tensor.
+- The name of the top particle (optional).
+- The names of the children particles (optional).
 
-For example, to generate :math:`B^0\to K\pi`, one would do:
+If the names are not given, `top` and `p_{i}` are assigned. For example, to generate :math:`B^0\to K\pi`, one would do:
 
 .. code-block:: python
 
@@ -176,11 +176,9 @@ For example, to generate :math:`B^0\to K\pi`, one would do:
    PION_MASS = 139.57018
    KAON_MASS = 493.677
 
-   weights, particles = phasespace.generate_decay(B0_MASS,
-                                                  [PION_MASS, KAON_MASS],
-                                                  n_events=N_EVENTS)
+   decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, KAON_MASS],
+                                  top_name="B0", names=["pi", "K"])
+   weights, particles = decay.generate(n_events=N_EVENTS)
 
+In this example, ``decay`` is simply a ``GenParticle`` with the corresponding children.
 
-Internally, this function builds a decay chain using ``GenParticle``, and therefore the same considerations as before apply.
-To avoid running the TensorFlow graph, one can set the ``as_numpy`` flag to ``False`` to get the graphs instead of the
-numpy arrays.
