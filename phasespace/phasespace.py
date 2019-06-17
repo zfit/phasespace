@@ -575,7 +575,11 @@ class GenParticle:
 
 # legacy class to warn user about name change
 class Particle:
+    """Deprecated Particle class.
 
+    Renamed to GenParticle.
+
+    """
     def __init__(self):
         raise NameError("'Particle' has been renamed to 'GenParticle'. Please update your code accordingly."
                         "For more information, see: https://github.com/zfit/phasespace/issues/22")
