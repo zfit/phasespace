@@ -104,3 +104,7 @@ ENV/
 # specific
 */*_cxx*
 tests/plots
+/data/B2K1Gamma_RapidSim_7TeV_K1KstarNonResonant_Tree.root
+/data/B2K1Gamma_RapidSim_7TeV_Tree.root
+/data/B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root
+/data/B2KstGamma_RapidSim_7TeV_Tree.root

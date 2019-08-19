@@ -27,7 +27,7 @@ before_install:
   - pip install -r requirements_dev.txt
 install:
   - pip install .
-  -
+  - python data/download_test_files.py
 script:
   - pytest --cov-branch --cov=phasespace tests
 after_success:

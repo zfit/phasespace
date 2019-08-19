@@ -8,9 +8,11 @@ twine
 sphinx_bootstrap_theme
 
 pytest
+pytest-xdist
 pytest-cov
 coverage
 numpy
 matplotlib
 uproot
 scipy
+requests
