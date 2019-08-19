@@ -15,4 +15,4 @@ numpy
 matplotlib
 uproot
 scipy
-requests
+wget
