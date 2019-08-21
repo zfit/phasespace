@@ -1,7 +1,5 @@
 import wget
 
-import requests
-
 files_urls = [
     ('B2K1Gamma_RapidSim_7TeV_K1KstarNonResonant_Tree.root',
      'https://cernbox.cern.ch/index.php/s/8mN10X8U7VGfaRc/download'),
@@ -12,9 +10,8 @@ files_urls = [
 
 
 def download(url, file_name):
-    return wget.download(url=url)
+    return wget.download(url=url, bar=False)
 
 
 if __name__ == '__main__':
-
     files = [download(url=url, file_name=file) for file, url in files_urls]
