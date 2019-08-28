@@ -286,6 +286,23 @@ class GenParticle:
         return w_max
 
     def _generate(self, momentum, n_events):
+        """Generate a n-body decay according to the Raubold and Lynch method.
+
+        The number and mass of the children particles are taken from self.children.
+
+        Note:
+            This method generates the same results as the GENBOD routine.
+
+        Arguments:
+            momentum (tensor): Momentum of the parent particle. All generated particles
+                will be boosted to that momentum.
+            n_events (int): Number of events to generate.
+
+        Return:
+            tuple: Result of the generation (per-event weights, maximum weights, output particles
+                and their output masses).
+
+        """
         if not self.children:
             raise ValueError("No children have been configured")
         p_top, n_events = self._preprocess(momentum, n_events)
@@ -407,6 +424,32 @@ class GenParticle:
         return tf.reshape(weights, (n_events,)), tf.reshape(w_max, (n_events,)), generated_particles, masses
 
     def _recursive_generate(self, n_events, boost_to=None, recalculate_max_weights=False):
+        """Recursively generate normalized n-body phase space as tensorflow tensors.
+
+        Events are generated in the rest frame of the particle, unless `boost_to` is given.
+
+        Note:
+            In this method, the event weights are returned normalized to their maximum.
+
+        Arguments:
+            n_events (int): Number of events to generate.
+            boost_to (optional): Momentum vector of shape (x, 4), where x is optional, to where
+                the resulting events will be boosted. If not specified, events are generated
+                in the rest frame of the particle.
+            recalculate_max_weights (bool, optional): Recalculate the maximum weight of the event
+                using all the particles of the tree? This is necessary for the top particle of a decay,
+                otherwise the maximum weight calculation is going to be wrong (particles from subdecays
+                would not be taken into account). Defaults to False.
+
+        Return:
+            tuple: Result of the generation (per-event weights, maximum weights, output particles
+                and their output masses).
+
+        Raise:
+            tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
+            ValueError: If `n_events` and the size of `boost_to` don't match. See `GenParticle.generate_unnormalized`.
+
+        """
         if boost_to is not None:
             momentum = boost_to
         else:
