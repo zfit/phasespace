@@ -26,6 +26,7 @@ import sys
 sys.path.insert(0, os.path.abspath('..'))
 
 import phasespace
+import tensorflow as tf
 
 import sphinx_bootstrap_theme
 

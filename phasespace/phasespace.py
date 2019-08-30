@@ -32,7 +32,7 @@ def process_list_to_tensor(lst):
         lst (list): List to convert.
 
     Return:
-        Tensor.
+        ~`tf.Tensor`
 
     """
     if isinstance(lst, list):
@@ -47,12 +47,12 @@ def pdk(a, b, c):
     Based on Eq. (9.17) in CERN 68-15 (1968).
 
     Arguments:
-        a (Tensor): :math:`M_{i+1}` in Eq. (9.17).
-        b (Tensor): :math:`M_{i}` in Eq. (9.17).
-        c (Tensor): :math:`m_{i+1}` in Eq. (9.17).
+        a (~`tf.Tensor`): :math:`M_{i+1}` in Eq. (9.17).
+        b (~`tf.Tensor`): :math:`M_{i}` in Eq. (9.17).
+        c (~`tf.Tensor`): :math:`m_{i+1}` in Eq. (9.17).
 
     Return:
-        Tensor.
+        ~`tf.Tensor`
 
     """
     x = (a - b - c) * (a + b + c) * (a - b + c) * (a + b - c)
@@ -70,7 +70,7 @@ class GenParticle:
         + a `name`, which is ensured not to clash with any others in
             the decay chain.
         + a `mass`, which can be either a number or a function to generate it according to
-            a certain distribution. The returned Tensor needs to have shape (nevents,).
+            a certain distribution. The returned ~`tf.Tensor` needs to have shape (nevents,).
             In this case, the particle is not considered as having a
             fixed mass and the `has_fixed_mass` method will return False.
 
@@ -81,7 +81,7 @@ class GenParticle:
 
     Arguments:
         name (str): Name of the particle.
-        mass (float, Tensor, callable): Mass of the particle. If it's a float, it get
+        mass (float, ~`tf.Tensor`, callable): Mass of the particle. If it's a float, it get
             converted to a `tf.constant`.
 
     """
@@ -147,14 +147,14 @@ class GenParticle:
         `min_mass`, `max_mass` and `n_events` parameters.
 
         Arguments:
-            min_mass (`tf.Tensor`): Lower mass range. Defaults to None, which
+            min_mass (tensor): Lower mass range. Defaults to None, which
                 is only valid in the case of fixed mass.
-            max_mass (`tf.Tensor`): Upper mass range. Defaults to None, which
+            max_mass (tensor): Upper mass range. Defaults to None, which
                 is only valid in the case of fixed mass.
-            n_events (`tf.Tensor`): Number of events to produce. Has to be specified if the particle is resonant.
+            n_events (): Number of events to produce. Has to be specified if the particle is resonant.
 
         Return:
-            `tf.Tensor`: Mass of the particles, either a scalar or shape (nevents,)
+            ~`tf.Tensor`: Mass of the particles, either a scalar or shape (nevents,)
 
         Raise:
             ValueError: If the mass is requested and has not been set.
@@ -433,7 +433,7 @@ class GenParticle:
 
         Arguments:
             n_events (int): Number of events to generate.
-            boost_to (optional): Momentum vector of shape (x, 4), where x is optional, to where
+            boost_to (tensor, optional): Momentum vector of shape (x, 4), where x is optional, to where
                 the resulting events will be boosted. If not specified, events are generated
                 in the rest frame of the particle.
             recalculate_max_weights (bool, optional): Recalculate the maximum weight of the event
@@ -636,7 +636,7 @@ def nbody_decay(mass_top: float, masses: list, top_name: str = '', names: list =
     children 'p_{i}', where i corresponds to their position in the `masses` sequence.
 
     Arguments:
-        mass_top (`tf.Tensor`, list): Mass of the top particle. Can be a list of 4-vectors.
+        mass_top (tensor, list): Mass of the top particle. Can be a list of 4-vectors.
         masses (list): Masses of the child particles.
         name_top (str, optional): Name of the top particle. If not given, the top particle is
             named top.

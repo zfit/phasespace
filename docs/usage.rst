@@ -63,7 +63,7 @@ So one can do, equivalent to the previous example:
 
 In both cases, the particles are generated in the rest frame of the top particle.
 To produce them at a given momentum of the top particle, one can pass these momenta with the ``boost_to`` argument in both
-``generate`` and ``generate_tensor``. This latter approach can be useful if the momentum of the top particle
+``generate`` and ~`tf.Tensor`. This latter approach can be useful if the momentum of the top particle
 is generated according to some distribution, for example the kinematics of the LHC (see ``test_kstargamma_kstarnonresonant_lhc``
 and ``test_k1gamma_kstarnonresonant_lhc`` in ``tests/test_physics.py`` to see how this could be done).
 
@@ -116,7 +116,7 @@ can be performed using normal python loops without loss in performance:
 
 To generate the mass of a resonance, we need to give a function as its mass instead of a floating number.
 This function should take as input the per-event lower mass allowed, per-event upper mass allowed and the number of
-events, and should return a `tf.Tensor` with the generated masses and shape (nevents,). Well suited for this task
+events, and should return a ~`tf.Tensor` with the generated masses and shape (nevents,). Well suited for this task
 are the `TensorFlow Probability distributions <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions>`_
 or, for more customized mass shapes, the
 `zfit pdfs <https://zfit.github.io/zfit/model.html#tensor-sampling>`_ *(currently an
