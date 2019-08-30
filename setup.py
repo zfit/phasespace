@@ -27,7 +27,7 @@ if not requirements_dev.count("") == 1 or requirements_dev.index("") == 0:
                       "requirements have to be separated by one blank line.")
 requirements_dev_split = requirements_dev.index("")
 
-setup_requirements = requirements_dev[:requirements_dev_split]
+# setup_requirements = requirements_dev[:requirements_dev_split]
 test_requirements = requirements_dev[requirements_dev_split + 1:]  # +1: skip empty line
 
 setup(
@@ -52,7 +52,7 @@ setup(
     keywords='phasespace',
     name='phasespace',
     packages=find_packages(include=['phasespace']),
-    setup_requires=setup_requirements,
+    # setup_requires=setup_requirements,
     python_requires=">=3.6",
     test_suite='tests',
     tests_require=test_requirements,
