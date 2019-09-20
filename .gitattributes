@@ -2,3 +2,4 @@ data/B2K1Gamma_RapidSim_7TeV_K1KstarNonResonant_Tree.root filter=lfs diff=lfs me
 data/B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root filter=lfs diff=lfs merge=lfs -text
 data/B2K1Gamma_RapidSim_7TeV_Tree.root filter=lfs diff=lfs merge=lfs -text
 data/B2KstGamma_RapidSim_7TeV_Tree.root filter=lfs diff=lfs merge=lfs -text
+.git_archival.txt  export-subst
