@@ -1,6 +1,6 @@
-==========
+*******************************
 PhaseSpace
-==========
+*******************************
 
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.2591993.svg
    :target: https://doi.org/10.5281/zenodo.2591993
@@ -49,7 +49,7 @@ Free software: BSD-3-Clause.
 
 
 Why?
-----
+====
 Lately, data analysis in High Energy Physics (HEP), traditionally performed within the `ROOT`_ ecosystem,
 has been moving more and more towards Python.
 The possibility of carrying out purely Python-based analyses has become real thanks to the
@@ -72,7 +72,7 @@ broad peak).
 .. _TGenPhaseSpace: https://root.cern.ch/doc/master/classTGenPhaseSpace.html
 
 Installing
-----------
+==========
 
 To install ``phasespace``, run this command in your terminal:
 
@@ -90,7 +90,7 @@ For the newest development version, which may be unstable, you can install the v
 
 
 How to use
-----------
+==========
 
 The generation of simple `n`-body decays can be done using the ``nbody_decay`` shortcut to create a decay chain
 with a very simple interface: one needs to pass the mass of the top particle and the masses of the children particle as
@@ -204,7 +204,7 @@ More examples can be found in the ``tests`` folder and in the `documentation`_.
 
 
 Physics validation
-------------------
+==================
 
 Physics validation is performed continuously in the included tests (``tests/test_physics.py``), run through Travis CI.
 This validation is performed at two levels:
@@ -223,7 +223,7 @@ The results of all physics validation performed by the ``tests_physics.py`` test
 
 
 Contributing
-------------
+============
 
 Contributions are always welcome, please have a look at the `Contributing guide`_.
 

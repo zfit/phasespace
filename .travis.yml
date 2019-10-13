@@ -14,7 +14,6 @@ before_install:
   - ". /home/travis/anaconda/etc/profile.d/conda.sh"
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
-  - conda info -a
   - conda create -q -n phasespace-env python=$TRAVIS_PYTHON_VERSION root -c conda-forge > tmp.txt && echo "alive"
   - conda activate phasespace-env
 
