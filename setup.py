@@ -34,7 +34,7 @@ test_requirements = requirements_dev[requirements_dev_split + 1:]  # +1: skip em
 
 setup(
     author="Albert Puig Navarro",
-    author_email='albert.puig@cern.ch',
+    author_email='apuignav@gmail.com',
     maintainer="zfit",
     maintainer_email='zfit@physik.uzh.ch',
     classifiers=[
