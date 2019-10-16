@@ -31,7 +31,7 @@ class (which returns the class itself). As an example, to build the :math:`B^{0}
    PION_MASS = 139.57018
    KAON_MASS = 493.677
 
-   pion = GenParticle('pi+', PION_MASS)
+   pion = GenParticle('pi-', PION_MASS)
    kaon = GenParticle('K+', KAON_MASS)
    kstar = GenParticle('K*', KSTARZ_MASS).set_children(pion, kaon)
    gamma = GenParticle('gamma', 0)

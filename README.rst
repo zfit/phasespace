@@ -74,7 +74,16 @@ broad peak).
 Installing
 ==========
 
-To install ``phasespace``, run this command in your terminal:
+``phasespace`` is available on conda-forge and pip.
+
+To install ``phasespace`` with conda, run:
+
+
+.. code-block:: console
+
+    $ conda install phasespace -c conda-forge
+
+To install with pip:
 
 .. code-block:: console
 
