@@ -20,15 +20,15 @@ bibliography: paper.bib
 
 # Summary
 
-The use of simulated particle decays is very common in experimental particle physics.
+Simulated particle decays are common in experimental particle physics.
 They are used to study a wide variety of aspects of a physics analysis, such as signal response, detector effects, and the efficiency of selection requirements, in a controlled manner.
 While it is possible to encode complex physics dynamics into these simulations at the cost of increased complexity and larger computer requirements, in many cases it is enough to generate these simulated samples as if only kinematic physics occurred, i.e., in an isotropic way.
 This type of generation, called "phase space generation", is very fast and offers simple and predictable patterns, making it an attractive first step in many physics analyses.
 
-The ``phasespace`` package implements phase space event generation based on the Raubold and Lynch method described in Ref. [@James:1968gu].
+The ``phasespace`` package implements phase space event generation based on the Raubold and Lynch method described in [@James:1968gu].
 This method was previously implemented in the ``GENBOD`` function of the FORTRAN-based ``CERNLIB`` library. It was posteriorly ported to C++ for the ROOT toolkit [@Brun:1997pa] as the ``TGenPhaseSpace`` class, which is currently the most used implementation in particle physics.
 The ``phasespace`` package provides a pure Python implementation of the Raubold and Lynch method using the *Tensorflow* platform [@tensorflow2015-whitepaper] as its computational backend.
-Unlike ``TGenPhaseSpace``, the ``phasespace`` approach offers seamless integration with the scientific Python ecosystem (*numpy*, *pandas*, *scikit-learn*...) while at the same time provides excellent performance and scalability both in CPU and GPU thanks to *Tensorflow*.
+Unlike ``TGenPhaseSpace``, the ``phasespace`` approach offers seamless integration with the scientific Python ecosystem (*numpy*, *pandas*, *scikit-learn*...) while at the same time provides excellent performance and scalability both in CPUs and GPUs thanks to *Tensorflow*.
 
 In addition, ``phasespace`` allows the generation of complex multi-decay chains, including non-constant masses as is needed for the simulation of resonant particles.
 This functionality opens the door for its use as the basis for importance sampling in Dalitz and amplitude decay fitters, which typically need to implement their own solution based on ``TGenPhaseSpace``;
