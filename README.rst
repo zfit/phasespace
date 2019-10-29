@@ -2,6 +2,8 @@
 PhaseSpace
 *******************************
 
+.. image:: https://joss.theoj.org/papers/10.21105/joss.01570/status.svg
+   :target: https://doi.org/10.21105/joss.01570
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.2591993.svg
    :target: https://doi.org/10.5281/zenodo.2591993
 .. image:: https://img.shields.io/pypi/status/phasespace.svg
