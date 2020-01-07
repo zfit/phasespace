@@ -404,6 +404,7 @@ class GenParticle:
             part_num += 1
         return generated_particles, weights
 
+    @tf.function(autograph=False, experimental_relax_shapes=True)
     def _recursive_generate(self, n_events, boost_to=None, recalculate_max_weights=False):
         """Recursively generate normalized n-body phase space as tensorflow tensors.
 
@@ -499,7 +500,7 @@ class GenParticle:
                                      (n_events,))
         return weights, weights_max, output_particles, output_masses
 
-    @tf.function(autograph=False)
+    # @tf.function(autograph=False)
     def generate(self, n_events: Union[int, tf.Tensor, tf.Variable],
                  boost_to: Optional[tf.Tensor] = None,
                  normalize_weights: bool = True) -> Tuple[tf.Tensor, Dict[str, tf.Tensor]]:
