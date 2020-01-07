@@ -78,7 +78,7 @@ def run_test(n_particles, test_prefix):
     n_events = tf.Variable(initial_value=first_run_n_events, dtype=tf.int64)
 
     decay = phasespace.nbody_decay(decays.B0_MASS, [decays.PION_MASS] * n_particles)
-    generate = decay.generate_tensor(n_events)
+    generate = decay.generate(n_events)
     weights1, _ = generate  # only generate to test change in n_events
     assert len(weights1) == first_run_n_events
 
@@ -144,8 +144,8 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
         booster = rapidsim.generate_fonll(decays.B0_MASS, 7, 'b', n_events)
         booster = booster.transpose()
         rapidsim_getter = rapidsim.get_tree
-    norm_weights, particles = decays.b0_to_kstar_gamma(kstar_width=kstar_width) \
-        .generate(n_events=n_events, boost_to=booster)
+    decay = decays.b0_to_kstar_gamma(kstar_width=kstar_width)
+    norm_weights, particles = decay.generate(n_events=n_events, boost_to=booster)
     rapidsim_parts = rapidsim_getter(os.path.join(BASE_PATH,
                                                   'data',
                                                   input_file),
@@ -219,8 +219,8 @@ def run_k1_gamma(input_file, k1_width, kstar_width, b_at_rest, suffix):
         booster = rapidsim.generate_fonll(decays.B0_MASS, 7, 'b', n_events)
         booster = booster.transpose()
         rapidsim_getter = rapidsim.get_tree
-    norm_weights, particles = decays.bp_to_k1_kstar_pi_gamma(k1_width=k1_width, kstar_width=kstar_width) \
-        .generate(n_events=n_events, boost_to=booster)
+    gamma = decays.bp_to_k1_kstar_pi_gamma(k1_width=k1_width, kstar_width=kstar_width)
+    norm_weights, particles = gamma.generate(n_events=n_events, boost_to=booster)
     rapidsim_parts = rapidsim_getter(
         os.path.join(BASE_PATH,
                      'data',

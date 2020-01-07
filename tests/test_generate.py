@@ -35,7 +35,7 @@ def test_one_event():
 def test_one_event_tf():
     """Test B->pi pi pi."""
     decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, PION_MASS, PION_MASS])
-    norm_weights, particles = decay.generate_tensor(n_events=1)
+    norm_weights, particles = decay.generate(n_events=1)
 
     assert norm_weights.shape[0] == 1
     assert all([weight.numpy() < 1 for weight in norm_weights])

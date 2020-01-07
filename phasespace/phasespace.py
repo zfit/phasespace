@@ -11,6 +11,7 @@ The code is based on the GENBOD function (W515 from CERNLIB), documented in
     F. James, Monte Carlo Phase Space, CERN 68-15 (1968)
 
 """
+import warnings
 
 RELAX_SHAPES = False
 
@@ -496,10 +497,12 @@ class GenParticle:
         return weights, weights_max, output_particles, output_masses
 
     @tf.function(autograph=False)
-    def generate_tensor(self, n_events: Union[int, tf.Tensor, tf.Variable],
-                        boost_to: Optional[tf.Tensor] = None,
-                        normalize_weights: bool = True) -> Tuple[tf.Tensor, Dict[str, tf.Tensor]]:
+    def generate(self, n_events: Union[int, tf.Tensor, tf.Variable],
+                 boost_to: Optional[tf.Tensor] = None,
+                 normalize_weights: bool = True) -> Tuple[tf.Tensor, Dict[str, tf.Tensor]]:
         """Generate normalized n-body phase space as tensorflow tensors.
+
+        Any TensorFlow tensor can always be converted to a numpy array with the method `numpy()`.
 
         Events are generated in the rest frame of the particle, unless `boost_to` is given.
 
@@ -543,7 +546,7 @@ class GenParticle:
                                                                   recalculate_max_weights=self.has_grandchildren)
         return (weights / weights_max, parts) if normalize_weights else (weights, weights_max, parts)
 
-    def generate(self, n_events: int, boost_to=None, normalize_weights: bool = True):
+    def generate_tensor(self, n_events: int, boost_to=None, normalize_weights: bool = True):
         """Generate normalized n-body phase space as numpy arrays.
 
         Events are generated in the rest frame of the particle, unless `boost_to` is given.
@@ -584,7 +587,8 @@ class GenParticle:
         # n_events_var = self._n_events
         # n_events_var.load(n_events, session=self._sess)
         # Run generation
-        generate_tf = self.generate_tensor(n_events, boost_to, normalize_weights)
+        warnings.warn("This function is depreceated. Use `generate` which not returns a Tensor as well.")
+        generate_tf = self.generate(n_events, boost_to, normalize_weights)
         # self._cache = generate_tf
         # self._set_cache_validity(True, propagate=True)
         return generate_tf
