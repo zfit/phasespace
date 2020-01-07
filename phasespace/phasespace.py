@@ -98,8 +98,7 @@ class GenParticle:
             mass = tf.convert_to_tensor(value=mass, dtype_hint=tf.float64)
             mass = tf.cast(mass, tf.float64)
         self._mass = mass
-        self._n_events_var = None
-        self._cache = None
+        self._generate_called = False  # not yet called, children can be set
 
     def __repr__(self):
         return "<phasespace.GenParticle: name='{}' mass={} children=[{}]>" \
@@ -171,9 +170,12 @@ class GenParticle:
             ValueError: If there is an inconsistency in the parent/children relationship, ie,
             if children were already set, if their parent was or if less than two children were given.
             KeyError: If there is a particle name clash.
+            RuntimeError: If `generate` was already called before.
 
         """
         # self._set_cache_validity(False)
+        if self._generate_called:
+            raise RuntimeError("Cannot set children after the first call to `generate`.")
         if self.children:
             raise ValueError("Children already set!")
         if len(children) <= 1:
@@ -278,6 +280,7 @@ class GenParticle:
                 and their output masses).
 
         """
+        self._generate_called = True
         if not self.children:
             raise ValueError("No children have been configured")
         p_top, n_events = self._preprocess(momentum, n_events)

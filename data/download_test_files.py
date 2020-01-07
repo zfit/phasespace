@@ -1,5 +1,3 @@
-from multiprocessing.pool import ThreadPool
-
 import wget
 
 files_urls = [
@@ -13,12 +11,14 @@ files_urls = [
 
 def download(url_file_name):
     file_name, url = url_file_name
+    print(f"starting download of {file_name}")
     wget.download(url=url, bar=False)
+    print("download finished")
     return file_name
 
 
 if __name__ == '__main__':
-    files = ThreadPool(len(files_urls)).imap_unordered(download, files_urls)
+    # files = ThreadPool(len(files_urls)).imap_unordered(download, files_urls)
+    files = [download(url_file_name=url_file_name) for url_file_name in files_urls]
     for file in files:
         print(file)
-    # files = [download(url=url, file_name=file) for file, url in files_urls]
