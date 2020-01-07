@@ -1,3 +1,5 @@
+from multiprocessing.pool import ThreadPool
+
 import wget
 
 files_urls = [
@@ -9,9 +11,14 @@ files_urls = [
     ('B2KstGamma_RapidSim_7TeV_Tree.root', 'https://cernbox.cern.ch/index.php/s/EH5yrCpGko7P7Mc/download')]
 
 
-def download(url, file_name):
-    return wget.download(url=url, bar=False)
+def download(url_file_name):
+    file_name, url = url_file_name
+    wget.download(url=url, bar=False)
+    return file_name
 
 
 if __name__ == '__main__':
-    files = [download(url=url, file_name=file) for file, url in files_urls]
+    files = ThreadPool(len(files_urls)).imap_unordered(download, files_urls)
+    for file in files:
+        print(file)
+    # files = [download(url=url, file_name=file) for file, url in files_urls]
