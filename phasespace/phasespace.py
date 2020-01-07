@@ -12,6 +12,8 @@ The code is based on the GENBOD function (W515 from CERNLIB), documented in
 
 """
 
+RELAX_SHAPES = False
+
 from math import pi
 from typing import Union, Dict, Tuple, Optional, Callable
 
@@ -41,6 +43,7 @@ def process_list_to_tensor(lst):
     return tf.cast(lst, dtype=tf.float64)
 
 
+@tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
 def pdk(a, b, c):
     """Calculate the PDK (2-body phase space) function.
 
@@ -103,15 +106,6 @@ class GenParticle:
                     f"{self._mass_val:.2f}" if self.has_fixed_mass else "variable",
                     ', '.join(child.name for child in self.children))
 
-    # @property
-    # def _n_events(self):
-    #     """tf.Variable: Number of events to generate."""
-    #     n_events_var = self._n_events_var
-    #     if n_events_var is None:
-    #         n_events_var = tf.Variable(initial_value=-42, dtype=tf.int64, trainable=False)
-    #         self._n_events_var = n_events_var
-    #     return n_events_var
-
     def _do_names_clash(self, particles):
         def get_list_of_names(part):
             output = [part.name]
@@ -128,6 +122,7 @@ class GenParticle:
             return dup_names
         return None
 
+    @tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
     def get_mass(self, min_mass: tf.Tensor = None, max_mass: tf.Tensor = None,
                  n_events: Union[tf.Tensor, tf.Variable] = None) -> tf.Tensor:
         """Get the particle mass.
@@ -162,16 +157,6 @@ class GenParticle:
         """bool: Is the mass a callable function?"""
         return not callable(self._mass)
 
-    @property
-    def _cache_valid(self):
-        return self._own_cache_valid and all(child._cache_valid for child in self.children)
-
-    def _set_cache_validity(self, valid, propagate=False):
-        self._own_cache_valid = valid
-        if propagate:
-            for child in self.children:
-                child._set_cache_validity(valid, propagate=propagate)
-
     def set_children(self, *children):
         """Assign children.
 
@@ -187,7 +172,7 @@ class GenParticle:
             KeyError: If there is a particle name clash.
 
         """
-        self._set_cache_validity(False)
+        # self._set_cache_validity(False)
         if self.children:
             raise ValueError("Children already set!")
         if len(children) <= 1:
@@ -212,6 +197,7 @@ class GenParticle:
         return any(child.has_children for child in self.children)
 
     @staticmethod
+    # @tf.function(autograph=False)
     def _preprocess(momentum, n_events):
         """Preprocess momentum input and determine number of events to generate.
 
@@ -262,6 +248,7 @@ class GenParticle:
         return momentum, n_events
 
     @staticmethod
+    @tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
     def _get_w_max(available_mass, masses):
         emmax = available_mass + tf.gather(masses, indices=[0], axis=1)
         emmin = tf.zeros_like(emmax, dtype=tf.float64)
@@ -346,6 +333,15 @@ class GenParticle:
         for i in range(n_particles):
             sum_ += tf.gather(masses, [i], axis=1)
             inv_masses.append(tf.gather(random, [i], axis=1) * available_mass + sum_)
+        generated_particles, weights = self._generate_part2(inv_masses, masses, n_events, n_particles)
+        # Final boost of all particles
+        generated_particles = [kin.lorentz_boost(part, p_top_boost)
+                               for part in generated_particles]
+        return tf.reshape(weights, (n_events,)), tf.reshape(w_max, (n_events,)), generated_particles, masses
+
+    @staticmethod
+    @tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
+    def _generate_part2(inv_masses, masses, n_events, n_particles):
         pds = []
         # Calculate weights of the events
         for i in range(n_particles - 1):
@@ -402,10 +398,7 @@ class GenParticle:
                                                                axis=1))
                                    for part in generated_particles]
             part_num += 1
-        # Final boost of all particles
-        generated_particles = [kin.lorentz_boost(part, p_top_boost)
-                               for part in generated_particles]
-        return tf.reshape(weights, (n_events,)), tf.reshape(w_max, (n_events,)), generated_particles, masses
+        return generated_particles, weights
 
     def _recursive_generate(self, n_events, boost_to=None, recalculate_max_weights=False):
         """Recursively generate normalized n-body phase space as tensorflow tensors.

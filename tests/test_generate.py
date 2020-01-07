@@ -7,14 +7,12 @@
 # =============================================================================
 """Basic dimensionality tests."""
 
-import pytest
-
-import tensorflow as tf
-
-import phasespace
-
 import os
 import sys
+
+import pytest
+
+import phasespace
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -22,11 +20,6 @@ from .helpers import decays
 
 B0_MASS = decays.B0_MASS
 PION_MASS = decays.PION_MASS
-
-
-# def setup_method():
-#     phasespace.GenParticle._sess.close()
-#     tf.compat.v1.reset_default_graph()
 
 
 def test_one_event():
