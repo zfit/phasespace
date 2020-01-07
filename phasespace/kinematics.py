@@ -18,7 +18,7 @@ def scalar_product(vec1, vec2):
         vec2: Second vector.
 
     """
-    return tf.reduce_sum(vec1 * vec2, axis=1)
+    return tf.reduce_sum(input_tensor=vec1 * vec2, axis=1)
 
 
 def spatial_component(vector):
@@ -77,7 +77,7 @@ def mass(vector):
         vector: Input Lorentz momentum vector.
 
     """
-    return tf.sqrt(tf.reduce_sum(tf.square(vector) * metric_tensor(),
+    return tf.sqrt(tf.reduce_sum(input_tensor=tf.square(vector) * metric_tensor(),
                                  axis=-1, keepdims=True))
 
 
@@ -118,8 +118,8 @@ def lorentz_boost(vector, boostvector):
         return vector
 
     # if boost vector is zero, return the original vector
-    all_b2_zero = tf.reduce_all(tf.equal(b2, tf.zeros_like(b2)))
-    boosted_vector = tf.cond(all_b2_zero, true_fn=no_boost_fn, false_fn=boost_fn)
+    all_b2_zero = tf.reduce_all(input_tensor=tf.equal(b2, tf.zeros_like(b2)))
+    boosted_vector = tf.cond(pred=all_b2_zero, true_fn=no_boost_fn, false_fn=boost_fn)
     return boosted_vector
 
 
