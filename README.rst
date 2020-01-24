@@ -30,7 +30,7 @@ and tries to follow it as closely as possible.
 Detailed documentation, including the API, can be found in https://phasespace.readthedocs.io.
 Don't hesitate to join our `gitter`_ channel for questions and comments.
 
-If you use phasespace in a scientific publication we would appreciate citations to the `zenodo`_ publication:
+If you use phasespace in a scientific publication we would appreciate citations to the `JOSS`_ publication:
 
 .. code-block:: bibtex
 
@@ -49,7 +49,7 @@ Free software: BSD-3-Clause.
 
 [1]  F. James, Monte Carlo Phase Space, CERN 68-15 (1968)
 
-.. _zenodo: https://doi.org/10.5281/zenodo.2591993
+.. _JOSS: https://joss.theoj.org/papers/10.21105/joss.01570
 .. _Gitter: https://gitter.im/zfit/phasespace
 
 
