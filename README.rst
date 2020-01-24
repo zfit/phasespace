@@ -34,13 +34,16 @@ If you use phasespace in a scientific publication we would appreciate citations 
 
 .. code-block:: bibtex
 
-   @article{phasespace-2019,
-    title={phasespace: n-body phase space generation in Python},
-    DOI={10.5281/zenodo.2926058},
-    publisher={Zenodo},
-    author={Albert Puig and Jonas Eschle},
-    year={2019},
-    month={Mar}}
+    @article{puig_eschle_phasespace-2019,
+      title = {phasespace: n-body phase space generation in Python},
+      doi = {10.21105/joss.01570},
+      url = {https://doi.org/10.21105/joss.01570},
+      year = {2019},
+      month = {oct},
+      publisher = {The Open Journal},
+      author = {Albert Puig and Jonas Eschle},
+      journal = {Journal of Open Source Software}
+    }
 
 Free software: BSD-3-Clause.
 
