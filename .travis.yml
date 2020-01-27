@@ -23,7 +23,8 @@ before_install:
   - pip install -r requirements_dev.txt
 install:
   - pip install .
-  - cd data && python download_test_files.py && cd ..
+  - cd data
+  - travis_wait 20 python download_test_files.py && cd ..
 script:
   - pytest --cov-branch --cov=phasespace tests
 after_success:
