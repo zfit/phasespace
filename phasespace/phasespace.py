@@ -11,6 +11,9 @@ The code is based on the GENBOD function (W515 from CERNLIB), documented in
     F. James, Monte Carlo Phase Space, CERN 68-15 (1968)
 
 """
+import warnings
+
+RELAX_SHAPES = False
 
 from math import pi
 from typing import Union, Dict, Tuple, Optional, Callable
@@ -36,11 +39,12 @@ def process_list_to_tensor(lst):
 
     """
     if isinstance(lst, list):
-        lst = tf.transpose(tf.convert_to_tensor(lst,
-                                                preferred_dtype=tf.float64))
+        lst = tf.transpose(a=tf.convert_to_tensor(value=lst,
+                                                  dtype_hint=tf.float64))
     return tf.cast(lst, dtype=tf.float64)
 
 
+@tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
 def pdk(a, b, c):
     """Calculate the PDK (2-body phase space) function.
 
@@ -86,42 +90,21 @@ class GenParticle:
 
     """
 
-    _sess_obj = None
-
     def __init__(self, name: str, mass: Union[Callable, int, float]) -> None:  # noqa
         self.name = name
         self.children = []
         self._mass_val = mass
         if not callable(mass) and not isinstance(mass, tf.Variable):
-            mass = tf.convert_to_tensor(mass, preferred_dtype=tf.float64)
+            mass = tf.convert_to_tensor(value=mass, dtype_hint=tf.float64)
             mass = tf.cast(mass, tf.float64)
         self._mass = mass
-        self._n_events_var = None
-        self._cache = None
+        self._generate_called = False  # not yet called, children can be set
 
     def __repr__(self):
         return "<phasespace.GenParticle: name='{}' mass={} children=[{}]>" \
             .format(self.name,
                     f"{self._mass_val:.2f}" if self.has_fixed_mass else "variable",
                     ', '.join(child.name for child in self.children))
-
-    @property
-    def _sess(self):
-        """tf.Session: Internal session object."""
-        sess = self._sess_obj
-        if sess is None:
-            sess = tf.Session()
-            self._sess_obj = sess
-        return sess
-
-    @property
-    def _n_events(self):
-        """tf.Variable: Number of events to generate."""
-        n_events_var = self._n_events_var
-        if n_events_var is None:
-            n_events_var = tf.Variable(initial_value=-42, dtype=tf.int64, use_resource=True, trainable=False)
-            self._n_events_var = n_events_var
-        return n_events_var
 
     def _do_names_clash(self, particles):
         def get_list_of_names(part):
@@ -139,6 +122,7 @@ class GenParticle:
             return dup_names
         return None
 
+    @tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
     def get_mass(self, min_mass: tf.Tensor = None, max_mass: tf.Tensor = None,
                  n_events: Union[tf.Tensor, tf.Variable] = None) -> tf.Tensor:
         """Get the particle mass.
@@ -173,16 +157,6 @@ class GenParticle:
         """bool: Is the mass a callable function?"""
         return not callable(self._mass)
 
-    @property
-    def _cache_valid(self):
-        return self._own_cache_valid and all(child._cache_valid for child in self.children)
-
-    def _set_cache_validity(self, valid, propagate=False):
-        self._own_cache_valid = valid
-        if propagate:
-            for child in self.children:
-                child._set_cache_validity(valid, propagate=propagate)
-
     def set_children(self, *children):
         """Assign children.
 
@@ -196,9 +170,12 @@ class GenParticle:
             ValueError: If there is an inconsistency in the parent/children relationship, ie,
             if children were already set, if their parent was or if less than two children were given.
             KeyError: If there is a particle name clash.
+            RuntimeError: If `generate` was already called before.
 
         """
-        self._set_cache_validity(False)
+        # self._set_cache_validity(False)
+        if self._generate_called:
+            raise RuntimeError("Cannot set children after the first call to `generate`.")
         if self.children:
             raise ValueError("Children already set!")
         if len(children) <= 1:
@@ -223,6 +200,7 @@ class GenParticle:
         return any(child.has_children for child in self.children)
 
     @staticmethod
+    # @tf.function(autograph=False)
     def _preprocess(momentum, n_events):
         """Preprocess momentum input and determine number of events to generate.
 
@@ -250,24 +228,22 @@ class GenParticle:
         # Check compatibility of inputs
         if momentum.shape.ndims == 2:
             if n_events is not None:
-                momentum_shape = momentum.shape[0].value
+                momentum_shape = momentum.shape[0]
                 if momentum_shape is None:
-                    momentum_shape = tf.shape(momentum, out_type=tf.int64)[0]
+                    momentum_shape = tf.shape(input=momentum, out_type=tf.int64)[0]
                 else:
-                    momentum_shape = tf.convert_to_tensor(momentum_shape, preferred_dtype=tf.int64)
+                    momentum_shape = tf.convert_to_tensor(value=momentum_shape, dtype_hint=tf.int64)
                     momentum_shape = tf.cast(momentum_shape, dtype=tf.int64)
-                assert_op = tf.assert_equal(n_events, momentum_shape,
-                                            message="Conflicting inputs -> momentum_shape and n_events")
-                with tf.control_dependencies([assert_op]):
-                    n_events = tf.identity(n_events)
+                tf.assert_equal(n_events, momentum_shape, message="Conflicting inputs -> momentum_shape and n_events")
+
         if n_events is None:
             if momentum.shape.ndims == 2:
-                n_events = momentum.shape[0].value
+                n_events = momentum.shape[0]
                 if n_events is None:  # dynamic shape
-                    n_events = tf.shape(momentum, out_type=tf.int64)[0]
+                    n_events = tf.shape(input=momentum, out_type=tf.int64)[0]
             else:
                 n_events = tf.constant(1, dtype=tf.int64)
-        n_events = tf.convert_to_tensor(n_events, preferred_dtype=tf.int64)
+        n_events = tf.convert_to_tensor(value=n_events, dtype_hint=tf.int64)
         n_events = tf.cast(n_events, dtype=tf.int64)
         # Now preparation of tensors
         if momentum.shape.ndims == 1:
@@ -275,11 +251,12 @@ class GenParticle:
         return momentum, n_events
 
     @staticmethod
+    @tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
     def _get_w_max(available_mass, masses):
         emmax = available_mass + tf.gather(masses, indices=[0], axis=1)
         emmin = tf.zeros_like(emmax, dtype=tf.float64)
         w_max = tf.ones_like(emmax, dtype=tf.float64)
-        for i in range(1, masses.shape[1].value):
+        for i in range(1, masses.shape[1]):
             emmin += tf.gather(masses, [i - 1], axis=1)
             emmax += tf.gather(masses, [i], axis=1)
             w_max *= pdk(emmax, emmin, tf.gather(masses, [i], axis=1))
@@ -303,6 +280,7 @@ class GenParticle:
                 and their output masses).
 
         """
+        self._generate_called = True
         if not self.children:
             raise ValueError("No children have been configured")
         p_top, n_events = self._preprocess(momentum, n_events)
@@ -320,8 +298,8 @@ class GenParticle:
             return output_mass
 
         mass_from_stable = tf.broadcast_to(
-            tf.reduce_sum([child.get_mass() for child in self.children
-                           if child.has_fixed_mass],
+            tf.reduce_sum(input_tensor=[child.get_mass() for child in self.children
+                                        if child.has_fixed_mass],
                           axis=0),
             (n_events, 1))
         max_mass = top_mass - mass_from_stable
@@ -338,13 +316,10 @@ class GenParticle:
         masses = tf.concat(masses, axis=-1)
         # if masses.shape.ndims == 1:
         #     masses = tf.expand_dims(masses, axis=0)
-        available_mass = top_mass - tf.reduce_sum(masses, axis=1, keepdims=True)
-        mass_check = tf.assert_greater_equal(available_mass, tf.zeros_like(available_mass, dtype=tf.float64),
-                                             message="Forbidden decay",
-                                             name="mass_check")
-        with tf.control_dependencies([mass_check]):
-            available_mass = tf.identity(available_mass)
-        # Calculate the max weight, initial beta, etc
+        available_mass = top_mass - tf.reduce_sum(input_tensor=masses, axis=1, keepdims=True)
+        tf.debugging.assert_greater_equal(available_mass, tf.zeros_like(available_mass, dtype=tf.float64),
+                                          message="Forbidden decay",
+                                          name="mass_check")  # Calculate the max weight, initial beta, etc
         w_max = self._get_w_max(available_mass, masses)
         p_top_boost = kin.boost_components(p_top)
         # Start the generation
@@ -353,7 +328,7 @@ class GenParticle:
                             tf.sort(random_numbers, axis=1),
                             tf.ones((n_events, 1), dtype=tf.float64)],
                            axis=1)
-        if random.shape[1].value is None:
+        if random.shape[1] is None:
             random.set_shape((None, n_particles))
         # random = tf.expand_dims(random, axis=-1)
         sum_ = tf.zeros((n_events, 1), dtype=tf.float64)
@@ -362,11 +337,20 @@ class GenParticle:
         for i in range(n_particles):
             sum_ += tf.gather(masses, [i], axis=1)
             inv_masses.append(tf.gather(random, [i], axis=1) * available_mass + sum_)
+        generated_particles, weights = self._generate_part2(inv_masses, masses, n_events, n_particles)
+        # Final boost of all particles
+        generated_particles = [kin.lorentz_boost(part, p_top_boost)
+                               for part in generated_particles]
+        return tf.reshape(weights, (n_events,)), tf.reshape(w_max, (n_events,)), generated_particles, masses
+
+    @staticmethod
+    @tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
+    def _generate_part2(inv_masses, masses, n_events, n_particles):
         pds = []
         # Calculate weights of the events
         for i in range(n_particles - 1):
             pds.append(pdk(inv_masses[i + 1], inv_masses[i], tf.gather(masses, [i + 1], axis=1)))
-        weights = tf.reduce_prod(pds, axis=0)
+        weights = tf.reduce_prod(input_tensor=pds, axis=0)
         zero_component = tf.zeros_like(pds[0], dtype=tf.float64)
         generated_particles = [tf.concat([zero_component,
                                           pds[0],
@@ -381,12 +365,12 @@ class GenParticle:
                                                   tf.sqrt(tf.square(pds[part_num - 1]) +
                                                           tf.square(tf.gather(masses, [part_num], axis=1)))],
                                                  axis=1))
-            with tf.control_dependencies([n_events]):
-                cos_z = (tf.constant(2.0, dtype=tf.float64) * tf.random.uniform((n_events, 1), dtype=tf.float64)
-                         - tf.constant(1.0, dtype=tf.float64))
-                sin_z = tf.sqrt(tf.constant(1.0, dtype=tf.float64) - cos_z * cos_z)
-                ang_y = (tf.constant(2.0, dtype=tf.float64) * tf.constant(pi, dtype=tf.float64)
-                         * tf.random.uniform((n_events, 1), dtype=tf.float64))
+            # with tf.control_dependencies([n_events]):
+            cos_z = (tf.constant(2.0, dtype=tf.float64) * tf.random.uniform((n_events, 1), dtype=tf.float64)
+                     - tf.constant(1.0, dtype=tf.float64))
+            sin_z = tf.sqrt(tf.constant(1.0, dtype=tf.float64) - cos_z * cos_z)
+            ang_y = (tf.constant(2.0, dtype=tf.float64) * tf.constant(pi, dtype=tf.float64)
+                     * tf.random.uniform((n_events, 1), dtype=tf.float64))
             cos_y = tf.math.cos(ang_y)
             sin_y = tf.math.sin(ang_y)
             # Do the rotations
@@ -418,11 +402,9 @@ class GenParticle:
                                                                axis=1))
                                    for part in generated_particles]
             part_num += 1
-        # Final boost of all particles
-        generated_particles = [kin.lorentz_boost(part, p_top_boost)
-                               for part in generated_particles]
-        return tf.reshape(weights, (n_events,)), tf.reshape(w_max, (n_events,)), generated_particles, masses
+        return generated_particles, weights
 
+    @tf.function(autograph=False, experimental_relax_shapes=True)
     def _recursive_generate(self, n_events, boost_to=None, recalculate_max_weights=False):
         """Recursively generate normalized n-body phase space as tensorflow tensors.
 
@@ -518,10 +500,13 @@ class GenParticle:
                                      (n_events,))
         return weights, weights_max, output_particles, output_masses
 
-    def generate_tensor(self, n_events: Union[int, tf.Tensor, tf.Variable],
-                        boost_to: Optional[tf.Tensor] = None,
-                        normalize_weights: bool = True) -> Tuple[tf.Tensor, Dict[str, tf.Tensor]]:
+    # @tf.function(autograph=False)
+    def generate(self, n_events: Union[int, tf.Tensor, tf.Variable],
+                 boost_to: Optional[tf.Tensor] = None,
+                 normalize_weights: bool = True) -> Tuple[tf.Tensor, Dict[str, tf.Tensor]]:
         """Generate normalized n-body phase space as tensorflow tensors.
+
+        Any TensorFlow tensor can always be converted to a numpy array with the method `numpy()`.
 
         Events are generated in the rest frame of the particle, unless `boost_to` is given.
 
@@ -555,19 +540,17 @@ class GenParticle:
         if boost_to is not None:
             message = (f"The number of events requested ({n_events}) doesn't match the boost_to input size "
                        f"of {boost_to.shape}")
-            assert_op = tf.assert_equal(tf.shape(boost_to)[0], tf.shape(n_events), message=message)
-            with tf.control_dependencies([assert_op]):
-                boost_to = tf.identity(boost_to)
-
+            tf.assert_equal(tf.shape(input=boost_to)[0], tf.shape(input=n_events),
+                            message=message)
         if not isinstance(n_events, tf.Variable):
-            n_events = tf.convert_to_tensor(n_events, preferred_dtype=tf.int64)
+            n_events = tf.convert_to_tensor(value=n_events, dtype_hint=tf.int64)
             n_events = tf.cast(n_events, dtype=tf.int64)
         weights, weights_max, parts, _ = self._recursive_generate(n_events=n_events,
                                                                   boost_to=boost_to,
                                                                   recalculate_max_weights=self.has_grandchildren)
         return (weights / weights_max, parts) if normalize_weights else (weights, weights_max, parts)
 
-    def generate(self, n_events: int, boost_to=None, normalize_weights: bool = True):
+    def generate_tensor(self, n_events: int, boost_to=None, normalize_weights: bool = True):
         """Generate normalized n-body phase space as numpy arrays.
 
         Events are generated in the rest frame of the particle, unless `boost_to` is given.
@@ -600,20 +583,19 @@ class GenParticle:
 
         """
         # Convert n_events to a tf.Variable to perform graph caching
-        if isinstance(n_events, tf.Variable):
-            n_events_var = n_events
-        else:
-            if isinstance(n_events, tf.Tensor):
-                raise TypeError("Tensor currently not allowed for generate. Use Python integers or `tf.Variable`.")
-            n_events_var = self._n_events
-            n_events_var.load(n_events, session=self._sess)
+        # if isinstance(n_events, tf.Variable):
+        #     n_events_var = n_events
+        # else:
+        # if isinstance(n_events, tf.Tensor):
+        #     raise TypeError("Tensor currently not allowed for generate. Use Python integers or `tf.Variable`.")
+        # n_events_var = self._n_events
+        # n_events_var.load(n_events, session=self._sess)
         # Run generation
-        generate_tf = self._cache
-        if generate_tf is None or not self._cache_valid or boost_to is not None:
-            generate_tf = self.generate_tensor(n_events_var, boost_to, normalize_weights)
-            self._cache = generate_tf
-            self._set_cache_validity(True, propagate=True)
-        return self._sess.run(generate_tf)
+        warnings.warn("This function is depreceated. Use `generate` which not returns a Tensor as well.")
+        generate_tf = self.generate(n_events, boost_to, normalize_weights)
+        # self._cache = generate_tf
+        # self._set_cache_validity(True, propagate=True)
+        return generate_tf
 
 
 # legacy class to warn user about name change
@@ -664,6 +646,5 @@ def generate_decay(*args, **kwargs):
     """Deprecated."""
     raise NameError("'generate_decay' has been removed. A similar behavior can be accomplished with 'nbody_decay'. "
                     "For more information see https://github.com/zfit/phasespace/issues/22")
-
 
 # EOF

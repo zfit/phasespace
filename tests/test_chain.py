@@ -22,7 +22,7 @@ from .helpers import decays
 
 def setup_method():
     GenParticle._sess.close()
-    tf.reset_default_graph()
+    tf.compat.v1.reset_default_graph()
 
 
 
@@ -85,9 +85,10 @@ def test_resonance_top():
 
 def test_kstargamma():
     """Test B0 -> K*gamma."""
-    norm_weights, particles = decays.b0_to_kstar_gamma().generate(n_events=1000)
-    assert len(norm_weights) == 1000
-    assert all([weight < 1 for weight in norm_weights])
+    decay = decays.b0_to_kstar_gamma()
+    norm_weights, particles = decay.generate(n_events=1000)
+    assert norm_weights.shape[0] == 1000
+    assert all([weight.numpy() < 1 for weight in norm_weights])
     assert len(particles) == 4
     assert set(particles.keys()) == {'K*0', 'gamma', 'K+', 'pi-'}
     assert all([part.shape == (1000, 4) for part in particles.values()])
@@ -95,9 +96,10 @@ def test_kstargamma():
 
 def test_k1gamma():
     """Test B+ -> K1 (K*pi) gamma."""
-    norm_weights, particles = decays.bp_to_k1_kstar_pi_gamma().generate(n_events=1000)
-    assert len(norm_weights) == 1000
-    assert all([weight < 1 for weight in norm_weights])
+    decay = decays.bp_to_k1_kstar_pi_gamma()
+    norm_weights, particles = decay.generate(n_events=1000)
+    assert norm_weights.shape[0] == 1000
+    assert all([weight.numpy() < 1 for weight in norm_weights])
     assert len(particles) == 6
     assert set(particles.keys()) == {'K1+', 'K*0', 'gamma', 'K+', 'pi-', 'pi+'}
     assert all([part.shape == (1000, 4) for part in particles.values()])

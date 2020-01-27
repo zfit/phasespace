@@ -7,13 +7,12 @@
 # =============================================================================
 """Benchmark phasespace."""
 
-
+import os
+import sys
 
 import tensorflow as tf
 
 from phasespace import phasespace
-
-import os, sys
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -40,12 +39,6 @@ samples = [phasespace.generate(B_AT_REST,
            for _ in range(0, N_EVENTS, CHUNK_SIZE)
            ]
 
-sess = tf.Session(
-        config=config
-        )
-
-sess.run([N_EVENTS_VAR.initializer, CHUNK_SIZE_VAR.initializer])
-
 
 def test_three_body():
     """Test B -> pi pi pi decay."""
@@ -54,13 +47,13 @@ def test_three_body():
         do_run()  # to get rid of initial overhead
     print("starting benchmark")
     with Timer(verbose=True):
-        CHUNK_SIZE_VAR.load(CHUNK_SIZE + 1, session=sess)  # +1 to make sure we're not using any trivial caching
+        CHUNK_SIZE_VAR.assign(CHUNK_SIZE + 1)  # +1 to make sure we're not using any trivial caching
         samples = do_run()
         print("Shape of one particle momentum", samples[0][1][0].shape)
 
 
 def do_run():
-    return sess.run(samples)
+    return samples
 
 
 if __name__ == "__main__":

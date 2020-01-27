@@ -50,25 +50,17 @@ The method returns:
 
    weights, particles = bz.generate(n_events=N_EVENTS)
 
-The ``generate`` method directly produces numpy arrays; for advanced usage, ``generate_tensor`` returns the same objects with the
-numpy arrays replaced by ``tf.Tensor`` of the same shape.
-So one can do, equivalent to the previous example:
+The ``generate`` method return an eager ``Tensor``: this is basically a wrapped numpy array. With ``Tensor.numpy()``,
+it can always directly be converted to a numpy array (if really needed).
 
-.. code-block:: python
-
-   import tensorflow as tf
-
-   with tf.Session() as sess:
-       weights, particles = sess.run(bz.generate_tensor(n_events=N_EVENTS))
-
-In both cases, the particles are generated in the rest frame of the top particle.
+The particles are generated in the rest frame of the top particle.
 To produce them at a given momentum of the top particle, one can pass these momenta with the ``boost_to`` argument in both
 ``generate`` and ~`tf.Tensor`. This latter approach can be useful if the momentum of the top particle
 is generated according to some distribution, for example the kinematics of the LHC (see ``test_kstargamma_kstarnonresonant_lhc``
 and ``test_k1gamma_kstarnonresonant_lhc`` in ``tests/test_physics.py`` to see how this could be done).
 
 Additionally, it is possible to obtain the unnormalized weights by using the ``generate_unnormalized`` flag in  
-``generate`` and ``generate_tensor``. In this case, the method returns the unnormalized weights, the per-event maximum weight
+``generate``. In this case, the method returns the unnormalized weights, the per-event maximum weight
 and the particle dictionary.
 
 .. code-block:: pycon
@@ -111,7 +103,7 @@ can be performed using normal python loops without loss in performance:
    for i in range(10):
        weights, particles = bz.generate(n_events=1000)
        ...
-       (do something with weights and particles)
+       #  (do something with weights and particles)
        ...
 
 To generate the mass of a resonance, we need to give a function as its mass instead of a floating number.
@@ -181,4 +173,3 @@ If the names are not given, `top` and `p_{i}` are assigned. For example, to gene
    weights, particles = decay.generate(n_events=N_EVENTS)
 
 In this example, ``decay`` is simply a ``GenParticle`` with the corresponding children.
-

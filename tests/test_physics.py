@@ -7,13 +7,11 @@
 # =============================================================================
 """Test physics output."""
 
-import os
 import platform
 import subprocess
 
-import pytest
-
 import numpy as np
+import pytest
 from scipy.stats import ks_2samp
 
 if platform.system() == 'Darwin':
@@ -34,7 +32,7 @@ import sys
 
 sys.path.append(os.path.dirname(__file__))
 
-from .helpers.plotting import make_norm_histo, mass
+from .helpers.plotting import make_norm_histo
 from .helpers import decays, rapidsim
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -43,7 +41,8 @@ PLOT_DIR = os.path.join(BASE_PATH, 'tests', 'plots')
 
 def setup_method():
     phasespace.GenParticle._sess.close()
-    tf.reset_default_graph()
+    tf.compat.v1.reset_default_graph()
+
 
 def create_ref_histos(n_pions):
     """Load reference histogram data."""
@@ -70,31 +69,28 @@ def create_ref_histos(n_pions):
                             weights=weights)
             for pion in pions.values()
             for coord, array in enumerate([pion.x, pion.y, pion.z, pion.E])], \
-           make_norm_histo(weights, range_=(0, 1+1e-8))
+           make_norm_histo(weights, range_=(0, 1 + 1e-8))
 
 
 def run_test(n_particles, test_prefix):
-    sess = tf.Session()
     first_run_n_events = 100
     main_run_n_events = 100000
-    n_events = tf.Variable(initial_value=first_run_n_events, dtype=tf.int64, use_resource=True)
-    sess.run(n_events.initializer)
+    n_events = tf.Variable(initial_value=first_run_n_events, dtype=tf.int64)
 
-    generate = phasespace.nbody_decay(decays.B0_MASS,
-                                      [decays.PION_MASS] * n_particles) \
-        .generate_tensor(n_events)
-    weights1, _ = sess.run(generate)  # only generate to test change in n_events
+    decay = phasespace.nbody_decay(decays.B0_MASS, [decays.PION_MASS] * n_particles)
+    generate = decay.generate(n_events)
+    weights1, _ = generate  # only generate to test change in n_events
     assert len(weights1) == first_run_n_events
 
     # change n_events and run again
-    n_events.load(main_run_n_events, session=sess)
-    weights, particles = sess.run(generate)
+    n_events.assign(main_run_n_events)
+    weights, particles = decay.generate(n_events)
     parts = np.concatenate([particles[f"p_{part_num}"] for part_num in range(n_particles)], axis=1)
     histos = [make_norm_histo(parts[:, coord],
                               range_=(-3000 if coord % 4 != 3 else 0, 3000),
                               weights=weights)
               for coord in range(parts.shape[1])]
-    weight_histos = make_norm_histo(weights, range_=(0, 1+1e-8))
+    weight_histos = make_norm_histo(weights, range_=(0, 1 + 1e-8))
     ref_histos, ref_weights = create_ref_histos(n_particles)
     p_values = np.array([ks_2samp(histos[coord], ref_histos[coord])[1]
                          for coord, _ in enumerate(histos)] +
@@ -118,7 +114,6 @@ def run_test(n_particles, test_prefix):
     plt.savefig(os.path.join(PLOT_DIR, '{}_weights.png'.format(test_prefix)))
     plt.clf()
     assert np.all(p_values > 0.05)
-    sess.close()
 
 
 @pytest.mark.flaky(3)  # Stats are limited
@@ -149,8 +144,8 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
         booster = rapidsim.generate_fonll(decays.B0_MASS, 7, 'b', n_events)
         booster = booster.transpose()
         rapidsim_getter = rapidsim.get_tree
-    norm_weights, particles = decays.b0_to_kstar_gamma(kstar_width=kstar_width) \
-        .generate(n_events=n_events, boost_to=booster)
+    decay = decays.b0_to_kstar_gamma(kstar_width=kstar_width)
+    norm_weights, particles = decay.generate(n_events=n_events, boost_to=booster)
     rapidsim_parts = rapidsim_getter(os.path.join(BASE_PATH,
                                                   'data',
                                                   input_file),
@@ -224,8 +219,8 @@ def run_k1_gamma(input_file, k1_width, kstar_width, b_at_rest, suffix):
         booster = rapidsim.generate_fonll(decays.B0_MASS, 7, 'b', n_events)
         booster = booster.transpose()
         rapidsim_getter = rapidsim.get_tree
-    norm_weights, particles = decays.bp_to_k1_kstar_pi_gamma(k1_width=k1_width, kstar_width=kstar_width) \
-        .generate(n_events=n_events, boost_to=booster)
+    gamma = decays.bp_to_k1_kstar_pi_gamma(k1_width=k1_width, kstar_width=kstar_width)
+    norm_weights, particles = gamma.generate(n_events=n_events, boost_to=booster)
     rapidsim_parts = rapidsim_getter(
         os.path.join(BASE_PATH,
                      'data',
