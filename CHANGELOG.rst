@@ -23,8 +23,8 @@ Requirement changes
 Thanks
 ------
 
-Develop
-=======
+1.1.0 (27.1.2020)
+=================
 
 This release switched to TensorFlow 2.0 eager mode. Please upgrade your TensorFlow installation if possible and change
 your code (minimal changes) as described under "Behavioral changes".
