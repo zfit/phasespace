@@ -5,7 +5,29 @@ Changelog
 Develop
 =======
 
-This release switched to TensorFlow 2.0 eager mode. Please upgrade your TensorFlow installation if possible.
+
+Major Features and Improvements
+-------------------------------
+
+Behavioral changes
+------------------
+
+
+Bug fixes and small changes
+---------------------------
+
+Requirement changes
+-------------------
+
+
+Thanks
+------
+
+Develop
+=======
+
+This release switched to TensorFlow 2.0 eager mode. Please upgrade your TensorFlow installation if possible and change
+your code (minimal changes) as described under "Behavioral changes".
 In case this is currently impossible to do, please downgrade to < 1.1.0.
 
 Major Features and Improvements
