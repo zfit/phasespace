@@ -14,5 +14,6 @@ coverage
 numpy
 matplotlib
 uproot
+uproot4
 scipy
 wget
