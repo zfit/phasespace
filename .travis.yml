@@ -21,9 +21,8 @@ before_install:
   # install packages for testing
   - conda install -y coverage > tmp.txt && echo "alive"
   - pip install coveralls > tmp.txt && echo "alive"
-  - pip install -r requirements_dev.txt
 install:
-  - pip install .
+  - pip install --use-feature=2020-resolver .[dev]
   - cd data
   - travis_wait 20 python download_test_files.py && cd ..
 script:
