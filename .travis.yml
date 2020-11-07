@@ -2,8 +2,9 @@ language: python
 os:
     - linux
 python:
-    - 3.6
+  - 3.6
     - 3.7
+    - 3.8
 
 cache: pip
 
@@ -26,7 +27,10 @@ install:
   - cd data
   - travis_wait 20 python download_test_files.py && cd ..
 script:
-  - pytest --cov-branch --cov=phasespace tests
+  - coverage run --source=/home/travis/build/phasespace --branch -m py.test --basetemp={envtmpdir}
+  - export PHASESPACE_EAGER=1
+  - coverage run --source=/home/travis/build/phasespace --branch -m py.test --basetemp={envtmpdir}
+  - export PHASESPACE_EAGER=0  # reset
 after_success:
   - pip install coveralls
   - coveralls
@@ -41,7 +45,7 @@ deploy:
       branch: master
       tags: true
       repo: zfit/phasespace
-      python: 3.7
+      python: 3.8
 
 #  - provider: pages
 #    skip_cleanup: true

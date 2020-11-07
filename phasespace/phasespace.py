@@ -311,8 +311,9 @@ class GenParticle:
                 # Recurse that particle to know the minimum mass we need to generate
                 min_mass = tf.broadcast_to(recurse_stable(child), (n_events, 1))
                 mass = child.get_mass(min_mass, max_mass, n_events)
+                mass = tf.reshape(mass, (n_events, 1))
                 max_mass -= mass
-                masses.append(tf.reshape(mass, (n_events, 1)))
+                masses.append(mass)
         masses = tf.concat(masses, axis=-1)
         # if masses.shape.ndims == 1:
         #     masses = tf.expand_dims(masses, axis=0)
