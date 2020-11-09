@@ -9,6 +9,9 @@ Develop
 Major Features and Improvements
 -------------------------------
 
+- Python 3.8 support
+- Allow eager execution
+
 Behavioral changes
 ------------------
 
