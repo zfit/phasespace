@@ -12,4 +12,15 @@ __credits__ = ["Jonas Eschle <Jonas.Eschle@cern.ch>"]
 
 __all__ = ['nbody_decay', 'GenParticle']
 
+import tensorflow as tf
+
+
+def _set_eager_mode():
+    import os
+    is_eager = bool(os.environ.get("PHASESPACE_EAGER"))
+    tf.config.run_functions_eagerly(is_eager)
+
+
+_set_eager_mode()
+
 from .phasespace import nbody_decay, GenParticle

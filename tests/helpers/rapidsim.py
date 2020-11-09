@@ -10,7 +10,7 @@
 import os
 
 import numpy as np
-
+import uproot4
 import uproot
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -18,8 +18,8 @@ FONLL_FILE = os.path.join(BASE_PATH, 'data', 'fonll', 'LHC{}{}.root')
 
 
 def get_fonll_histos(energy, quark):
-    histo_file = uproot.open(FONLL_FILE.format(quark, int(energy)))
-    return histo_file['pT'], histo_file['eta']
+    with uproot.open(FONLL_FILE.format(quark, int(energy))) as histo_file:
+        return histo_file['pT'], histo_file['eta']
 
 
 def generate_fonll(mass, beam_energy, quark, n_events):
@@ -42,19 +42,19 @@ def generate_fonll(mass, beam_energy, quark, n_events):
 
 
 def load_generated_histos(file_name, particles):
-    rapidsim_file = uproot.open(file_name)
-    return {particle: [rapidsim_file.get('{}_{}_TRUE'.format(particle, coord))
-                       for coord in ('PX', 'PY', 'PZ', 'E')]
-            for particle in particles}
+    with uproot4.open(file_name) as rapidsim_file:
+        return {particle: [rapidsim_file.get('{}_{}_TRUE'.format(particle, coord)).array(library='np')
+                           for coord in ('PX', 'PY', 'PZ', 'E')]
+                for particle in particles}
 
 
 def get_tree(file_name, top_particle, particles):
     """Load a RapidSim tree."""
-    rapidsim_file = uproot.open(file_name)
-    tree = rapidsim_file['DecayTree']
-    return {particle: np.stack([1000.0 * tree.array('{}_{}_TRUE'.format(particle, coord))
-                                for coord in ('PX', 'PY', 'PZ', 'E')])
-            for particle in particles}
+    with uproot4.open(file_name) as rapidsim_file:
+        tree = rapidsim_file['DecayTree']
+        return {particle: np.stack([1000.0 * tree['{}_{}_TRUE'.format(particle, coord)].array(library='np')
+                                    for coord in ('PX', 'PY', 'PZ', 'E')])
+                for particle in particles}
 
 
 def get_tree_in_b_rest_frame(file_name, top_particle, particles):
