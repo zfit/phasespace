@@ -7,10 +7,6 @@
 # =============================================================================
 """Various code monitoring utilities."""
 
-
-
-
-
 import os
 
 from timeit import default_timer
@@ -73,6 +69,6 @@ class Timer(object):
     def __exit__(self, *args):
         self.elapsed = self._timer() - self.start
         if self.verbose:
-            print('Elapsed time: {} ms'.format(self.elapsed*1000.0))
+            print('Elapsed time: {} ms'.format(self.elapsed * 1000.0))
 
 # EOF
