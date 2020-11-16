@@ -13,7 +13,10 @@ def test_get_rng(seed):
     rnd2_seeded = rng2.uniform_full_int(shape=(100,))
 
     rng3 = phsp.random.get_rng()[0]
-    rng4 = phsp.random.get_rng()[0]
+    rng4 = phsp.random.get_rng(seed())[0]
+    # advance rng4 by one step
+    _ = rng4.split(1)
+
     rnd3 = rng3.uniform_full_int(shape=(100,))
     rnd4 = rng4.uniform_full_int(shape=(100,))
 

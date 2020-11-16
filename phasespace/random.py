@@ -9,9 +9,11 @@ from typing import Union, Optional, List
 
 import tensorflow as tf
 
+SeedLike = Optional[Union[int, tf.random.Generator]]
+
 
 def get_rng(
-        seed: Optional[Union[int, tf.random.Generator]] = None,
+        seed: SeedLike = None,
         count: Optional[int] = 1) -> List[tf.random.Generator]:
     """Get or create a list of random number generators of type `tf.random.Generator`.
 
@@ -36,6 +38,8 @@ def get_rng(
     Returns:
         A list of `tf.random.Generator`
     """
+    if not tf.executing_eagerly():
+        raise RuntimeError("Cannot get a new rng in Graph mode.")
     if seed is None:
         seed = tf.random.get_global_generator()
     if not isinstance(seed, tf.random.Generator):  # it's a seed, not an rng
