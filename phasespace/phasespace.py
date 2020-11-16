@@ -99,6 +99,8 @@ class GenParticle:
         if not callable(mass) and not isinstance(mass, tf.Variable):
             mass = tf.convert_to_tensor(value=mass, dtype_hint=tf.float64)
             mass = tf.cast(mass, tf.float64)
+        else:
+            mass = tf.function(mass, autograph=False, experimental_relax_shapes=RELAX_SHAPES)
         self._mass = mass
         self._generate_called = False  # not yet called, children can be set
 
@@ -125,7 +127,7 @@ class GenParticle:
             return dup_names
         return None
 
-    @tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
+    # @tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
     def get_mass(
             self,
             min_mass: tf.Tensor = None,
@@ -136,7 +138,7 @@ class GenParticle:
         """Get the particle mass.
 
         If the particle is resonant, the mass function will be called with the
-        `min_mass`, `max_mass`, `n_events` and optionally a `seed` parameters.
+        `min_mass`, `max_mass`, `n_events` and optionally a `rng` parameter.
 
         Arguments:
             min_mass (tensor): Lower mass range. Defaults to None, which
@@ -155,11 +157,12 @@ class GenParticle:
         if self.has_fixed_mass:
             mass = self._mass
         else:
+            rng = get_rng(seed)
             min_mass = tf.reshape(min_mass, (n_events,))
             max_mass = tf.reshape(max_mass, (n_events,))
             signature = inspect.signature(self._mass)
-            if "seed" in signature.parameters:
-                mass = self._mass(min_mass, max_mass, n_events, seed=seed)
+            if "rng" in signature.parameters:
+                mass = self._mass(min_mass, max_mass, n_events, rng=rng)
             else:
                 mass = self._mass(min_mass, max_mass, n_events)
         return mass
@@ -637,9 +640,9 @@ class GenParticle:
                 the resulting events will be boosted. If not specified, events are generated
                 in the rest frame of the particle.
             normalize_weights (bool, optional): Normalize the event weight to its max?
-            seed (`SeedLike`): The seed can be a number of a `tf.random.Generator` that are used
-                to create random number generators inside the function and will advance either a
-                given generator or the global one by one step.
+            seed (`SeedLike`): The seed can be a number or a `tf.random.Generator` that are used
+                as a seed to create a random number generator inside the function or directly as
+                the random number generator instance, respectively
 
         Return:
             tuple: Result of the generation, which varies with the value of `normalize_weights`:
@@ -658,7 +661,7 @@ class GenParticle:
             ValueError: If `n_events` and the size of `boost_to` don't match. See `GenParticle.generate_unnormalized`.
 
         """
-        rng = get_rng(seed)[0]
+        rng = get_rng(seed)
         if boost_to is not None:
             message = (
                 f"The number of events requested ({n_events}) doesn't match the boost_to input size "

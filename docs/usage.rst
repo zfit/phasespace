@@ -173,3 +173,19 @@ If the names are not given, `top` and `p_{i}` are assigned. For example, to gene
    weights, particles = decay.generate(n_events=N_EVENTS)
 
 In this example, ``decay`` is simply a ``GenParticle`` with the corresponding children.
+
+
+Random numbers
+--------------
+
+The random number generation inside `phasespace` is transparent in order to allow for deterministic
+behavior if desired. A function that uses random number generation inside always takes a `seed` (or `rng`)
+argument. The behavior is as follows
+
+- if no seed is given, the global random number generator of TensorFlow will be used. Setting this
+  instance explicitly or by setting the seed via `tf.random.set_seed` allows for a deterministic
+  execution of a whole _script_.
+- if the seed is a number it will be used to create a random number generator from this. Using the
+  same seed again will result in the same output.
+- if the seed is an instance of :py:class:`tf.random.Generator`, this instance will directly be used
+  and advances an undefined number of steps.

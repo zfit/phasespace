@@ -64,27 +64,27 @@ def test_deterministic_events():
     norm_weights_rnd, particles_rnd = decay.generate(n_events=100, seed=152)
     norm_weights_seeded2, particles_seeded2 = decay.generate(n_events=100, seed=common_seed)
 
-    # test global deterministic behavior
-    tf.random.set_seed(15)
-    norm_weights_global_seeded1, particles_global_seeded1 = decay.generate(n_events=100)
-    tf.random.set_seed(15)
-    norm_weights_global_seeded2, particles_global_seeded2 = decay.generate(n_events=100)
+    # # test global deterministic behavior
+    # tf.random.set_seed(15)
+    # norm_weights_global_seeded1, particles_global_seeded1 = decay.generate(n_events=100)
+    # tf.random.set_seed(15)
+    # norm_weights_global_seeded2, particles_global_seeded2 = decay.generate(n_events=100)
 
     np.testing.assert_allclose(norm_weights_seeded1, norm_weights_seeded2)
     for part1, part2 in zip(particles_seeded1.values(), particles_seeded2.values()):
         np.testing.assert_allclose(part1, part2)
 
-    np.testing.assert_allclose(norm_weights_global_seeded1, norm_weights_global_seeded2)
-    for part1, part2 in zip(particles_global_seeded1.values(), particles_global_seeded2.values()):
-        np.testing.assert_allclose(part1, part2)
-
-    assert not np.allclose(norm_weights_seeded1, norm_weights_global_seeded1)
-    for part1, part2 in zip(particles_seeded1.values(), particles_global_seeded1.values()):
-        assert not np.allclose(part1, part2)
-
-    assert not np.allclose(norm_weights_global, norm_weights_global_seeded1)
-    for part1, part2 in zip(particles_global.values(), particles_global_seeded1.values()):
-        assert not np.allclose(part1, part2)
+    # np.testing.assert_allclose(norm_weights_global_seeded1, norm_weights_global_seeded2)
+    # for part1, part2 in zip(particles_global_seeded1.values(), particles_global_seeded2.values()):
+    #     np.testing.assert_allclose(part1, part2)
+    #
+    # assert not np.allclose(norm_weights_seeded1, norm_weights_global_seeded1)
+    # for part1, part2 in zip(particles_seeded1.values(), particles_global_seeded1.values()):
+    #     assert not np.allclose(part1, part2)
+    #
+    # assert not np.allclose(norm_weights_global, norm_weights_global_seeded1)
+    # for part1, part2 in zip(particles_global.values(), particles_global_seeded1.values()):
+    #     assert not np.allclose(part1, part2)
 
     assert not np.allclose(norm_weights_seeded1, norm_weights_rnd)
     for part1, part2 in zip(particles_seeded1.values(), particles_rnd.values()):
