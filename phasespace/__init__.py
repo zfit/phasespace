@@ -10,8 +10,6 @@ __maintainer__ = "zfit"
 
 __credits__ = ["Jonas Eschle <Jonas.Eschle@cern.ch>"]
 
-__all__ = ['nbody_decay', 'GenParticle']
-
 import tensorflow as tf
 
 
@@ -23,4 +21,7 @@ def _set_eager_mode():
 
 _set_eager_mode()
 
+from . import random
 from .phasespace import nbody_decay, GenParticle
+
+__all__ = [nbody_decay, GenParticle, random]
