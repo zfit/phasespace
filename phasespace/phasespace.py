@@ -127,7 +127,7 @@ class GenParticle:
             return dup_names
         return None
 
-    # @tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
+    @tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
     def get_mass(
             self,
             min_mass: tf.Tensor = None,
@@ -138,7 +138,7 @@ class GenParticle:
         """Get the particle mass.
 
         If the particle is resonant, the mass function will be called with the
-        `min_mass`, `max_mass`, `n_events` and optionally a `rng` parameter.
+        `min_mass`, `max_mass`, `n_events` and optionally a `seed` parameter.
 
         Arguments:
             min_mass (tensor): Lower mass range. Defaults to None, which
@@ -146,6 +146,9 @@ class GenParticle:
             max_mass (tensor): Upper mass range. Defaults to None, which
                 is only valid in the case of fixed mass.
             n_events (): Number of events to produce. Has to be specified if the particle is resonant.
+            seed (`SeedLike`): The seed can be a number or a `tf.random.Generator` that are used
+                as a seed to create a random number generator inside the function or directly as
+                the random number generator instance, respectively.
 
         Return:
             ~`tf.Tensor`: Mass of the particles, either a scalar or shape (nevents,)
@@ -157,12 +160,12 @@ class GenParticle:
         if self.has_fixed_mass:
             mass = self._mass
         else:
-            rng = get_rng(seed)
+            seed = get_rng(seed)
             min_mass = tf.reshape(min_mass, (n_events,))
             max_mass = tf.reshape(max_mass, (n_events,))
             signature = inspect.signature(self._mass)
-            if "rng" in signature.parameters:
-                mass = self._mass(min_mass, max_mass, n_events, rng=rng)
+            if "seed" in signature.parameters:
+                mass = self._mass(min_mass, max_mass, n_events, seed=seed)
             else:
                 mass = self._mass(min_mass, max_mass, n_events)
         return mass
@@ -511,9 +514,9 @@ class GenParticle:
                 using all the particles of the tree? This is necessary for the top particle of a decay,
                 otherwise the maximum weight calculation is going to be wrong (particles from subdecays
                 would not be taken into account). Defaults to False.
-            rng (`SeedLike`): The seed can be a number of a `tf.random.Generator` that are used
-                to create random number generators inside the function and will advance either a
-                given generator or the global one by one step.
+            seed (`SeedLike`): The seed can be a number or a `tf.random.Generator` that are used
+                as a seed to create a random number generator inside the function or directly as
+                the random number generator instance, respectively.
 
         Return:
             tuple: Result of the generation (per-event weights, maximum weights, output particles
@@ -642,7 +645,7 @@ class GenParticle:
             normalize_weights (bool, optional): Normalize the event weight to its max?
             seed (`SeedLike`): The seed can be a number or a `tf.random.Generator` that are used
                 as a seed to create a random number generator inside the function or directly as
-                the random number generator instance, respectively
+                the random number generator instance, respectively.
 
         Return:
             tuple: Result of the generation, which varies with the value of `normalize_weights`:
