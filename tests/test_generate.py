@@ -10,6 +10,7 @@
 import os
 import sys
 
+import numpy as np
 import pytest
 
 import phasespace
@@ -27,9 +28,9 @@ def test_one_event():
     decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, PION_MASS, PION_MASS])
     norm_weights, particles = decay.generate(n_events=1)
     assert norm_weights.shape[0] == 1
-    assert all([weight.numpy() < 1 for weight in norm_weights])
+    assert np.alltrue(norm_weights < 1)
     assert len(particles) == 3
-    assert all([part.shape == (1, 4) for part in particles.values()])
+    assert all(part.shape == (1, 4) for part in particles.values())
 
 
 def test_one_event_tf():
@@ -38,44 +39,41 @@ def test_one_event_tf():
     norm_weights, particles = decay.generate(n_events=1)
 
     assert norm_weights.shape[0] == 1
-    assert all([weight.numpy() < 1 for weight in norm_weights])
+    assert np.alltrue(norm_weights < 1)
     assert len(particles) == 3
-    assert all([part.shape == (1, 4) for part in particles.values()])
+    assert all(part.shape == (1, 4) for part in particles.values())
 
 
-@pytest.mark.parametrize("n_events", argvalues=[5])
+@pytest.mark.parametrize("n_events", argvalues=[5, 523])
 def test_n_events(n_events):
     """Test 5 B->pi pi pi."""
     decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, PION_MASS, PION_MASS])
     norm_weights, particles = decay.generate(n_events=n_events)
-    assert norm_weights.shape[0] == 5
-    assert all([weight.numpy() < 1 for weight in norm_weights])
+    assert norm_weights.shape[0] == n_events
+    assert np.alltrue(norm_weights < 1)
     assert len(particles) == 3
-    assert all([part.shape == (5, 4) for part in particles.values()])
+    assert all(part.shape == (n_events, 4) for part in particles.values())
 
 
-# def test_cache():
-#     from phasespace import GenParticle
-#
-#     mother_particle = GenParticle('mother', 10000)
-#     daughter1 = GenParticle('daughter1', mass=2000)
-#     _ = mother_particle.set_children(daughter1, GenParticle('daughter2', mass=1000))
-#     assert not mother_particle._cache_valid
-#     _ = mother_particle.generate(n_events=8)
-#     tensor1 = mother_particle._cache
-#     _ = mother_particle.generate(n_events=5)
-#     tensor1_too = mother_particle._cache
-#     assert tensor1 is tensor1_too
-#     assert mother_particle._cache is not None
-#     assert mother_particle._cache_valid
-#
-#     daughter1.set_children(GenParticle('daugther21', mass=100),
-#                            GenParticle('daughter22', mass=500))
-#     assert not mother_particle._cache_valid
-#     _ = mother_particle.generate(n_events=3)
-#     tensor2 = mother_particle._cache
-#     assert tensor2 is not tensor1
-#     assert mother_particle._cache_valid
+def test_deterministic_events():
+    decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, PION_MASS, PION_MASS])
+    common_seed = 36
+    norm_weights_seeded1, particles_seeded1 = decay.generate(n_events=100, seed=common_seed)
+    norm_weights_global, particles_global = decay.generate(n_events=100)
+    norm_weights_rnd, particles_rnd = decay.generate(n_events=100, seed=152)
+    norm_weights_seeded2, particles_seeded2 = decay.generate(n_events=100, seed=common_seed)
+
+    np.testing.assert_allclose(norm_weights_seeded1, norm_weights_seeded2)
+    for part1, part2 in zip(particles_seeded1.values(), particles_seeded2.values()):
+        np.testing.assert_allclose(part1, part2)
+
+    assert not np.allclose(norm_weights_seeded1, norm_weights_rnd)
+    for part1, part2 in zip(particles_seeded1.values(), particles_rnd.values()):
+        assert not np.allclose(part1, part2)
+
+    assert not np.allclose(norm_weights_global, norm_weights_rnd)
+    for part1, part2 in zip(particles_global.values(), particles_rnd.values()):
+        assert not np.allclose(part1, part2)
 
 
 if __name__ == "__main__":

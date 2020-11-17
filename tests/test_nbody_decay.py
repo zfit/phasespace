@@ -10,7 +10,6 @@
 import pytest
 
 from phasespace import nbody_decay
-
 from .helpers import decays
 
 B0_MASS = decays.B0_MASS

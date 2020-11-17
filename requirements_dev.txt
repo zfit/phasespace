@@ -10,6 +10,7 @@ sphinx_bootstrap_theme
 pytest
 pytest-xdist
 pytest-cov
+flaky
 coverage
 numpy
 matplotlib

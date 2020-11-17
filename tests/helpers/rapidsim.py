@@ -10,8 +10,8 @@
 import os
 
 import numpy as np
-import uproot4
 import uproot
+import uproot4
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 FONLL_FILE = os.path.join(BASE_PATH, 'data', 'fonll', 'LHC{}{}.root')

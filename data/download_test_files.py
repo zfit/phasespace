@@ -13,7 +13,7 @@ files_urls = [
 def download(url_file_name):
     file_name, url = url_file_name
     print(f"starting download of {file_name}")
-    wget.download(url=url, bar=False)
+    wget.download(url=url, bar=False, out=file_name)
     print("download finished")
     return file_name
 
