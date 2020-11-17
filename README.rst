@@ -225,13 +225,9 @@ The results of all physics validation performed by the ``tests_physics.py`` test
 .. _RapidSim: https://github.com/gcowan/RapidSim/
 
 
-
 Contributing
 ============
 
 Contributions are always welcome, please have a look at the `Contributing guide`_.
 
 .. _Contributing guide: CONTRIBUTING.rst
-
-
-
