@@ -1,5 +1,4 @@
-"""
-Random number generation
+"""Random number generation
 
 As the random number generation is not a trivial thing, this module handles it uniformly.
 
