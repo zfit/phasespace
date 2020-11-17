@@ -175,6 +175,21 @@ If the names are not given, `top` and `p_{i}` are assigned. For example, to gene
 In this example, ``decay`` is simply a ``GenParticle`` with the corresponding children.
 
 
+Eager execution
+---------------
+
+By default, `phasespace` uses TensorFlow to build a graph of the computations. This is usually more
+performant, especially if used multiple times. However, this has the disadvantage that _inside_
+`phasespac`, the actual values are not computed on Python runtime, e.g. if a breakpoint is set
+the values of a `tf.Tensor` won't be available.
+
+TensorFlow (since version 2.0) however can easily switch to so called "eager execution": in this
+mode, it behaves the same as Numpy; values are computed instantly and the Python code is not only
+executed once but every time.
+
+To switch this on or off, the global flag in TensorFlow `tf.config.run_functions_eagerly(True)` or
+the enviroment variable "PHASESPACE_EAGER" (which switches this flag) can be used.
+
 Random numbers
 --------------
 

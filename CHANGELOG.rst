@@ -31,7 +31,8 @@ Major Features and Improvements
 -------------------------------
 
 - Python 3.8 support
-- Allow eager execution
+- Allow eager execution by setting with `tf.config.run_functions_eagerly(True)`
+  or the environment variable "PHASESPACE_EAGER"
 - Deterministic random number generation via seed
   or `tf.random.Generator` instance
 
