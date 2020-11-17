@@ -8,7 +8,6 @@
 """Some physics models to test with."""
 
 import tensorflow as tf
-
 import tensorflow_probability as tfp
 
 from phasespace import GenParticle
@@ -25,6 +24,7 @@ KSTARZ_WIDTH = 47.4
 
 def b0_to_kstar_gamma(kstar_width=KSTARZ_WIDTH):
     """Generate B0 -> K*gamma."""
+
     def kstar_mass(min_mass, max_mass, n_events):
         min_mass = tf.cast(min_mass, tf.float64)
         max_mass = tf.cast(max_mass, tf.float64)
@@ -47,6 +47,7 @@ def b0_to_kstar_gamma(kstar_width=KSTARZ_WIDTH):
 
 def bp_to_k1_kstar_pi_gamma(k1_width=K1_WIDTH, kstar_width=KSTARZ_WIDTH):
     """Generate B+ -> K1 (-> K* (->K pi) pi) gamma."""
+
     def res_mass(mass, width, min_mass, max_mass, n_events):
         mass = tf.cast(mass, tf.float64)
         width = tf.cast(width, tf.float64)
@@ -54,7 +55,6 @@ def bp_to_k1_kstar_pi_gamma(k1_width=K1_WIDTH, kstar_width=KSTARZ_WIDTH):
         max_mass = tf.cast(max_mass, tf.float64)
         masses = tf.broadcast_to(mass, shape=(n_events,))
         if kstar_width > 0:
-
             masses = tfp.distributions.TruncatedNormal(loc=masses,
                                                        scale=width,
                                                        low=min_mass,

@@ -7,23 +7,17 @@
 # =============================================================================
 """Test decay chain tools."""
 
-import pytest
-
-import tensorflow as tf
-
-from phasespace import GenParticle
-
 import os
 import sys
+
+import pytest
+import numpy as np
+
+from phasespace import GenParticle
 
 sys.path.append(os.path.dirname(__file__))
 
 from .helpers import decays
-
-def setup_method():
-    GenParticle._sess.close()
-    tf.compat.v1.reset_default_graph()
-
 
 
 def test_name_clashes():
@@ -44,6 +38,7 @@ def test_name_clashes():
                                            GenParticle('Kstarz0', mass=decays.KSTARZ_MASS)
                                            .set_children(GenParticle('K+', mass=decays.KAON_MASS),
                                                          GenParticle('pi-_1', mass=decays.PION_MASS)))
+
 
 def test_wrong_children():
     """Test wrong number of children."""
@@ -88,10 +83,10 @@ def test_kstargamma():
     decay = decays.b0_to_kstar_gamma()
     norm_weights, particles = decay.generate(n_events=1000)
     assert norm_weights.shape[0] == 1000
-    assert all([weight.numpy() < 1 for weight in norm_weights])
+    assert np.alltrue(norm_weights < 1)
     assert len(particles) == 4
     assert set(particles.keys()) == {'K*0', 'gamma', 'K+', 'pi-'}
-    assert all([part.shape == (1000, 4) for part in particles.values()])
+    assert all(part.shape == (1000, 4) for part in particles.values())
 
 
 def test_k1gamma():
@@ -99,10 +94,10 @@ def test_k1gamma():
     decay = decays.bp_to_k1_kstar_pi_gamma()
     norm_weights, particles = decay.generate(n_events=1000)
     assert norm_weights.shape[0] == 1000
-    assert all([weight.numpy() < 1 for weight in norm_weights])
+    assert np.alltrue(norm_weights < 1)
     assert len(particles) == 6
     assert set(particles.keys()) == {'K1+', 'K*0', 'gamma', 'K+', 'pi-', 'pi+'}
-    assert all([part.shape == (1000, 4) for part in particles.values()])
+    assert all(part.shape == (1000, 4) for part in particles.values())
 
 
 def test_repr():
