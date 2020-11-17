@@ -5,7 +5,8 @@
 # @author Albert Puig (albert.puig@cern.ch)
 # @date   25.02.2019
 # =============================================================================
-"""Implementation of the Raubold and Lynch method to generate n-body events.
+"""
+Implementation of the Raubold and Lynch method to generate n-body events.
 
 The code is based on the GENBOD function (W515 from CERNLIB), documented in
     F. James, Monte Carlo Phase Space, CERN 68-15 (1968)
@@ -100,7 +101,9 @@ class GenParticle:
             mass = tf.convert_to_tensor(value=mass, dtype_hint=tf.float64)
             mass = tf.cast(mass, tf.float64)
         else:
-            mass = tf.function(mass, autograph=False, experimental_relax_shapes=RELAX_SHAPES)
+            mass = tf.function(
+                mass, autograph=False, experimental_relax_shapes=RELAX_SHAPES
+            )
         self._mass = mass
         self._generate_called = False  # not yet called, children can be set
 
@@ -558,7 +561,7 @@ class GenParticle:
                     n_events=n_events,
                     boost_to=parts[child_num],
                     recalculate_max_weights=False,
-                    rng=rng
+                    rng=rng,
                 )
                 weights *= child_weights
                 output_particles.update(child_gen_particles)

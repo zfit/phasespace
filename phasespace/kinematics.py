@@ -86,8 +86,11 @@ def mass(vector):
         vector: Input Lorentz momentum vector.
 
     """
-    return tf.sqrt(tf.reduce_sum(input_tensor=tf.square(vector) * metric_tensor(),
-                                 axis=-1, keepdims=True))
+    return tf.sqrt(
+        tf.reduce_sum(
+            input_tensor=tf.square(vector) * metric_tensor(), axis=-1, keepdims=True
+        )
+    )
 
 
 @tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
@@ -116,7 +119,7 @@ def lorentz_boost(vector, boostvector):
     b2 = tf.expand_dims(scalar_product(boost, boost), axis=-1)
 
     def boost_fn():
-        gamma = 1. / tf.sqrt(1. - b2)
+        gamma = 1.0 / tf.sqrt(1.0 - b2)
         gamma2 = (gamma - 1.0) / b2
         ve = time_component(vector)
         vp = spatial_component(vector)
@@ -159,6 +162,6 @@ def boost_components(vector):
 @tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
 def metric_tensor():
     """Metric tensor for Lorentz space (constant)."""
-    return tf.constant([-1., -1., -1., 1.], dtype=tf.float64)
+    return tf.constant([-1.0, -1.0, -1.0, 1.0], dtype=tf.float64)
 
 # EOF
