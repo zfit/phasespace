@@ -1,8 +1,8 @@
-pip>=18.1
 bumpversion
-wheel
-watchdog
 flake8
+pip>=18.1
 Sphinx
-twine
 sphinx_bootstrap_theme
+twine
+watchdog
+wheel
