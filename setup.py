@@ -24,23 +24,23 @@ with open(
 ) as requirements_dev_file:
     requirements_dev = requirements_dev_file.read().splitlines()
 
-
+tests_require = [
+    "pytest",
+    "pytest-xdist",
+    "pytest-cov",
+    "flaky",
+    "coverage",
+    "numpy",
+    "matplotlib",
+    "uproot",
+    "uproot4",
+    "scipy",
+    "wget",
+]
 setup(
     long_description=readme.replace(":math:", "") + "\n\n" + history,
     install_requires=requirements,
-    tests_require=[
-        "pytest",
-        "pytest-xdist",
-        "pytest-cov",
-        "flaky",
-        "coverage",
-        "numpy",
-        "matplotlib",
-        "uproot",
-        "uproot4",
-        "scipy",
-        "wget",
-    ],
-    extras_require={"dev": requirements_dev},
+    tests_require=tests_require,
+    extras_require={"dev": requirements_dev + tests_require, "tests": tests_require},
     use_scm_version=True,
 )
