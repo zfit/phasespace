@@ -6,15 +6,3 @@ flake8
 Sphinx
 twine
 sphinx_bootstrap_theme
-
-pytest
-pytest-xdist
-pytest-cov
-flaky
-coverage
-numpy
-matplotlib
-uproot
-uproot4
-scipy
-wget

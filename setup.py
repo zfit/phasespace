@@ -27,12 +27,22 @@ if requirements_dev.count("") != 1 or requirements_dev.index("") == 0:
                       "requirements have to be separated by one blank line.")
 requirements_dev_split = requirements_dev.index("")
 
-test_requirements = requirements_dev[requirements_dev_split + 1:]  # +1: skip empty line
 
 setup(
     long_description=readme.replace(":math:", "") + '\n\n' + history,
     install_requires=requirements,
-    tests_require=test_requirements,
+    tests_require=['pytest',
+                   'pytest-xdist',
+                   'pytest-cov',
+                   'flaky',
+                   'coverage',
+                   'numpy',
+                   'matplotlib',
+                   'uproot',
+                   'uproot4',
+                   'scipy',
+                   'wget', ],
+
     extras_require={
         'dev': requirements_dev
     },
