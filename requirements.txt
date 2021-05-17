@@ -1,2 +1,2 @@
-tensorflow>=2.3
+tensorflow>=2.3,<2.6
 tensorflow_probability>=0.11,<0.13
