@@ -59,7 +59,7 @@ To produce them at a given momentum of the top particle, one can pass these mome
 is generated according to some distribution, for example the kinematics of the LHC (see ``test_kstargamma_kstarnonresonant_lhc``
 and ``test_k1gamma_kstarnonresonant_lhc`` in ``tests/test_physics.py`` to see how this could be done).
 
-Additionally, it is possible to obtain the unnormalized weights by using the ``generate_unnormalized`` flag in  
+Additionally, it is possible to obtain the unnormalized weights by using the ``generate_unnormalized`` flag in
 ``generate``. In this case, the method returns the unnormalized weights, the per-event maximum weight
 and the particle dictionary.
 

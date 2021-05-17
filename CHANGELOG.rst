@@ -91,7 +91,3 @@ Major Features and Improvements
 -------------------------------
 
 Release to conda-forge, thanks to Chris Burr
-
-
-
-

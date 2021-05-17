@@ -5,7 +5,9 @@ import tensorflow as tf
 import phasespace as phsp
 
 
-@pytest.mark.parametrize('seed', [lambda: 15, lambda: tf.random.Generator.from_seed(15)])
+@pytest.mark.parametrize(
+    "seed", [lambda: 15, lambda: tf.random.Generator.from_seed(15)]
+)
 def test_get_rng(seed):
     rng1 = phsp.random.get_rng(seed())
     rng2 = phsp.random.get_rng(seed())

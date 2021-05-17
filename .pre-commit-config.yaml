@@ -23,10 +23,6 @@ repos:
       - id: docformatter
         args: [ -r, --in-place, --wrap-descriptions, '120', --wrap-summaries, '120', -- ]
 
-  #  - repo: https://github.com/lorman/pre-commit-rstcheck
-  #    rev: 0decfca3d2b4f8354e84739d7e5c47a4401984d4
-  #    hooks:
-  #      - id: rstcheck
 
 
   - repo: https://github.com/mattlqx/pre-commit-sign
@@ -39,13 +35,7 @@ repos:
       - id: python-use-type-annotations
       - id: python-check-mock-methods
       - id: python-no-eval
-      #          - id: rst-backticks
       - id: rst-directive-colons
-
-  #    - repo: https://github.com/pycqa/pydocstyle
-  #      rev: 5.1.1
-  #      hooks:
-  #          - id: pydocstyle
 
   - repo: https://github.com/PyCQA/isort
     rev: 5.8.0
@@ -56,7 +46,7 @@ repos:
     rev: v2.12.0
     hooks:
       - id: pyupgrade
-        args: [ --py37-plus ]
+        args: [ --py36-plus ]
 
   - repo: https://github.com/asottile/setup-cfg-fmt
     rev: v1.17.0

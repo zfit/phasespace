@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # =============================================================================
 # @file   phasespace.py
 # @author Albert Puig (albert.puig@cern.ch)
@@ -7,19 +6,19 @@
 # =============================================================================
 """Implementation of the Raubold and Lynch method to generate n-body events.
 
-The code is based on the GENBOD function (W515 from CERNLIB), documented in
-    F. James, Monte Carlo Phase Space, CERN 68-15 (1968)
-
+The code is based on the GENBOD function (W515 from CERNLIB), documented in     F. James, Monte Carlo Phase Space, CERN
+68-15 (1968)
 """
 import inspect
 import warnings
 
+from .backend import function
 from .random import SeedLike, get_rng
 
 RELAX_SHAPES = False
 
 from math import pi
-from typing import Union, Dict, Tuple, Optional, Callable
+from typing import Callable, Dict, Optional, Tuple, Union
 
 import tensorflow as tf
 
@@ -39,14 +38,13 @@ def process_list_to_tensor(lst):
 
     Return:
         ~`tf.Tensor`
-
     """
     if isinstance(lst, list):
         lst = tf.transpose(a=tf.convert_to_tensor(value=lst, dtype_hint=tf.float64))
     return tf.cast(lst, dtype=tf.float64)
 
 
-@tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
+@function
 def pdk(a, b, c):
     """Calculate the PDK (2-body phase space) function.
 
@@ -59,7 +57,6 @@ def pdk(a, b, c):
 
     Return:
         ~`tf.Tensor`
-
     """
     x = (a - b - c) * (a + b + c) * (a - b + c) * (a + b - c)
     return tf.sqrt(x) / (tf.constant(2.0, dtype=tf.float64) * a)
@@ -89,7 +86,6 @@ class GenParticle:
         name (str): Name of the particle.
         mass (float, ~`tf.Tensor`, callable): Mass of the particle. If it's a float, it get
             converted to a `tf.constant`.
-
     """
 
     def __init__(self, name: str, mass: Union[Callable, int, float]) -> None:  # noqa
@@ -129,13 +125,13 @@ class GenParticle:
             return dup_names
         return None
 
-    @tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
+    @function
     def get_mass(
-            self,
-            min_mass: tf.Tensor = None,
-            max_mass: tf.Tensor = None,
-            n_events: Union[tf.Tensor, tf.Variable] = None,
-            seed: SeedLike = None,
+        self,
+        min_mass: tf.Tensor = None,
+        max_mass: tf.Tensor = None,
+        n_events: Union[tf.Tensor, tf.Variable] = None,
+        seed: SeedLike = None,
     ) -> tf.Tensor:
         """Get the particle mass.
 
@@ -157,7 +153,6 @@ class GenParticle:
 
         Raise:
             ValueError: If the mass is requested and has not been set.
-
         """
         if self.has_fixed_mass:
             mass = self._mass
@@ -191,7 +186,6 @@ class GenParticle:
             if children were already set, if their parent was or if less than two children were given.
             KeyError: If there is a particle name clash.
             RuntimeError: If `generate` was already called before.
-
         """
         # self._set_cache_validity(False)
         if self._generate_called:
@@ -207,7 +201,7 @@ class GenParticle:
         # Check name clashes
         name_clash = self._do_names_clash(children)
         if name_clash:
-            raise KeyError("Particle name {} already used".format(name_clash))
+            raise KeyError(f"Particle name {name_clash} already used")
         self.children = children
         return self
 
@@ -242,15 +236,12 @@ class GenParticle:
         Raise:
             tf.errors.InvalidArgumentError: If the number of events deduced from the
             shape of `momentum` is inconsistent with `n_events`.
-
         """
         momentum = process_list_to_tensor(momentum)
 
         # Check sanity of inputs
         if momentum.shape.ndims not in (1, 2):
-            raise ValueError(
-                "Bad shape for momentum -> {}".format(momentum.shape.as_list())
-            )
+            raise ValueError(f"Bad shape for momentum -> {momentum.shape.as_list()}")
         # Check compatibility of inputs
         if momentum.shape.ndims == 2:
             if n_events is not None:
@@ -283,7 +274,7 @@ class GenParticle:
         return momentum, n_events
 
     @staticmethod
-    @tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
+    @tf.function(autograph=False, jit_compile=True)
     def _get_w_max(available_mass, masses):
         emmax = available_mass + tf.gather(masses, indices=[0], axis=1)
         emmin = tf.zeros_like(emmax, dtype=tf.float64)
@@ -310,7 +301,6 @@ class GenParticle:
         Return:
             tuple: Result of the generation (per-event weights, maximum weights, output particles
                 and their output masses).
-
         """
         self._generate_called = True
         if not self.children:
@@ -398,7 +388,7 @@ class GenParticle:
         )
 
     @staticmethod
-    @tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
+    @function
     def _generate_part2(inv_masses, masses, n_events, n_particles, rng):
         pds = []
         # Calculate weights of the events
@@ -445,9 +435,9 @@ class GenParticle:
             ) - tf.constant(1.0, dtype=tf.float64)
             sin_z = tf.sqrt(tf.constant(1.0, dtype=tf.float64) - cos_z * cos_z)
             ang_y = (
-                    tf.constant(2.0, dtype=tf.float64)
-                    * tf.constant(pi, dtype=tf.float64)
-                    * rng.uniform((n_events, 1), dtype=tf.float64)
+                tf.constant(2.0, dtype=tf.float64)
+                * tf.constant(pi, dtype=tf.float64)
+                * rng.uniform((n_events, 1), dtype=tf.float64)
             )
             cos_y = tf.math.cos(ang_y)
             sin_y = tf.math.sin(ang_y)
@@ -492,13 +482,13 @@ class GenParticle:
             part_num += 1
         return generated_particles, weights
 
-    @tf.function(autograph=False, experimental_relax_shapes=True)
+    @function
     def _recursive_generate(
-            self,
-            n_events,
-            boost_to=None,
-            recalculate_max_weights=False,
-            rng: SeedLike = None,
+        self,
+        n_events,
+        boost_to=None,
+        recalculate_max_weights=False,
+        rng: SeedLike = None,
     ):
         """Recursively generate normalized n-body phase space as tensorflow tensors.
 
@@ -527,7 +517,6 @@ class GenParticle:
         Raise:
             tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
             ValueError: If `n_events` and the size of `boost_to` don't match. See `GenParticle.generate_unnormalized`.
-
         """
         if boost_to is not None:
             momentum = boost_to
@@ -624,11 +613,11 @@ class GenParticle:
 
     # @tf.function(autograph=False)
     def generate(
-            self,
-            n_events: Union[int, tf.Tensor, tf.Variable],
-            boost_to: Optional[tf.Tensor] = None,
-            normalize_weights: bool = True,
-            seed: SeedLike = None,
+        self,
+        n_events: Union[int, tf.Tensor, tf.Variable],
+        boost_to: Optional[tf.Tensor] = None,
+        normalize_weights: bool = True,
+        seed: SeedLike = None,
     ) -> Tuple[tf.Tensor, Dict[str, tf.Tensor]]:
         """Generate normalized n-body phase space as tensorflow tensors.
 
@@ -664,7 +653,6 @@ class GenParticle:
         Raise:
             tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
             ValueError: If `n_events` and the size of `boost_to` don't match. See `GenParticle.generate_unnormalized`.
-
         """
         rng = get_rng(seed)
         if boost_to is not None:
@@ -691,10 +679,10 @@ class GenParticle:
         )
 
     def generate_tensor(
-            self,
-            n_events: int,
-            boost_to=None,
-            normalize_weights: bool = True,
+        self,
+        n_events: int,
+        boost_to=None,
+        normalize_weights: bool = True,
     ):
         """Generate normalized n-body phase space as numpy arrays.
 
@@ -726,7 +714,6 @@ class GenParticle:
         Raise:
             tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
             ValueError: If `n_events` and the size of `boost_to` don't match. See `GenParticle.generate_unnormalized`.
-
         """
 
         # Run generation
@@ -744,7 +731,6 @@ class Particle:
     """Deprecated Particle class.
 
     Renamed to GenParticle.
-
     """
 
     def __init__(self):
@@ -773,7 +759,6 @@ def nbody_decay(mass_top: float, masses: list, top_name: str = "", names: list =
 
     Raise:
         ValueError: If the length of `masses` and `names` doesn't match.
-
     """
     if not top_name:
         top_name = "top"
@@ -792,5 +777,6 @@ def generate_decay(*args, **kwargs):
         "'generate_decay' has been removed. A similar behavior can be accomplished with 'nbody_decay'. "
         "For more information see https://github.com/zfit/phasespace/issues/22"
     )
+
 
 # EOF

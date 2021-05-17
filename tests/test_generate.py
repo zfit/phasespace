@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # =============================================================================
 # @file   test_generate.py
 # @author Albert Puig (albert.puig@cern.ch)
@@ -58,10 +57,14 @@ def test_n_events(n_events):
 def test_deterministic_events():
     decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, PION_MASS, PION_MASS])
     common_seed = 36
-    norm_weights_seeded1, particles_seeded1 = decay.generate(n_events=100, seed=common_seed)
+    norm_weights_seeded1, particles_seeded1 = decay.generate(
+        n_events=100, seed=common_seed
+    )
     norm_weights_global, particles_global = decay.generate(n_events=100)
     norm_weights_rnd, particles_rnd = decay.generate(n_events=100, seed=152)
-    norm_weights_seeded2, particles_seeded2 = decay.generate(n_events=100, seed=common_seed)
+    norm_weights_seeded2, particles_seeded2 = decay.generate(
+        n_events=100, seed=common_seed
+    )
 
     np.testing.assert_allclose(norm_weights_seeded1, norm_weights_seeded2)
     for part1, part2 in zip(particles_seeded1.values(), particles_seeded2.values()):

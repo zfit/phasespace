@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # =============================================================================
 # @file   bench_phasespace.py
 # @author Albert Puig (albert.puig@cern.ch)
@@ -28,7 +27,6 @@ sys.path.append(os.path.dirname(__file__))
 """Various code monitoring utilities."""
 
 import os
-
 from timeit import default_timer
 
 
@@ -40,24 +38,28 @@ def memory_usage():
 
     Return:
         float: Memory usage of the current process.
-
     """
     pid = os.getpid()
     try:
         import psutil
+
         process = psutil.Process(pid)
         mem = process.memory_info()[0] / float(2 ** 20)
     except ImportError:
         import subprocess
-        out = subprocess.Popen(['ps', 'v', '-p', str(pid)],
-                               stdout=subprocess.PIPE).communicate()[0].split(b'\n')
-        vsz_index = out[0].split().index(b'RSS')
+
+        out = (
+            subprocess.Popen(["ps", "v", "-p", str(pid)], stdout=subprocess.PIPE)
+            .communicate()[0]
+            .split(b"\n")
+        )
+        vsz_index = out[0].split().index(b"RSS")
         mem = float(out[1].split()[vsz_index]) / 1024
     return mem
 
 
 # pylint: disable=too-few-public-methods
-class Timer(object):
+class Timer:
     """Time the code placed inside its context.
 
     Taken from http://coreygoldberg.blogspot.ch/2012/06/python-timer-class-context-manager-for.html
@@ -72,7 +74,6 @@ class Timer(object):
     Arguments:
         verbose (bool, optional): Print the elapsed time at
             context exit? Defaults to False.
-
     """
 
     def __init__(self, verbose=False, n=1):
@@ -90,7 +91,7 @@ class Timer(object):
     def __exit__(self, *args):
         self.elapsed = self._timer() - self.start
         if self.verbose:
-            print('Elapsed time: {} ms'.format(self.elapsed * 1000.0 / self.n))
+            print(f"Elapsed time: {self.elapsed * 1000.0 / self.n} ms")
 
 
 # EOF
@@ -127,20 +128,19 @@ def test_three_body():
             samples = do_run()
 
     print(f"nevents produced {samples[0][0].shape}")
-    print("Shape of one particle momentum", samples[0][1]['p_0'].shape)
+    print("Shape of one particle momentum", samples[0][1]["p_0"].shape)
 
 
-decay = phasespace.nbody_decay(B_MASS,
-                               [PION_MASS, PION_MASS, PION_MASS],
-                               )
+decay = phasespace.nbody_decay(
+    B_MASS,
+    [PION_MASS, PION_MASS, PION_MASS],
+)
 
 
 # tf.config.run_functions_eagerly(True)
 @tf.function(autograph=False)
 def do_run():
-    return [decay.generate(N_EVENTS)
-            for _ in range(0, N_EVENTS, CHUNK_SIZE)
-            ]
+    return [decay.generate(N_EVENTS) for _ in range(0, N_EVENTS, CHUNK_SIZE)]
 
 
 if __name__ == "__main__":
