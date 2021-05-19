@@ -1,9 +1,9 @@
 import wget
-from os.path import exists, dirname, relpath
+from os.path import exists, dirname, abspath, basename
 
 import sys
 
-SCRIPT_DIR = dirname(relpath(__file__))
+SCRIPT_DIR = dirname(abspath(__file__))
 
 FILE_URLS = [
     (
@@ -36,9 +36,9 @@ def progress_bar(current, total, width=80):
 
 def download(output_file, url):
     if exists(output_file):
-        print(f"Already downloaded: {output_file}")
+        print(f"Already downloaded: {basename(output_file)}")
     else:
-        print(f"Downloading: {output_file}")
+        print(f"Downloading: {basename(output_file)}")
         wget.download(url=url, bar=progress_bar, out=output_file)
         print()
 
