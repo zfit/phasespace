@@ -3,7 +3,7 @@ Changelog
 *********
 
 Develop
-=======
+==========
 
 
 Major Features and Improvements
