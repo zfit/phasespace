@@ -15,12 +15,12 @@ with open(os.path.join(here, "CHANGELOG.rst"), encoding="utf-8") as history_file
     history = history_file.read()
 
 with open(
-        os.path.join(here, "requirements.txt"), encoding="utf-8"
+    os.path.join(here, "requirements.txt"), encoding="utf-8"
 ) as requirements_file:
     requirements = requirements_file.read().splitlines()
 
 with open(
-        os.path.join(here, "requirements_dev.txt"), encoding="utf-8"
+    os.path.join(here, "requirements_dev.txt"), encoding="utf-8"
 ) as requirements_dev_file:
     requirements_dev = requirements_dev_file.read().splitlines()
 
