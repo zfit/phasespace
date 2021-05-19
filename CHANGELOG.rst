@@ -15,6 +15,7 @@ Behavioral changes
 
 Bug fixes and small changes
 ---------------------------
+- improved compilation in tf.functions, use of XLA where applicable
 
 Requirement changes
 -------------------
@@ -91,7 +92,3 @@ Major Features and Improvements
 -------------------------------
 
 Release to conda-forge, thanks to Chris Burr
-
-
-
-
