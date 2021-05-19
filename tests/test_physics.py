@@ -70,15 +70,23 @@ def create_ref_histos(n_pions):
         subprocess.call("root -qb '{}'".format(script), shell=True)
     events = uproot.open(ref_file)["events"]
     pion_names = ["pion_{}".format(pion + 1) for pion in range(n_pions)]
-    pions = {pion_name: events.array(pion_name) for pion_name in pion_names}
-    weights = events.array("weight")
-    return [
-        make_norm_histo(
-            array, range_=(-3000 if coord % 4 != 3 else 0, 3000), weights=weights
-        )
-        for pion in pions.values()
-        for coord, array in enumerate([pion.x, pion.y, pion.z, pion.E])
-    ], make_norm_histo(weights, range_=(0, 1 + 1e-8))
+    pions = {pion_name: events[pion_name] for pion_name in pion_names}
+    weights = events["weight"]
+    normalized_histograms = []
+    for pion in pions.values():
+        pion_array = pion.array()
+        energy = pion_array.fE
+        momentum = pion_array.fP
+        for coord, array in enumerate([momentum.fX, momentum.fY, momentum.fZ, energy]):
+            numpy_array = np.array(array)
+            histogram = make_norm_histo(
+                numpy_array,
+                range_=(-3000 if coord % 4 != 3 else 0, 3000),
+                weights=weights,
+            )
+            normalized_histograms.append(histogram)
+
+    return normalized_histograms, make_norm_histo(weights, range_=(0, 1 + 1e-8))
 
 
 def run_test(n_particles, test_prefix):
