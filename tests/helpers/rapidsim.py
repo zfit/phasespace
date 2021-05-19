@@ -24,15 +24,27 @@ def get_fonll_histos(energy, quark):
 
 def generate_fonll(mass, beam_energy, quark, n_events):
     def analyze_histo(histo):
-        bin_centers = (histo.bins[:, 1] + histo.bins[:, 0]) / 2
-        normalized_values = histo.values / np.sum(histo.values)
+        x_axis = histo.axis(0)
+        x_bins = x_axis.edges()
+        bin_width = x_axis.width
+        bin_centers = x_bins[:-1] + bin_width / 2
+        normalized_values = histo.values() / np.sum(histo.values())
         return bin_centers, normalized_values
 
     pt_histo, eta_histo = get_fonll_histos(beam_energy, quark)
-    pt_data = analyze_histo(pt_histo)
-    eta_data = analyze_histo(eta_histo)
-    pt_rand = 1000.0 * np.abs(np.random.choice(pt_data[0], size=n_events, p=pt_data[1]))
-    eta_rand = np.random.choice(eta_data[0], size=n_events, p=eta_data[1])
+    pt_bin_centers, pt_normalized_values = analyze_histo(pt_histo)
+    eta_bin_centers, eta_normalized_values = analyze_histo(eta_histo)
+    pt_rand = np.random.choice(
+        pt_bin_centers,
+        size=n_events,
+        p=pt_normalized_values,
+    )
+    pt_rand = 1_000 * np.abs(pt_rand)
+    eta_rand = np.random.choice(
+        eta_bin_centers,
+        size=n_events,
+        p=eta_normalized_values,
+    )
     phi_rand = np.random.uniform(0, 2 * np.pi, size=n_events)
     px = pt_rand * np.cos(phi_rand)
     py = pt_rand * np.sin(phi_rand)
