@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 RELAX_SHAPES = True
-if int(tf.__version__.split(".")[1]) < 5:
+if int(tf.__version__.split(".")[1]) < 5:  # smaller than 2.5
     jit_compile_argname = "experimental_compile"
 else:
     jit_compile_argname = "jit_compile"
