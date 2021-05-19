@@ -13,6 +13,7 @@ The code is based on the GENBOD function (W515 from CERNLIB), documented in:
 import inspect
 import warnings
 
+from .backend import function, function_jit, function_jit_fixedshape
 from .random import SeedLike, get_rng
 
 RELAX_SHAPES = False
@@ -44,7 +45,7 @@ def process_list_to_tensor(lst):
     return tf.cast(lst, dtype=tf.float64)
 
 
-@tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
+@function
 def pdk(a, b, c):
     """Calculate the PDK (2-body phase space) function.
 
@@ -125,7 +126,7 @@ class GenParticle:
             return dup_names
         return None
 
-    @tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
+    @function
     def get_mass(
         self,
         min_mass: tf.Tensor = None,
@@ -274,7 +275,7 @@ class GenParticle:
         return momentum, n_events
 
     @staticmethod
-    @tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
+    @function_jit_fixedshape
     def _get_w_max(available_mass, masses):
         emmax = available_mass + tf.gather(masses, indices=[0], axis=1)
         emmin = tf.zeros_like(emmax, dtype=tf.float64)
@@ -388,7 +389,7 @@ class GenParticle:
         )
 
     @staticmethod
-    @tf.function(autograph=False, experimental_relax_shapes=RELAX_SHAPES)
+    @function
     def _generate_part2(inv_masses, masses, n_events, n_particles, rng):
         pds = []
         # Calculate weights of the events
@@ -482,7 +483,7 @@ class GenParticle:
             part_num += 1
         return generated_particles, weights
 
-    @tf.function(autograph=False, experimental_relax_shapes=True)
+    @function
     def _recursive_generate(
         self,
         n_events,

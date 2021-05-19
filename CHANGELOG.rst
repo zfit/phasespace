@@ -15,6 +15,7 @@ Behavioral changes
 
 Bug fixes and small changes
 ---------------------------
+- improved compilation in tf.functions, use of XLA where applicable
 
 Requirement changes
 -------------------
