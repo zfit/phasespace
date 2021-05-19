@@ -12,7 +12,7 @@ The code is based on the GENBOD function (W515 from CERNLIB), documented in     
 import inspect
 import warnings
 
-from .backend import function, function_jit
+from .backend import function, function_jit, function_jit_fixedshape
 from .random import SeedLike, get_rng
 
 RELAX_SHAPES = False
@@ -274,7 +274,7 @@ class GenParticle:
         return momentum, n_events
 
     @staticmethod
-    @function_jit
+    @function_jit_fixedshape
     def _get_w_max(available_mass, masses):
         emmax = available_mass + tf.gather(masses, indices=[0], axis=1)
         emmin = tf.zeros_like(emmax, dtype=tf.float64)

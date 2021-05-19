@@ -15,3 +15,7 @@ function_jit = tf.function(
     experimental_relax_shapes=RELAX_SHAPES,
     **{jit_compile_argname: True}
 )
+
+function_jit_fixedshape = tf.function(
+    autograph=False, experimental_relax_shapes=False, **{jit_compile_argname: True}
+)
