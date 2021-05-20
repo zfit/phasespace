@@ -27,8 +27,7 @@ def spatial_component(vector):
     """Extract spatial components of the input Lorentz vector.
 
     Args:
-        vector: Input Lorentz vector (where indexes 0-2 are space, index 3 is
-            time).
+        vector: Input Lorentz vector (where indexes 0-2 are space, index 3 is time).
     """
     return tf.gather(vector, indices=[0, 1, 2], axis=-1)
 
@@ -38,8 +37,7 @@ def time_component(vector):
     """Extract time component of the input Lorentz vector.
 
     Args:
-        vector: Input Lorentz vector (where indexes 0-2 are space, index 3 is
-            time).
+        vector: Input Lorentz vector (where indexes 0-2 are space, index 3 is time).
     """
     return tf.gather(vector, indices=[3], axis=-1)
 

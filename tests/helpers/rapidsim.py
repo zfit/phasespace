@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # =============================================================================
 # @file   rapidsim.py
 # @author Albert Puig (albert.puig@cern.ch)
@@ -57,9 +56,7 @@ def load_generated_histos(file_name, particles):
     with uproot4.open(file_name) as rapidsim_file:
         return {
             particle: [
-                rapidsim_file.get("{}_{}_TRUE".format(particle, coord)).array(
-                    library="np"
-                )
+                rapidsim_file.get(f"{particle}_{coord}_TRUE").array(library="np")
                 for coord in ("PX", "PY", "PZ", "E")
             ]
             for particle in particles
@@ -73,8 +70,7 @@ def get_tree(file_name, top_particle, particles):
         return {
             particle: np.stack(
                 [
-                    1000.0
-                    * tree["{}_{}_TRUE".format(particle, coord)].array(library="np")
+                    1000.0 * tree[f"{particle}_{coord}_TRUE"].array(library="np")
                     for coord in ("PX", "PY", "PZ", "E")
                 ]
             )

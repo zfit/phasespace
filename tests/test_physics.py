@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # =============================================================================
 # @file   test_physics.py
 # @author Albert Puig (albert.puig@cern.ch)
@@ -19,21 +18,19 @@ if platform.system() == "Darwin":
 
     matplotlib.use("TkAgg")
 
-import matplotlib.pyplot as plt
-
-import uproot
-
-import tensorflow as tf
-
-from phasespace import phasespace
-
 import os
 import sys
 
+import matplotlib.pyplot as plt
+import tensorflow as tf
+import uproot
+
+from phasespace import phasespace
+
 sys.path.append(os.path.dirname(__file__))
 
-from .helpers.plotting import make_norm_histo
 from .helpers import decays, rapidsim
+from .helpers.plotting import make_norm_histo
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PLOT_DIR = os.path.join(BASE_PATH, "tests", "plots")
@@ -49,7 +46,7 @@ def create_ref_histos(n_pions):
     ref_dir = os.path.join(BASE_PATH, "data")
     if not os.path.exists(ref_dir):
         os.mkdir(ref_dir)
-    ref_file = os.path.join(ref_dir, "bto{}pi.root".format(n_pions))
+    ref_file = os.path.join(ref_dir, f"bto{n_pions}pi.root")
     if not os.path.exists(ref_file):
         script = os.path.join(
             BASE_PATH,
@@ -58,18 +55,16 @@ def create_ref_histos(n_pions):
                 ",".join(
                     [
                         '"{}"'.format(
-                            os.path.join(
-                                BASE_PATH, "data", "bto{}pi.root".format(i + 1)
-                            )
+                            os.path.join(BASE_PATH, "data", f"bto{i + 1}pi.root")
                         )
                         for i in range(1, 4)
                     ]
                 )
             ),
         )
-        subprocess.call("root -qb '{}'".format(script), shell=True)
+        subprocess.call(f"root -qb '{script}'", shell=True)
     events = uproot.open(ref_file)["events"]
-    pion_names = ["pion_{}".format(pion + 1) for pion in range(n_pions)]
+    pion_names = [f"pion_{pion + 1}" for pion in range(n_pions)]
     pions = {pion_name: events[pion_name] for pion_name in pion_names}
     weights = events["weight"]
     normalized_histograms = []
@@ -166,7 +161,7 @@ def run_test(n_particles, test_prefix):
         label="phasespace",
         bins=100,
     )
-    plt.savefig(os.path.join(PLOT_DIR, "{}_weights.png".format(test_prefix)))
+    plt.savefig(os.path.join(PLOT_DIR, f"{test_prefix}_weights.png"))
     plt.clf()
     assert np.all(p_values > 0.05)
 
@@ -251,9 +246,7 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
         weights=make_norm_histo(norm_weights, range_=(0, 1)),
         bins=100,
     )
-    plt.savefig(
-        os.path.join(PLOT_DIR, "B0_Kstar_gamma_Kstar{}_weights.png".format(suffix))
-    )
+    plt.savefig(os.path.join(PLOT_DIR, f"B0_Kstar_gamma_Kstar{suffix}_weights.png"))
     plt.clf()
     return np.array(list(p_values.values()))
 
@@ -282,11 +275,9 @@ def test_kstargamma_kstarnonresonant_lhc():
 def test_kstargamma_resonant_at_rest():
     """Test B0 -> K* gamma physics with Gaussian mass for K*.
 
-    Since we don't have BW and we model the resonances with Gaussians,
-    we can't really perform the Kolmogorov test wrt to RapidSim,
-    so plots are generated and can be inspected by the user. However, small differences
-    are expected in the tails of the energy distributions of the kaon and the pion.
-
+    Since we don't have BW and we model the resonances with Gaussians, we can't really perform the Kolmogorov test wrt
+    to RapidSim, so plots are generated and can be inspected by the user. However, small differences are expected in the
+    tails of the energy distributions of the kaon and the pion.
     """
     run_kstargamma(
         "B2KstGamma_RapidSim_7TeV_Tree.root", decays.KSTARZ_WIDTH, True, "Gaussian"
@@ -364,9 +355,7 @@ def run_k1_gamma(input_file, k1_width, kstar_width, b_at_rest, suffix):
         weights=make_norm_histo(norm_weights, range_=(0, 1)),
         bins=100,
     )
-    plt.savefig(
-        os.path.join(PLOT_DIR, "Bp_K1_gamma_K1Kstar{}_weights.png".format(suffix))
-    )
+    plt.savefig(os.path.join(PLOT_DIR, f"Bp_K1_gamma_K1Kstar{suffix}_weights.png"))
     plt.clf()
     return np.array(list(p_values.values()))
 
@@ -400,10 +389,8 @@ def test_k1gamma_kstarnonresonant_lhc():
 def test_k1gamma_resonant_at_rest():
     """Test B0 -> K1 (->K*pi) gamma physics.
 
-    Since we don't have BW and we model the resonances with Gaussians,
-    we can't really perform the Kolmogorov test wrt to RapidSim,
-    so plots are generated and can be inspected by the user.
-
+    Since we don't have BW and we model the resonances with Gaussians, we can't really perform the Kolmogorov test wrt
+    to RapidSim, so plots are generated and can be inspected by the user.
     """
     run_k1_gamma(
         "B2K1Gamma_RapidSim_7TeV_Tree.root",

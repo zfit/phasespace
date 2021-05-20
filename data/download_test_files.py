@@ -1,7 +1,7 @@
-import wget
-from os.path import exists, dirname, abspath, basename
-
 import sys
+from os.path import abspath, basename, dirname, exists
+
+import wget
 
 SCRIPT_DIR = dirname(abspath(__file__))
 

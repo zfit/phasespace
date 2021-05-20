@@ -1,11 +1,11 @@
-"""Random number generation
+"""Random number generation.
 
 As the random number generation is not a trivial thing, this module handles it uniformly.
 
 It mimicks the TensorFlows API on random generators and relies (currently) in global states on the TF global states.
 Especially on the global random number generator which will be used to get new generators.
 """
-from typing import Union, Optional
+from typing import Optional, Union
 
 import tensorflow as tf
 

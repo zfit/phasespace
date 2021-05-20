@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 # phasespace documentation build configuration file, created by
 # sphinx-quickstart on Fri Jun  9 13:47:02 2017.
@@ -23,12 +22,12 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('..'))
-
-import phasespace
-import tensorflow as tf
+sys.path.insert(0, os.path.abspath(".."))
 
 import sphinx_bootstrap_theme
+import tensorflow as tf
+
+import phasespace
 
 # -- General configuration ---------------------------------------------
 
@@ -37,15 +36,16 @@ import sphinx_bootstrap_theme
 # needs_sphinx = '1.0'
 
 # use for classes the class and the __init__ docs combined
-autoclass_content = 'both'
+autoclass_content = "both"
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc',
-              'sphinx.ext.viewcode',
-              'sphinx.ext.napoleon',
-              'sphinx.ext.mathjax'
-              ]
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.mathjax",
+]
 
 using_numpy_style = False  # False -> google style
 
@@ -63,21 +63,21 @@ napoleon_use_param = True
 napoleon_use_rtype = True
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = ".rst"
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # General information about the project.
-project = u'TensorFlow PhaseSpace'
-copyright = u"2019, Albert Puig Navarro"
-author = u"Albert Puig Navarro"
+project = "TensorFlow PhaseSpace"
+copyright = "2019, Albert Puig Navarro"
+author = "Albert Puig Navarro"
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -93,15 +93,15 @@ release = phasespace.__version__
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = 'en'
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
@@ -111,16 +111,14 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'bootstrap'
+html_theme = "bootstrap"
 html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 html_theme_options = {
     # Navigation bar title. (Default: ``project`` value)
-    'navbar_title': "phasespace",
-
+    "navbar_title": "phasespace",
     # Tab name for entire site. (Default: "Site")
     # 'navbar_site_name': "Docs",
     # 'navbar_site_name': "Overview",
-
     # A list of tuples containing pages or urls to link to.
     # Valid tuples should be in the following forms:
     #    (name, page)                 # a link to a page
@@ -128,27 +126,22 @@ html_theme_options = {
     #    (name, "http://example.com", True) # arbitrary absolute url
     # Note the "1" or "True" value above as the third argument to indicate
     # an arbitrary url.
-    'navbar_links': [
+    "navbar_links": [
         ("Phasespace", "index"),
         ("Usage", "usage"),
         ("API", "phasespace"),
         ("Contributing", "contributing"),
         # ("Link", "http://example.com", True),
-        ],
-
+    ],
     # Render the next and previous page links in navbar. (Default: true)
-    'navbar_sidebarrel': False,
-
+    "navbar_sidebarrel": False,
     # Render the current pages TOC in the navbar. (Default: true)
-    'navbar_pagenav': False,
-
+    "navbar_pagenav": False,
     # Tab name for the current pages TOC. (Default: "Page")
     # 'navbar_pagenav_name': "Page",
-
     # Global TOC depth for "site" navbar tab. (Default: 1)
     # Switching to -1 shows all levels.
-    'globaltoc_depth': 1,
-
+    "globaltoc_depth": 1,
     # Include hidden TOCs in Site navbar?
     #
     # Note: If this is "false", you cannot have mixed ``:hidden:`` and
@@ -156,22 +149,18 @@ html_theme_options = {
     # will break.
     #
     # Values: "true" (default) or "false"
-    'globaltoc_includehidden': "true",
-
+    "globaltoc_includehidden": "true",
     # HTML navbar class (Default: "navbar") to attach to <div> element.
     # For black navbar, do "navbar navbar-inverse"
     # 'navbar_class': "navbar navbar-inverse",
-    'navbar_class': "navbar",
-
+    "navbar_class": "navbar",
     # Fix navigation bar to top of page?
     # Values: "true" (default) or "false"
-    'navbar_fixed_top': "true",
-
+    "navbar_fixed_top": "true",
     # Location of link to source.
     # Options are "nav" (default), "footer" or anything else to exclude.
     # 'source_link_position': "nav",
-    'source_link_position': False,
-
+    "source_link_position": False,
     # Bootswatch (http://bootswatch.com/) theme.
     #
     # Options are nothing (default) or the name of a valid theme
@@ -183,21 +172,20 @@ html_theme_options = {
     # Currently, the supported themes are:
     # - Bootstrap 2: https://bootswatch.com/2
     # - Bootstrap 3: https://bootswatch.com/3
-    'bootswatch_theme': "flatly",
-
+    "bootswatch_theme": "flatly",
     # Choose Bootstrap version.
     # Values: "3" (default) or "2" (in quotes)
-    'bootstrap_version': "4",
-    }
+    "bootstrap_version": "4",
+}
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # -- Options for HTMLHelp output ---------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'phasespacedoc'
+htmlhelp_basename = "phasespacedoc"
 
 # -- Options for LaTeX output ------------------------------------------
 
@@ -205,38 +193,37 @@ latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
-
     # The font size ('10pt', '11pt' or '12pt').
     #
     # 'pointsize': '10pt',
-
     # Additional stuff for the LaTeX preamble.
     #
     # 'preamble': '',
-
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
-    }
+}
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass
 # [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'phasespace.tex',
-     u'TensorFlow PhaseSpace Documentation',
-     u'Albert Puig Navarro', 'manual'),
-    ]
+    (
+        master_doc,
+        "phasespace.tex",
+        "TensorFlow PhaseSpace Documentation",
+        "Albert Puig Navarro",
+        "manual",
+    ),
+]
 
 # -- Options for manual page output ------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'phasespace',
-     u'TensorFlow PhaseSpace Documentation',
-     [author], 1)
-    ]
+    (master_doc, "phasespace", "TensorFlow PhaseSpace Documentation", [author], 1)
+]
 
 # -- Options for Texinfo output ----------------------------------------
 
@@ -244,10 +231,13 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'phasespace',
-     u'TensorFlow PhaseSpace Documentation',
-     author,
-     'phasespace',
-     'One line description of project.',
-     'Miscellaneous'),
-    ]
+    (
+        master_doc,
+        "phasespace",
+        "TensorFlow PhaseSpace Documentation",
+        author,
+        "phasespace",
+        "One line description of project.",
+        "Miscellaneous",
+    ),
+]

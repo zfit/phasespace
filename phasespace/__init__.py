@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Top-level package for TensorFlow PhaseSpace."""
 from pkg_resources import get_distribution
 
@@ -25,4 +23,4 @@ def _set_eager_mode():
 _set_eager_mode()
 
 from . import random
-from .phasespace import nbody_decay, GenParticle
+from .phasespace import GenParticle, nbody_decay

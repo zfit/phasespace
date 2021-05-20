@@ -6,8 +6,9 @@
 # =============================================================================
 """Implementation of the Raubold and Lynch method to generate n-body events.
 
-The code is based on the GENBOD function (W515 from CERNLIB), documented in     F. James, Monte Carlo Phase Space, CERN
-68-15 (1968)
+The code is based on the GENBOD function (W515 from CERNLIB), documented in:
+
+      F. James, Monte Carlo Phase Space, CERN 68-15 (1968)
 """
 import inspect
 import warnings
