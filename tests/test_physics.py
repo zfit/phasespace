@@ -53,12 +53,8 @@ def create_ref_histos(n_pions):
             "scripts",
             "prepare_test_samples.cxx+({})".format(
                 ",".join(
-                    [
-                        '"{}"'.format(
-                            os.path.join(BASE_PATH, "data", f"bto{i + 1}pi.root")
-                        )
-                        for i in range(1, 4)
-                    ]
+                    '"{}"'.format(os.path.join(BASE_PATH, "data", f"bto{i + 1}pi.root"))
+                    for i in range(1, 4)
                 )
             ),
         )
