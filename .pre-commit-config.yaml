@@ -11,7 +11,6 @@ repos:
       - id: debug-statements
       - id: end-of-file-fixer
       - id: mixed-line-ending
-      - id: requirements-txt-fixer
       - id: trailing-whitespace
       - id: detect-private-key
       - id: fix-byte-order-marker
@@ -47,11 +46,6 @@ repos:
     hooks:
       - id: pyupgrade
         args: [ --py36-plus ]
-
-  - repo: https://github.com/asottile/setup-cfg-fmt
-    rev: v1.17.0
-    hooks:
-      - id: setup-cfg-fmt
 
   # Notebook formatting
   - repo: https://github.com/nbQA-dev/nbQA
