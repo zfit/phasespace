@@ -322,10 +322,8 @@ class GenParticle:
             return output_mass
 
         mass_from_stable = tf.broadcast_to(
-            tf.reduce_sum(
-                input_tensor=[
-                    child.get_mass() for child in self.children if child.has_fixed_mass
-                ],
+            tnp.sum(
+                [child.get_mass() for child in self.children if child.has_fixed_mass],
                 axis=0,
             ),
             (n_events, 1),
@@ -345,9 +343,7 @@ class GenParticle:
         masses = tf.concat(masses, axis=-1)
         # if masses.shape.ndims == 1:
         #     masses = tf.expand_dims(masses, axis=0)
-        available_mass = top_mass - tf.reduce_sum(
-            input_tensor=masses, axis=1, keepdims=True
-        )
+        available_mass = top_mass - tnp.sum(masses, axis=1, keepdims=True)
         tf.debugging.assert_greater_equal(
             available_mass,
             tf.zeros_like(available_mass, dtype=tf.float64),

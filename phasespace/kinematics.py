@@ -20,7 +20,7 @@ def scalar_product(vec1, vec2):
         vec1: First vector.
         vec2: Second vector.
     """
-    return tf.reduce_sum(input_tensor=vec1 * vec2, axis=1)
+    return tnp.sum(vec1 * vec2, axis=1)
 
 
 @function_jit
@@ -81,9 +81,7 @@ def mass(vector):
         vector: Input Lorentz momentum vector.
     """
     return tnp.sqrt(
-        tf.reduce_sum(
-            input_tensor=tnp.square(vector) * metric_tensor(), axis=-1, keepdims=True
-        )
+        tnp.sum(tnp.square(vector) * metric_tensor(), axis=-1, keepdims=True)
     )
 
 
