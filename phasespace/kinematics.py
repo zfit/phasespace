@@ -150,7 +150,7 @@ def boost_components(vector):
 @function_jit
 def metric_tensor():
     """Metric tensor for Lorentz space (constant)."""
-    return tf.constant([-1.0, -1.0, -1.0, 1.0], dtype=tf.float64)
+    return tf.constant([-1.0, -1.0, -1.0, 1.0], dtype=tnp.float64)
 
 
 # EOF
