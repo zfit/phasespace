@@ -240,10 +240,10 @@ class GenParticle:
         momentum = process_list_to_tensor(momentum)
 
         # Check sanity of inputs
-        if momentum.shape.ndims not in (1, 2):
-            raise ValueError(f"Bad shape for momentum -> {momentum.shape.as_list()}")
+        if len(momentum.shape) not in (1, 2):
+            raise ValueError(f"Bad shape for momentum -> {list(momentum.shape)}")
         # Check compatibility of inputs
-        if momentum.shape.ndims == 2:
+        if len(momentum.shape) == 2:
             if n_events is not None:
                 momentum_shape = momentum.shape[0]
                 if momentum_shape is None:
@@ -258,7 +258,7 @@ class GenParticle:
                 )
 
         if n_events is None:
-            if momentum.shape.ndims == 2:
+            if len(momentum.shape) == 2:
                 n_events = momentum.shape[0]
                 if n_events is None:  # dynamic shape
                     n_events = tf.shape(momentum)[0]
@@ -267,7 +267,7 @@ class GenParticle:
                 n_events = tnp.asarray(1, dtype=tnp.int64)
         n_events = tnp.asarray(n_events, dtype=tnp.int64)
         # Now preparation of tensors
-        if momentum.shape.ndims == 1:
+        if len(momentum.shape) == 1:
             momentum = tnp.expand_dims(momentum, axis=0)
         return momentum, n_events
 
@@ -337,7 +337,7 @@ class GenParticle:
                 max_mass -= mass
                 masses.append(mass)
         masses = tnp.concatenate(masses, axis=-1)
-        # if masses.shape.ndims == 1:
+        # if len(masses.shape) == 1:
         #     masses = tnp.expand_dims(masses, axis=0)
         available_mass = top_mass - tnp.sum(masses, axis=1, keepdims=True)
         tf.debugging.assert_greater_equal(
@@ -601,7 +601,7 @@ class GenParticle:
             mass_tree = {}
             build_mass_tree(self, mass_tree)
             momentum = process_list_to_tensor(momentum)
-            if len(momentum.shape.as_list()) == 1:
+            if len(momentum.shape) == 1:
                 momentum = tnp.expand_dims(momentum, axis=-1)
             weights_max = tnp.reshape(
                 recurse_w_max(kin.mass(momentum), mass_tree[self.name]), (n_events,)
