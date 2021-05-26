@@ -278,13 +278,13 @@ class GenParticle:
     @staticmethod
     @function_jit_fixedshape
     def _get_w_max(available_mass, masses):
-        emmax = available_mass + tf.gather(masses, indices=[0], axis=1)
+        emmax = available_mass + tnp.take(masses, indices=[0], axis=1)
         emmin = tf.zeros_like(emmax, dtype=tf.float64)
         w_max = tf.ones_like(emmax, dtype=tf.float64)
         for i in range(1, masses.shape[1]):
-            emmin += tf.gather(masses, [i - 1], axis=1)
-            emmax += tf.gather(masses, [i], axis=1)
-            w_max *= pdk(emmax, emmin, tf.gather(masses, [i], axis=1))
+            emmin += tnp.take(masses, [i - 1], axis=1)
+            emmax += tnp.take(masses, [i], axis=1)
+            w_max *= pdk(emmax, emmin, tnp.take(masses, [i], axis=1))
         return w_max
 
     def _generate(self, momentum, n_events, rng):
@@ -369,8 +369,8 @@ class GenParticle:
         inv_masses = []
         # TODO(Mayou36): rewrite with cumsum?
         for i in range(n_particles):
-            sum_ += tf.gather(masses, [i], axis=1)
-            inv_masses.append(tf.gather(random, [i], axis=1) * available_mass + sum_)
+            sum_ += tnp.take(masses, [i], axis=1)
+            inv_masses.append(tnp.take(random, [i], axis=1) * available_mass + sum_)
         generated_particles, weights = self._generate_part2(
             inv_masses, masses, n_events, n_particles, rng=rng
         )
@@ -393,7 +393,9 @@ class GenParticle:
         for i in range(n_particles - 1):
             pds.append(
                 pdk(
-                    inv_masses[i + 1], inv_masses[i], tf.gather(masses, [i + 1], axis=1)
+                    inv_masses[i + 1],
+                    inv_masses[i],
+                    tnp.take(masses, [i + 1], axis=1),
                 )
             )
         weights = tnp.prod(pds, axis=0)
@@ -405,7 +407,7 @@ class GenParticle:
                     pds[0],
                     zero_component,
                     tnp.sqrt(
-                        tnp.square(pds[0]) + tnp.square(tf.gather(masses, [0], axis=1))
+                        tnp.square(pds[0]) + tnp.square(tnp.take(masses, [0], axis=1))
                     ),
                 ],
                 axis=1,
@@ -421,7 +423,7 @@ class GenParticle:
                         zero_component,
                         tnp.sqrt(
                             tnp.square(pds[part_num - 1])
-                            + tnp.square(tf.gather(masses, [part_num], axis=1))
+                            + tnp.square(tnp.take(masses, [part_num], axis=1))
                         ),
                     ],
                     axis=1,
@@ -533,7 +535,7 @@ class GenParticle:
             for child_num, child in enumerate(self.children)
         }
         output_masses = {
-            child.name: tf.gather(children_masses, [child_num], axis=1)
+            child.name: tnp.take(children_masses, [child_num], axis=1)
             for child_num, child in enumerate(self.children)
         }
         for child_num, child in enumerate(self.children):

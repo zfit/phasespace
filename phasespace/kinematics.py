@@ -30,7 +30,7 @@ def spatial_component(vector):
     Args:
         vector: Input Lorentz vector (where indexes 0-2 are space, index 3 is time).
     """
-    return tf.gather(vector, indices=[0, 1, 2], axis=-1)
+    return tnp.take(vector, indices=[0, 1, 2], axis=-1)
 
 
 @function_jit
@@ -40,7 +40,7 @@ def time_component(vector):
     Args:
         vector: Input Lorentz vector (where indexes 0-2 are space, index 3 is time).
     """
-    return tf.gather(vector, indices=[3], axis=-1)
+    return tnp.take(vector, indices=[3], axis=-1)
 
 
 @function
@@ -50,7 +50,7 @@ def x_component(vector):
     Args:
         vector: Input vector.
     """
-    return tf.gather(vector, indices=[0], axis=-1)
+    return tnp.take(vector, indices=[0], axis=-1)
 
 
 @function_jit
@@ -60,7 +60,7 @@ def y_component(vector):
     Args:
         vector: Input vector.
     """
-    return tf.gather(vector, indices=[1], axis=-1)
+    return tnp.take(vector, indices=[1], axis=-1)
 
 
 @function_jit
@@ -70,7 +70,7 @@ def z_component(vector):
     Args:
         vector: Input vector.
     """
-    return tf.gather(vector, indices=[2], axis=-1)
+    return tnp.take(vector, indices=[2], axis=-1)
 
 
 @function_jit
