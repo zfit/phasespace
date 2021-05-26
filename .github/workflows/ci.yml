@@ -27,9 +27,7 @@ jobs:
           pip install coverage coveralls
 
       - name: Download test data
-        run: |
-          cd data
-          python download_test_files.py && cd ..
+        run: python data/download_test_files.py > /dev/null
 
       - name: Test with pytest
         run: |
