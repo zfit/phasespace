@@ -308,7 +308,7 @@ class GenParticle:
         if not self.children:
             raise ValueError("No children have been configured")
         p_top, n_events = self._preprocess(momentum, n_events)
-        top_mass = tf.broadcast_to(kin.mass(p_top), (n_events, 1))
+        top_mass = tnp.broadcast_to(kin.mass(p_top), (n_events, 1))
         n_particles = len(self.children)
 
         # Prepare masses
@@ -321,7 +321,7 @@ class GenParticle:
                     output_mass += recurse_stable(child)
             return output_mass
 
-        mass_from_stable = tf.broadcast_to(
+        mass_from_stable = tnp.broadcast_to(
             tnp.sum(
                 [child.get_mass() for child in self.children if child.has_fixed_mass],
                 axis=0,
@@ -332,10 +332,10 @@ class GenParticle:
         masses = []
         for child in self.children:
             if child.has_fixed_mass:
-                masses.append(tf.broadcast_to(child.get_mass(), (n_events, 1)))
+                masses.append(tnp.broadcast_to(child.get_mass(), (n_events, 1)))
             else:
                 # Recurse that particle to know the minimum mass we need to generate
-                min_mass = tf.broadcast_to(recurse_stable(child), (n_events, 1))
+                min_mass = tnp.broadcast_to(recurse_stable(child), (n_events, 1))
                 mass = child.get_mass(min_mass, max_mass, n_events)
                 mass = tnp.reshape(mass, (n_events, 1))
                 max_mass -= mass
@@ -523,7 +523,7 @@ class GenParticle:
             momentum = boost_to
         else:
             if self.has_fixed_mass:
-                momentum = tf.broadcast_to(
+                momentum = tnp.broadcast_to(
                     tf.stack((0.0, 0.0, 0.0, self.get_mass()), axis=-1), (n_events, 4)
                 )
             else:
