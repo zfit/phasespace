@@ -124,7 +124,7 @@ def lorentz_boost(vector, boostvector):
         return vector
 
     # if boost vector is zero, return the original vector
-    all_b2_zero = tf.reduce_all(input_tensor=tf.equal(b2, tf.zeros_like(b2)))
+    all_b2_zero = tnp.all(tf.equal(b2, tf.zeros_like(b2)))
     boosted_vector = tf.cond(pred=all_b2_zero, true_fn=no_boost_fn, false_fn=boost_fn)
     return boosted_vector
 
