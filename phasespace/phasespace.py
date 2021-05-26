@@ -22,6 +22,7 @@ from math import pi
 from typing import Callable, Dict, Optional, Tuple, Union
 
 import tensorflow as tf
+import tensorflow.experimental.numpy as tnp
 
 from . import kinematics as kin
 
@@ -60,7 +61,7 @@ def pdk(a, b, c):
         ~`tf.Tensor`
     """
     x = (a - b - c) * (a + b + c) * (a - b + c) * (a + b - c)
-    return tf.sqrt(x) / (tf.constant(2.0, dtype=tf.float64) * a)
+    return tnp.sqrt(x) / (tf.constant(2.0, dtype=tf.float64) * a)
 
 
 class GenParticle:
@@ -407,8 +408,8 @@ class GenParticle:
                     zero_component,
                     pds[0],
                     zero_component,
-                    tf.sqrt(
-                        tf.square(pds[0]) + tf.square(tf.gather(masses, [0], axis=1))
+                    tnp.sqrt(
+                        tnp.square(pds[0]) + tnp.square(tf.gather(masses, [0], axis=1))
                     ),
                 ],
                 axis=1,
@@ -422,9 +423,9 @@ class GenParticle:
                         zero_component,
                         -pds[part_num - 1],
                         zero_component,
-                        tf.sqrt(
-                            tf.square(pds[part_num - 1])
-                            + tf.square(tf.gather(masses, [part_num], axis=1))
+                        tnp.sqrt(
+                            tnp.square(pds[part_num - 1])
+                            + tnp.square(tf.gather(masses, [part_num], axis=1))
                         ),
                     ],
                     axis=1,
@@ -434,14 +435,14 @@ class GenParticle:
             cos_z = tf.constant(2.0, dtype=tf.float64) * rng.uniform(
                 (n_events, 1), dtype=tf.float64
             ) - tf.constant(1.0, dtype=tf.float64)
-            sin_z = tf.sqrt(tf.constant(1.0, dtype=tf.float64) - cos_z * cos_z)
+            sin_z = tnp.sqrt(tf.constant(1.0, dtype=tf.float64) - cos_z * cos_z)
             ang_y = (
                 tf.constant(2.0, dtype=tf.float64)
                 * tf.constant(pi, dtype=tf.float64)
                 * rng.uniform((n_events, 1), dtype=tf.float64)
             )
-            cos_y = tf.math.cos(ang_y)
-            sin_y = tf.math.sin(ang_y)
+            cos_y = tnp.cos(ang_y)
+            sin_y = tnp.sin(ang_y)
             # Do the rotations
             for j in range(part_num + 1):
                 px = kin.x_component(generated_particles[j])
@@ -471,8 +472,8 @@ class GenParticle:
                 )
             if part_num == (n_particles - 1):
                 break
-            betas = pds[part_num] / tf.sqrt(
-                tf.square(pds[part_num]) + tf.square(inv_masses[part_num])
+            betas = pds[part_num] / tnp.sqrt(
+                tnp.square(pds[part_num]) + tnp.square(inv_masses[part_num])
             )
             generated_particles = [
                 kin.lorentz_boost(

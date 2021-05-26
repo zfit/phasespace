@@ -7,6 +7,7 @@
 """Basic kinematics."""
 
 import tensorflow as tf
+import tensorflow.experimental.numpy as tnp
 
 from phasespace.backend import function, function_jit
 
@@ -79,9 +80,9 @@ def mass(vector):
     Args:
         vector: Input Lorentz momentum vector.
     """
-    return tf.sqrt(
+    return tnp.sqrt(
         tf.reduce_sum(
-            input_tensor=tf.square(vector) * metric_tensor(), axis=-1, keepdims=True
+            input_tensor=tnp.square(vector) * metric_tensor(), axis=-1, keepdims=True
         )
     )
 
@@ -110,7 +111,7 @@ def lorentz_boost(vector, boostvector):
     b2 = tf.expand_dims(scalar_product(boost, boost), axis=-1)
 
     def boost_fn():
-        gamma = 1.0 / tf.sqrt(1.0 - b2)
+        gamma = 1.0 / tnp.sqrt(1.0 - b2)
         gamma2 = (gamma - 1.0) / b2
         ve = time_component(vector)
         vp = spatial_component(vector)
