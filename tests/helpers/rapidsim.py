@@ -10,7 +10,6 @@ import os
 
 import numpy as np
 import uproot
-import uproot4
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 FONLL_FILE = os.path.join(BASE_PATH, "data", "fonll", "LHC{}{}.root")
@@ -53,7 +52,7 @@ def generate_fonll(mass, beam_energy, quark, n_events):
 
 
 def load_generated_histos(file_name, particles):
-    with uproot4.open(file_name) as rapidsim_file:
+    with uproot.open(file_name) as rapidsim_file:
         return {
             particle: [
                 rapidsim_file.get(f"{particle}_{coord}_TRUE").array(library="np")
@@ -65,7 +64,7 @@ def load_generated_histos(file_name, particles):
 
 def get_tree(file_name, top_particle, particles):
     """Load a RapidSim tree."""
-    with uproot4.open(file_name) as rapidsim_file:
+    with uproot.open(file_name) as rapidsim_file:
         tree = rapidsim_file["DecayTree"]
         return {
             particle: np.stack(
