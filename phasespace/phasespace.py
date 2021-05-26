@@ -524,7 +524,7 @@ class GenParticle:
         else:
             if self.has_fixed_mass:
                 momentum = tnp.broadcast_to(
-                    tf.stack((0.0, 0.0, 0.0, self.get_mass()), axis=-1), (n_events, 4)
+                    tnp.stack((0.0, 0.0, 0.0, self.get_mass()), axis=-1), (n_events, 4)
                 )
             else:
                 raise ValueError("Cannot use resonance as top particle")
