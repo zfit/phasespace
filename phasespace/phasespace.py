@@ -272,7 +272,7 @@ class GenParticle:
         n_events = tf.cast(n_events, dtype=tnp.int64)
         # Now preparation of tensors
         if momentum.shape.ndims == 1:
-            momentum = tf.expand_dims(momentum, axis=0)
+            momentum = tnp.expand_dims(momentum, axis=0)
         return momentum, n_events
 
     @staticmethod
@@ -342,7 +342,7 @@ class GenParticle:
                 masses.append(mass)
         masses = tnp.concatenate(masses, axis=-1)
         # if masses.shape.ndims == 1:
-        #     masses = tf.expand_dims(masses, axis=0)
+        #     masses = tnp.expand_dims(masses, axis=0)
         available_mass = top_mass - tnp.sum(masses, axis=1, keepdims=True)
         tf.debugging.assert_greater_equal(
             available_mass,
@@ -364,7 +364,7 @@ class GenParticle:
         )
         if random.shape[1] is None:
             random.set_shape((None, n_particles))
-        # random = tf.expand_dims(random, axis=-1)
+        # random = tnp.expand_dims(random, axis=-1)
         sum_ = tf.zeros((n_events, 1), dtype=tnp.float64)
         inv_masses = []
         # TODO(Mayou36): rewrite with cumsum?
@@ -606,7 +606,7 @@ class GenParticle:
             build_mass_tree(self, mass_tree)
             momentum = process_list_to_tensor(momentum)
             if len(momentum.shape.as_list()) == 1:
-                momentum = tf.expand_dims(momentum, axis=-1)
+                momentum = tnp.expand_dims(momentum, axis=-1)
             weights_max = tf.reshape(
                 recurse_w_max(kin.mass(momentum), mass_tree[self.name]), (n_events,)
             )

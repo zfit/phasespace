@@ -106,14 +106,14 @@ def lorentz_boost(vector, boostvector):
             only spatial components are used.
     """
     boost = spatial_component(boostvector)
-    b2 = tf.expand_dims(scalar_product(boost, boost), axis=-1)
+    b2 = tnp.expand_dims(scalar_product(boost, boost), axis=-1)
 
     def boost_fn():
         gamma = 1.0 / tnp.sqrt(1.0 - b2)
         gamma2 = (gamma - 1.0) / b2
         ve = time_component(vector)
         vp = spatial_component(vector)
-        bp = tf.expand_dims(scalar_product(vp, boost), axis=-1)
+        bp = tnp.expand_dims(scalar_product(vp, boost), axis=-1)
         vp2 = vp + (gamma2 * bp + gamma * ve) * boost
         ve2 = gamma * (ve + bp)
         return lorentz_vector(vp2, ve2)
