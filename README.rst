@@ -10,8 +10,8 @@ PhaseSpace
    :target: https://pypi.org/project/phasespace/
 .. image:: https://img.shields.io/pypi/pyversions/phasespace.svg
    :target: https://pypi.org/project/phasespace/
-.. image:: https://travis-ci.org/zfit/phasespace.svg?branch=master
-   :target: https://travis-ci.org/zfit/phasespace
+.. image:: https://github.com/zfit/phasespace/workflows/tests/badge.svg
+   :target: https://github.com/zfit/phasespace/actions/workflows/ci.yml?query=branch%3Amaster
 .. image:: https://codecov.io/gh/zfit/phasespace/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/zfit/phasespace
 .. image:: https://readthedocs.org/projects/phasespace/badge/?version=stable
@@ -210,7 +210,7 @@ More examples can be found in the ``tests`` folder and in the `documentation`_.
 Physics validation
 ==================
 
-Physics validation is performed continuously in the included tests (``tests/test_physics.py``), run through Travis CI.
+Physics validation is performed continuously in the included tests (``tests/test_physics.py``), run through GitHub Actions.
 This validation is performed at two levels:
 
 - In simple `n`-body decays, the results of ``phasespace`` are checked against ``TGenPhaseSpace``.
