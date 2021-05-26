@@ -357,7 +357,7 @@ class GenParticle:
         random = tnp.concatenate(
             [
                 tnp.zeros((n_events, 1), dtype=tnp.float64),
-                tf.sort(random_numbers, axis=1),
+                tnp.sort(random_numbers, axis=1),
                 tnp.ones((n_events, 1), dtype=tnp.float64),
             ],
             axis=1,
