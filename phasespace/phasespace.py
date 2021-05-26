@@ -43,7 +43,7 @@ def process_list_to_tensor(lst):
     """
     if isinstance(lst, list):
         lst = tnp.transpose(tf.convert_to_tensor(value=lst, dtype_hint=tnp.float64))
-    return tf.cast(lst, dtype=tnp.float64)
+    return tnp.asarray(lst, dtype=tnp.float64)
 
 
 @function
@@ -96,7 +96,7 @@ class GenParticle:
         self._mass_val = mass
         if not callable(mass) and not isinstance(mass, tf.Variable):
             mass = tf.convert_to_tensor(value=mass, dtype_hint=tnp.float64)
-            mass = tf.cast(mass, tnp.float64)
+            mass = tnp.asarray(mass, tnp.float64)
         else:
             mass = tf.function(
                 mass, autograph=False, experimental_relax_shapes=RELAX_SHAPES
@@ -255,7 +255,7 @@ class GenParticle:
                     momentum_shape = tf.convert_to_tensor(
                         value=momentum_shape, dtype_hint=tnp.int64
                     )
-                    momentum_shape = tf.cast(momentum_shape, dtype=tnp.int64)
+                    momentum_shape = tnp.asarray(momentum_shape, dtype=tnp.int64)
                 tf.assert_equal(
                     n_events,
                     momentum_shape,
@@ -271,7 +271,7 @@ class GenParticle:
             else:
                 n_events = tf.constant(1, dtype=tnp.int64)
         n_events = tf.convert_to_tensor(value=n_events, dtype_hint=tnp.int64)
-        n_events = tf.cast(n_events, dtype=tnp.int64)
+        n_events = tnp.asarray(n_events, dtype=tnp.int64)
         # Now preparation of tensors
         if momentum.shape.ndims == 1:
             momentum = tnp.expand_dims(momentum, axis=0)
@@ -666,7 +666,7 @@ class GenParticle:
             tf.assert_equal(tf.shape(boost_to)[0], tf.shape(n_events), message=message)
         if not isinstance(n_events, tf.Variable):
             n_events = tf.convert_to_tensor(value=n_events, dtype_hint=tnp.int64)
-            n_events = tf.cast(n_events, dtype=tnp.int64)
+            n_events = tnp.asarray(n_events, dtype=tnp.int64)
         weights, weights_max, parts, _ = self._recursive_generate(
             n_events=n_events,
             boost_to=boost_to,
