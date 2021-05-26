@@ -118,12 +118,9 @@ def lorentz_boost(vector, boostvector):
         ve2 = gamma * (ve + bp)
         return lorentz_vector(vp2, ve2)
 
-    def no_boost_fn():
-        return vector
-
     # if boost vector is zero, return the original vector
     all_b2_zero = tnp.all(tnp.equal(b2, tnp.zeros_like(b2)))
-    boosted_vector = tf.cond(pred=all_b2_zero, true_fn=no_boost_fn, false_fn=boost_fn)
+    boosted_vector = tnp.where(all_b2_zero, vector, boost_fn())
     return boosted_vector
 
 
