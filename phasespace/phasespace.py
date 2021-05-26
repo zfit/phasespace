@@ -400,7 +400,7 @@ class GenParticle:
                     inv_masses[i + 1], inv_masses[i], tf.gather(masses, [i + 1], axis=1)
                 )
             )
-        weights = tf.reduce_prod(input_tensor=pds, axis=0)
+        weights = tnp.prod(pds, axis=0)
         zero_component = tf.zeros_like(pds[0], dtype=tf.float64)
         generated_particles = [
             tf.concat(
