@@ -643,13 +643,13 @@ class GenParticle:
             tuple: Result of the generation, which varies with the value of `normalize_weights`:
 
                 + If True, the tuple elements are the normalized event weights as a tensor of shape
-                (n_events, ), and the momenta generated particles as a dictionary of tensors of shape
-                (4, n_events) with particle names as keys.
+                  (n_events, ), and the momenta generated particles as a dictionary of tensors of shape
+                  (4, n_events) with particle names as keys.
 
                 + If False, the tuple weights are the unnormalized event weights as a tensor of shape
-                (n_events, ), the maximum per-event weights as a tensor of shape (n_events, ) and the
-                momenta generated particles as a dictionary of tensors of shape (4, n_events) with particle
-                names as keys.
+                  (n_events, ), the maximum per-event weights as a tensor of shape (n_events, ) and the
+                  momenta generated particles as a dictionary of tensors of shape (4, n_events) with particle
+                  names as keys.
 
         Raise:
             tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
@@ -704,13 +704,13 @@ class GenParticle:
             tuple: Result of the generation, which varies with the value of `normalize_weights`:
 
                 + If True, the tuple elements are the normalized event weights as an array of shape
-                (n_events, ), and the momenta generated particles as a dictionary of arrays of shape
-                (4, n_events) with particle names as keys.
+                  (n_events, ), and the momenta generated particles as a dictionary of arrays of shape
+                  (4, n_events) with particle names as keys.
 
                 + If False, the tuple weights are the unnormalized event weights as an array of shape
-                (n_events, ), the maximum per-event weights as an array of shape (n_events, ) and the
-                momenta generated particles as a dictionary of arrays of shape (4, n_events) with particle
-                names as keys.
+                  (n_events, ), the maximum per-event weights as an array of shape (n_events, ) and the
+                  momenta generated particles as a dictionary of arrays of shape (4, n_events) with particle
+                  names as keys.
 
         Raise:
             tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
