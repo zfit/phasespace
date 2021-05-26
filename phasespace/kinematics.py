@@ -6,7 +6,6 @@
 # =============================================================================
 """Basic kinematics."""
 
-import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
 
 from phasespace.backend import function, function_jit

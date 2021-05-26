@@ -13,7 +13,7 @@ The code is based on the GENBOD function (W515 from CERNLIB), documented in:
 import inspect
 import warnings
 
-from .backend import function, function_jit, function_jit_fixedshape
+from .backend import function, function_jit_fixedshape
 from .random import SeedLike, get_rng
 
 RELAX_SHAPES = False
@@ -219,7 +219,6 @@ class GenParticle:
         return any(child.has_children for child in self.children)
 
     @staticmethod
-    # @tf.function(autograph=False)
     def _preprocess(momentum, n_events):
         """Preprocess momentum input and determine number of events to generate.
 
@@ -426,7 +425,7 @@ class GenParticle:
                     axis=1,
                 )
             )
-            # with tf.control_dependencies([n_events]):
+
             cos_z = tnp.asarray(2.0, dtype=tnp.float64) * rng.uniform(
                 (n_events, 1), dtype=tnp.float64
             ) - tnp.asarray(1.0, dtype=tnp.float64)
@@ -609,7 +608,6 @@ class GenParticle:
             )
         return weights, weights_max, output_particles, output_masses
 
-    # @tf.function(autograph=False)
     def generate(
         self,
         n_events: Union[int, tf.Tensor, tf.Variable],
