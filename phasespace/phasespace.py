@@ -279,8 +279,8 @@ class GenParticle:
     @function_jit_fixedshape
     def _get_w_max(available_mass, masses):
         emmax = available_mass + tnp.take(masses, indices=[0], axis=1)
-        emmin = tf.zeros_like(emmax, dtype=tnp.float64)
-        w_max = tf.ones_like(emmax, dtype=tnp.float64)
+        emmin = tnp.zeros_like(emmax, dtype=tnp.float64)
+        w_max = tnp.ones_like(emmax, dtype=tnp.float64)
         for i in range(1, masses.shape[1]):
             emmin += tnp.take(masses, [i - 1], axis=1)
             emmax += tnp.take(masses, [i], axis=1)
@@ -346,7 +346,7 @@ class GenParticle:
         available_mass = top_mass - tnp.sum(masses, axis=1, keepdims=True)
         tf.debugging.assert_greater_equal(
             available_mass,
-            tf.zeros_like(available_mass, dtype=tnp.float64),
+            tnp.zeros_like(available_mass, dtype=tnp.float64),
             message="Forbidden decay",
             name="mass_check",
         )  # Calculate the max weight, initial beta, etc
@@ -356,16 +356,16 @@ class GenParticle:
         random_numbers = rng.uniform((n_events, n_particles - 2), dtype=tnp.float64)
         random = tnp.concatenate(
             [
-                tf.zeros((n_events, 1), dtype=tnp.float64),
+                tnp.zeros((n_events, 1), dtype=tnp.float64),
                 tf.sort(random_numbers, axis=1),
-                tf.ones((n_events, 1), dtype=tnp.float64),
+                tnp.ones((n_events, 1), dtype=tnp.float64),
             ],
             axis=1,
         )
         if random.shape[1] is None:
             random.set_shape((None, n_particles))
         # random = tnp.expand_dims(random, axis=-1)
-        sum_ = tf.zeros((n_events, 1), dtype=tnp.float64)
+        sum_ = tnp.zeros((n_events, 1), dtype=tnp.float64)
         inv_masses = []
         # TODO(Mayou36): rewrite with cumsum?
         for i in range(n_particles):
@@ -399,7 +399,7 @@ class GenParticle:
                 )
             )
         weights = tnp.prod(pds, axis=0)
-        zero_component = tf.zeros_like(pds[0], dtype=tnp.float64)
+        zero_component = tnp.zeros_like(pds[0], dtype=tnp.float64)
         generated_particles = [
             tnp.concatenate(
                 [
@@ -579,7 +579,7 @@ class GenParticle:
                     get_flattened_values(current_mass_tree)
                 )
                 masses = []
-                w_max = tf.ones_like(available_mass)
+                w_max = tnp.ones_like(available_mass)
                 for child, child_mass in current_mass_tree.items():
                     if isinstance(child_mass, dict):
                         w_max *= recurse_w_max(
