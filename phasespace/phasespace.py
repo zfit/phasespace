@@ -61,7 +61,7 @@ def pdk(a, b, c):
         ~`tf.Tensor`
     """
     x = (a - b - c) * (a + b + c) * (a - b + c) * (a + b - c)
-    return tnp.sqrt(x) / (tf.constant(2.0, dtype=tnp.float64) * a)
+    return tnp.sqrt(x) / (tnp.asarray(2.0, dtype=tnp.float64) * a)
 
 
 class GenParticle:
@@ -269,7 +269,7 @@ class GenParticle:
                     n_events = tf.shape(momentum)[0]
                     n_events = tnp.asarray(n_events, tnp.int64)
             else:
-                n_events = tf.constant(1, dtype=tnp.int64)
+                n_events = tnp.asarray(1, dtype=tnp.int64)
         n_events = tf.convert_to_tensor(value=n_events, dtype_hint=tnp.int64)
         n_events = tnp.asarray(n_events, dtype=tnp.int64)
         # Now preparation of tensors
@@ -432,13 +432,13 @@ class GenParticle:
                 )
             )
             # with tf.control_dependencies([n_events]):
-            cos_z = tf.constant(2.0, dtype=tnp.float64) * rng.uniform(
+            cos_z = tnp.asarray(2.0, dtype=tnp.float64) * rng.uniform(
                 (n_events, 1), dtype=tnp.float64
-            ) - tf.constant(1.0, dtype=tnp.float64)
-            sin_z = tnp.sqrt(tf.constant(1.0, dtype=tnp.float64) - cos_z * cos_z)
+            ) - tnp.asarray(1.0, dtype=tnp.float64)
+            sin_z = tnp.sqrt(tnp.asarray(1.0, dtype=tnp.float64) - cos_z * cos_z)
             ang_y = (
-                tf.constant(2.0, dtype=tnp.float64)
-                * tf.constant(pi, dtype=tnp.float64)
+                tnp.asarray(2.0, dtype=tnp.float64)
+                * tnp.asarray(pi, dtype=tnp.float64)
                 * rng.uniform((n_events, 1), dtype=tnp.float64)
             )
             cos_y = tnp.cos(ang_y)
