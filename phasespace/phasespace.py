@@ -42,7 +42,7 @@ def process_list_to_tensor(lst):
         ~`tf.Tensor`
     """
     if isinstance(lst, list):
-        lst = tf.transpose(a=tf.convert_to_tensor(value=lst, dtype_hint=tnp.float64))
+        lst = tnp.transpose(tf.convert_to_tensor(value=lst, dtype_hint=tnp.float64))
     return tf.cast(lst, dtype=tnp.float64)
 
 
