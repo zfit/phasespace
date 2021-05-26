@@ -26,7 +26,7 @@ jobs:
       - name: Download test data
         run: python data/download_test_files.py > /dev/null
       - name: Run pytest-cov
-        run: coverage run -m py.test --basetemp={envtmpdir}
+        run: coverage run -m pytest --basetemp={envtmpdir}
       - name: Create XML report
         run: coverage xml
       - uses: codecov/codecov-action@v1
