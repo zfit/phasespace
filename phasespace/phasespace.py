@@ -340,7 +340,7 @@ class GenParticle:
                 mass = tf.reshape(mass, (n_events, 1))
                 max_mass -= mass
                 masses.append(mass)
-        masses = tf.concat(masses, axis=-1)
+        masses = tnp.concatenate(masses, axis=-1)
         # if masses.shape.ndims == 1:
         #     masses = tf.expand_dims(masses, axis=0)
         available_mass = top_mass - tnp.sum(masses, axis=1, keepdims=True)
@@ -354,7 +354,7 @@ class GenParticle:
         p_top_boost = kin.boost_components(p_top)
         # Start the generation
         random_numbers = rng.uniform((n_events, n_particles - 2), dtype=tf.float64)
-        random = tf.concat(
+        random = tnp.concatenate(
             [
                 tf.zeros((n_events, 1), dtype=tf.float64),
                 tf.sort(random_numbers, axis=1),
@@ -401,7 +401,7 @@ class GenParticle:
         weights = tnp.prod(pds, axis=0)
         zero_component = tf.zeros_like(pds[0], dtype=tf.float64)
         generated_particles = [
-            tf.concat(
+            tnp.concatenate(
                 [
                     zero_component,
                     pds[0],
@@ -416,7 +416,7 @@ class GenParticle:
         part_num = 1
         while True:
             generated_particles.append(
-                tf.concat(
+                tnp.concatenate(
                     [
                         zero_component,
                         -pds[part_num - 1],
@@ -447,7 +447,7 @@ class GenParticle:
                 py = kin.y_component(generated_particles[j])
                 # Rotate about z
                 # TODO(Mayou36): only list? will be overwritten below anyway, but can `*_component` handle it?
-                generated_particles[j] = tf.concat(
+                generated_particles[j] = tnp.concatenate(
                     [
                         cos_z * px - sin_z * py,
                         sin_z * px + cos_z * py,
@@ -459,7 +459,7 @@ class GenParticle:
                 # Rotate about y
                 px = kin.x_component(generated_particles[j])
                 pz = kin.z_component(generated_particles[j])
-                generated_particles[j] = tf.concat(
+                generated_particles[j] = tnp.concatenate(
                     [
                         cos_y * px - sin_y * pz,
                         kin.y_component(generated_particles[j]),
@@ -475,7 +475,8 @@ class GenParticle:
             )
             generated_particles = [
                 kin.lorentz_boost(
-                    part, tf.concat([zero_component, betas, zero_component], axis=1)
+                    part,
+                    tnp.concatenate([zero_component, betas, zero_component], axis=1),
                 )
                 for part in generated_particles
             ]
@@ -597,7 +598,7 @@ class GenParticle:
                         masses.append(sum(get_flattened_values(child_mass)))
                     else:
                         masses.append(child_mass)
-                masses = tf.concat(masses, axis=1)
+                masses = tnp.concatenate(masses, axis=1)
                 w_max *= self._get_w_max(available_mass, masses)
                 return w_max
 

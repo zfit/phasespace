@@ -93,7 +93,7 @@ def lorentz_vector(space, time):
         space: 3-vector of spatial components.
         time: Time component.
     """
-    return tf.concat([space, time], axis=-1)
+    return tnp.concatenate([space, time], axis=-1)
 
 
 @function_jit
