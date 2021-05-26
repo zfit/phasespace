@@ -42,7 +42,7 @@ def process_list_to_tensor(lst):
         ~`tf.Tensor`
     """
     if isinstance(lst, list):
-        lst = tnp.transpose(tf.convert_to_tensor(lst, dtype=tnp.float64))
+        lst = tnp.transpose(tnp.asarray(lst, dtype=tnp.float64))
     return tnp.asarray(lst, dtype=tnp.float64)
 
 
@@ -95,7 +95,7 @@ class GenParticle:
         self.children = []
         self._mass_val = mass
         if not callable(mass) and not isinstance(mass, tf.Variable):
-            mass = tf.convert_to_tensor(mass, dtype=tnp.float64)
+            mass = tnp.asarray(mass, dtype=tnp.float64)
             mass = tnp.asarray(mass, tnp.float64)
         else:
             mass = tf.function(
@@ -252,9 +252,7 @@ class GenParticle:
                     momentum_shape = tf.shape(momentum)[0]
                     momentum_shape = tnp.asarray(momentum_shape, tnp.int64)
                 else:
-                    momentum_shape = tf.convert_to_tensor(
-                        momentum_shape, dtype=tnp.int64
-                    )
+                    momentum_shape = tnp.asarray(momentum_shape, dtype=tnp.int64)
                     momentum_shape = tnp.asarray(momentum_shape, dtype=tnp.int64)
                 tf.assert_equal(
                     n_events,
@@ -270,7 +268,7 @@ class GenParticle:
                     n_events = tnp.asarray(n_events, tnp.int64)
             else:
                 n_events = tnp.asarray(1, dtype=tnp.int64)
-        n_events = tf.convert_to_tensor(n_events, dtype=tnp.int64)
+        n_events = tnp.asarray(n_events, dtype=tnp.int64)
         n_events = tnp.asarray(n_events, dtype=tnp.int64)
         # Now preparation of tensors
         if momentum.shape.ndims == 1:
@@ -665,7 +663,7 @@ class GenParticle:
             )
             tf.assert_equal(tf.shape(boost_to)[0], tf.shape(n_events), message=message)
         if not isinstance(n_events, tf.Variable):
-            n_events = tf.convert_to_tensor(n_events, dtype=tnp.int64)
+            n_events = tnp.asarray(n_events, dtype=tnp.int64)
             n_events = tnp.asarray(n_events, dtype=tnp.int64)
         weights, weights_max, parts, _ = self._recursive_generate(
             n_events=n_events,
