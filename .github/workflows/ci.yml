@@ -31,9 +31,9 @@ jobs:
 
       - name: Test with pytest
         run: |
-          coverage run --branch -m py.test --basetemp={envtmpdir}
+          coverage run -m py.test --basetemp={envtmpdir}
           export PHASESPACE_EAGER=1
-          coverage run --branch -m py.test --basetemp={envtmpdir}
+          coverage run -m py.test --basetemp={envtmpdir}
           export PHASESPACE_EAGER=0  # reset
 
       - name: Coveralls GitHub Action
