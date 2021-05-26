@@ -160,8 +160,8 @@ class GenParticle:
             mass = self._mass
         else:
             seed = get_rng(seed)
-            min_mass = tf.reshape(min_mass, (n_events,))
-            max_mass = tf.reshape(max_mass, (n_events,))
+            min_mass = tnp.reshape(min_mass, (n_events,))
+            max_mass = tnp.reshape(max_mass, (n_events,))
             signature = inspect.signature(self._mass)
             if "seed" in signature.parameters:
                 mass = self._mass(min_mass, max_mass, n_events, seed=seed)
@@ -337,7 +337,7 @@ class GenParticle:
                 # Recurse that particle to know the minimum mass we need to generate
                 min_mass = tf.broadcast_to(recurse_stable(child), (n_events, 1))
                 mass = child.get_mass(min_mass, max_mass, n_events)
-                mass = tf.reshape(mass, (n_events, 1))
+                mass = tnp.reshape(mass, (n_events, 1))
                 max_mass -= mass
                 masses.append(mass)
         masses = tnp.concatenate(masses, axis=-1)
@@ -379,8 +379,8 @@ class GenParticle:
             kin.lorentz_boost(part, p_top_boost) for part in generated_particles
         ]
         return (
-            tf.reshape(weights, (n_events,)),
-            tf.reshape(w_max, (n_events,)),
+            tnp.reshape(weights, (n_events,)),
+            tnp.reshape(w_max, (n_events,)),
             generated_particles,
             masses,
         )
@@ -607,7 +607,7 @@ class GenParticle:
             momentum = process_list_to_tensor(momentum)
             if len(momentum.shape.as_list()) == 1:
                 momentum = tnp.expand_dims(momentum, axis=-1)
-            weights_max = tf.reshape(
+            weights_max = tnp.reshape(
                 recurse_w_max(kin.mass(momentum), mass_tree[self.name]), (n_events,)
             )
         return weights, weights_max, output_particles, output_masses
