@@ -249,7 +249,7 @@ class GenParticle:
             if n_events is not None:
                 momentum_shape = momentum.shape[0]
                 if momentum_shape is None:
-                    momentum_shape = tf.shape(input=momentum, out_type=tnp.int64)[0]
+                    momentum_shape = tf.shape(momentum, out_type=tnp.int64)[0]
                 else:
                     momentum_shape = tf.convert_to_tensor(
                         value=momentum_shape, dtype_hint=tnp.int64
@@ -265,7 +265,7 @@ class GenParticle:
             if momentum.shape.ndims == 2:
                 n_events = momentum.shape[0]
                 if n_events is None:  # dynamic shape
-                    n_events = tf.shape(input=momentum, out_type=tnp.int64)[0]
+                    n_events = tf.shape(momentum, out_type=tnp.int64)[0]
             else:
                 n_events = tf.constant(1, dtype=tnp.int64)
         n_events = tf.convert_to_tensor(value=n_events, dtype_hint=tnp.int64)
@@ -661,9 +661,7 @@ class GenParticle:
                 f"The number of events requested ({n_events}) doesn't match the boost_to input size "
                 f"of {boost_to.shape}"
             )
-            tf.assert_equal(
-                tf.shape(input=boost_to)[0], tf.shape(input=n_events), message=message
-            )
+            tf.assert_equal(tf.shape(boost_to)[0], tf.shape(n_events), message=message)
         if not isinstance(n_events, tf.Variable):
             n_events = tf.convert_to_tensor(value=n_events, dtype_hint=tnp.int64)
             n_events = tf.cast(n_events, dtype=tnp.int64)
