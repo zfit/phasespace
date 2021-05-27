@@ -2,6 +2,8 @@ import numpy as np
 import phasespace as phsp
 import pytest
 
+from .helpers import tf_only
+
 
 def create_from_seed_input():
     import tensorflow as tf
@@ -9,6 +11,7 @@ def create_from_seed_input():
     return tf.random.Generator.from_seed(15)
 
 
+@tf_only
 @pytest.mark.parametrize(
     "seed",
     [
