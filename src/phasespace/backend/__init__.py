@@ -38,7 +38,15 @@ class BackendType(Enum):
 BACKEND = BackendType.get_backend(os.environ.get("PHASESPACE_BACKEND", ""))
 
 if BACKEND == BackendType.TENSORFLOW:
-    import tensorflow as tf
+    try:
+        import tensorflow as tf
+    except ImportError:
+        message = """
+To use phasespace with tensorflow as backend, please reinstall with:
+
+    pip install phasespace[tf]
+"""
+        raise ImportError(message)
     import tensorflow.experimental.numpy as tnp
 
     from . import _tf_random as random
