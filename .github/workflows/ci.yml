@@ -139,3 +139,6 @@ jobs:
           PHASESPACE_EAGER=${{ matrix.eager }} pytest --dist loadscope --nbval-lax --ignore=.ipynb_checkpoints -n${{ steps.cpu-cores.outputs.count }}
           cd ..
         shell: bash
+      - name: Test with pytest (NumPy backend)
+        run: PHASESPACE_BACKEND=numpy pytest -n auto tests
+        shell: bash
