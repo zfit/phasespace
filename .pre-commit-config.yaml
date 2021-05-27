@@ -1,11 +1,15 @@
 repos:
+  - repo: meta
+    hooks:
+      - id: check-hooks-apply
+      - id: check-useless-excludes
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
     hooks:
       - id: check-added-large-files
       - id: check-case-conflict
       - id: check-merge-conflict
-      - id: check-symlinks
       - id: check-yaml
       - id: check-toml
       - id: debug-statements
@@ -30,6 +34,7 @@ repos:
     rev: v1.1.3
     hooks:
       - id: sign-commit
+
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.8.0 # Use the ref you want to point at
     hooks:
@@ -54,28 +59,19 @@ repos:
       - id: pyupgrade
         args: [ --py36-plus ]
 
-  # Notebook formatting
-  - repo: https://github.com/nbQA-dev/nbQA
-    rev: 0.9.0
-    hooks:
-      - id: nbqa-isort
-        additional_dependencies: [ isort==5.6.4 ]
-
-      - id: nbqa-pyupgrade
-        additional_dependencies: [ pyupgrade==2.7.4 ]
-        args: [ --py36-plus ]
-
   - repo: https://github.com/mgedmin/check-manifest
     rev: '0.46'
     hooks:
       - id: check-manifest
         stages: [ manual ]
+
   # TODO(py37): add the following once 3.6 is gone. Changes the Type hints.
-  #  - repo: https://github.com/sondrelg/pep585-upgrade
-  #    rev: '5f7033a0d0174c65105b041500060b993c1bc211'  # Use the sha / tag you want to point at
-  #    hooks:
-  #      - id: upgrade-type-hints
-  #        args: [ '--futures=true' ]
+  # - repo: https://github.com/sondrelg/pep585-upgrade
+  #   rev: '5f7033a0d0174c65105b041500060b993c1bc211'  # Use the sha / tag you want to point at
+  #   hooks:
+  #     - id: upgrade-type-hints
+  #       args: [ '--futures=true' ]
+
   - repo: https://github.com/psf/black
     rev: 21.5b1
     hooks:
