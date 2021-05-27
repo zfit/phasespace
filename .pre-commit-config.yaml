@@ -57,22 +57,27 @@ repos:
     rev: v2.18.3
     hooks:
       - id: pyupgrade
-        args: [ --py36-plus ]
+        args: [--py36-plus]
 
   - repo: https://github.com/mgedmin/check-manifest
-    rev: '0.46'
+    rev: "0.46"
     hooks:
       - id: check-manifest
-        stages: [ manual ]
+        stages: [manual]
 
   # TODO(py37): add the following once 3.6 is gone. Changes the Type hints.
   # - repo: https://github.com/sondrelg/pep585-upgrade
-  #   rev: '5f7033a0d0174c65105b041500060b993c1bc211'  # Use the sha / tag you want to point at
+  #   rev: "5f7033a0d0174c65105b041500060b993c1bc211" # Use the sha / tag you want to point at
   #   hooks:
   #     - id: upgrade-type-hints
-  #       args: [ '--futures=true' ]
+  #       args: ["--futures=true"]
 
   - repo: https://github.com/psf/black
     rev: 21.5b1
     hooks:
       - id: black
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v2.3.0
+    hooks:
+      - id: prettier
