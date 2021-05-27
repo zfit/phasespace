@@ -12,12 +12,6 @@ The code is based on the GENBOD function (W515 from CERNLIB), documented in:
 """
 import inspect
 import warnings
-
-from .backend import function, function_jit_fixedshape
-from .random import SeedLike, get_rng
-
-RELAX_SHAPES = False
-
 from math import pi
 from typing import Callable, Dict, Optional, Tuple, Union
 
@@ -25,6 +19,10 @@ import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
 
 from . import kinematics as kin
+from .backend import function, function_jit_fixedshape
+from .random import SeedLike, get_rng
+
+RELAX_SHAPES = False
 
 
 def process_list_to_tensor(lst):
@@ -513,7 +511,8 @@ class GenParticle:
 
         Raise:
             tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
-            ValueError: If `n_events` and the size of `boost_to` don't match. See `GenParticle.generate_unnormalized`.
+            ValueError: If `n_events` and the size of `boost_to` don't match.
+            See `GenParticle.generate_unnormalized`.
         """
         if boost_to is not None:
             momentum = boost_to
@@ -648,7 +647,8 @@ class GenParticle:
 
         Raise:
             tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
-            ValueError: If `n_events` and the size of `boost_to` don't match. See `GenParticle.generate_unnormalized`.
+            ValueError: If `n_events` and the size of `boost_to` don't match.
+            See `GenParticle.generate_unnormalized`.
         """
         rng = get_rng(seed)
         if boost_to is not None:
@@ -706,7 +706,8 @@ class GenParticle:
 
         Raise:
             tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
-            ValueError: If `n_events` and the size of `boost_to` don't match. See `GenParticle.generate_unnormalized`.
+            ValueError: If `n_events` and the size of `boost_to` don't match.
+            See `GenParticle.generate_unnormalized`.
         """
 
         # Run generation
