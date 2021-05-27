@@ -28,9 +28,9 @@ class BackendType(Enum):
     @staticmethod
     def get_backend(backend: str) -> "BackendType":
         backend_formatted = backend.lower().strip()
-        if backend_formatted in {"np", "numpy"}:
+        if backend_formatted in {"", "np", "numpy"}:
             return BackendType.NUMPY
-        if backend_formatted in {"", "tf", "tensorflow"}:
+        if backend_formatted in {"tf", "tensorflow"}:
             return BackendType.TENSORFLOW
         raise NotImplementedError(f'No backend implemented for "{backend}"')
 
