@@ -1,2 +1,0 @@
-tensorflow>=2.4,<2.6  # tensorflow.experimental.numpy
-tensorflow_probability>=0.11,<0.13

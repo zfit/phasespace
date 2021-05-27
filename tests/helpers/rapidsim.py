@@ -9,7 +9,6 @@
 import os
 
 import numpy as np
-import uproot
 import uproot4
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -17,7 +16,7 @@ FONLL_FILE = os.path.join(BASE_PATH, "data", "fonll", "LHC{}{}.root")
 
 
 def get_fonll_histos(energy, quark):
-    with uproot.open(FONLL_FILE.format(quark, int(energy))) as histo_file:
+    with uproot4.open(FONLL_FILE.format(quark, int(energy))) as histo_file:
         return histo_file["pT"], histo_file["eta"]
 
 
