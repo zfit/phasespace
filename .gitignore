@@ -98,8 +98,10 @@ ENV/
 # mkdocs documentation
 /site
 
-# mypy
+# mypy and pyright
 .mypy_cache/
+/typings/
+pyrightconfig.json
 
 # specific
 */*_cxx*

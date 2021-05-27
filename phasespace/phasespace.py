@@ -13,7 +13,7 @@ The code is based on the GENBOD function (W515 from CERNLIB), documented in:
 import inspect
 import warnings
 
-from .backend import function, function_jit, function_jit_fixedshape
+from .backend import function, function_jit_fixedshape
 from .random import SeedLike, get_rng
 
 RELAX_SHAPES = False
@@ -22,6 +22,7 @@ from math import pi
 from typing import Callable, Dict, Optional, Tuple, Union
 
 import tensorflow as tf
+import tensorflow.experimental.numpy as tnp
 
 from . import kinematics as kin
 
@@ -41,8 +42,8 @@ def process_list_to_tensor(lst):
         ~`tf.Tensor`
     """
     if isinstance(lst, list):
-        lst = tf.transpose(a=tf.convert_to_tensor(value=lst, dtype_hint=tf.float64))
-    return tf.cast(lst, dtype=tf.float64)
+        lst = tnp.transpose(tnp.asarray(lst, dtype=tnp.float64))
+    return tnp.asarray(lst, dtype=tnp.float64)
 
 
 @function
@@ -60,7 +61,7 @@ def pdk(a, b, c):
         ~`tf.Tensor`
     """
     x = (a - b - c) * (a + b + c) * (a - b + c) * (a + b - c)
-    return tf.sqrt(x) / (tf.constant(2.0, dtype=tf.float64) * a)
+    return tnp.sqrt(x) / (tnp.asarray(2.0, dtype=tnp.float64) * a)
 
 
 class GenParticle:
@@ -94,8 +95,7 @@ class GenParticle:
         self.children = []
         self._mass_val = mass
         if not callable(mass) and not isinstance(mass, tf.Variable):
-            mass = tf.convert_to_tensor(value=mass, dtype_hint=tf.float64)
-            mass = tf.cast(mass, tf.float64)
+            mass = tnp.asarray(mass, dtype=tnp.float64)
         else:
             mass = tf.function(
                 mass, autograph=False, experimental_relax_shapes=RELAX_SHAPES
@@ -159,8 +159,8 @@ class GenParticle:
             mass = self._mass
         else:
             seed = get_rng(seed)
-            min_mass = tf.reshape(min_mass, (n_events,))
-            max_mass = tf.reshape(max_mass, (n_events,))
+            min_mass = tnp.reshape(min_mass, (n_events,))
+            max_mass = tnp.reshape(max_mass, (n_events,))
             signature = inspect.signature(self._mass)
             if "seed" in signature.parameters:
                 mass = self._mass(min_mass, max_mass, n_events, seed=seed)
@@ -219,7 +219,6 @@ class GenParticle:
         return any(child.has_children for child in self.children)
 
     @staticmethod
-    # @tf.function(autograph=False)
     def _preprocess(momentum, n_events):
         """Preprocess momentum input and determine number of events to generate.
 
@@ -241,19 +240,17 @@ class GenParticle:
         momentum = process_list_to_tensor(momentum)
 
         # Check sanity of inputs
-        if momentum.shape.ndims not in (1, 2):
-            raise ValueError(f"Bad shape for momentum -> {momentum.shape.as_list()}")
+        if len(momentum.shape) not in (1, 2):
+            raise ValueError(f"Bad shape for momentum -> {list(momentum.shape)}")
         # Check compatibility of inputs
-        if momentum.shape.ndims == 2:
+        if len(momentum.shape) == 2:
             if n_events is not None:
                 momentum_shape = momentum.shape[0]
                 if momentum_shape is None:
-                    momentum_shape = tf.shape(input=momentum, out_type=tf.int64)[0]
+                    momentum_shape = tf.shape(momentum)[0]
+                    momentum_shape = tnp.asarray(momentum_shape, tnp.int64)
                 else:
-                    momentum_shape = tf.convert_to_tensor(
-                        value=momentum_shape, dtype_hint=tf.int64
-                    )
-                    momentum_shape = tf.cast(momentum_shape, dtype=tf.int64)
+                    momentum_shape = tnp.asarray(momentum_shape, dtype=tnp.int64)
                 tf.assert_equal(
                     n_events,
                     momentum_shape,
@@ -261,29 +258,29 @@ class GenParticle:
                 )
 
         if n_events is None:
-            if momentum.shape.ndims == 2:
+            if len(momentum.shape) == 2:
                 n_events = momentum.shape[0]
                 if n_events is None:  # dynamic shape
-                    n_events = tf.shape(input=momentum, out_type=tf.int64)[0]
+                    n_events = tf.shape(momentum)[0]
+                    n_events = tnp.asarray(n_events, dtype=tnp.int64)
             else:
-                n_events = tf.constant(1, dtype=tf.int64)
-        n_events = tf.convert_to_tensor(value=n_events, dtype_hint=tf.int64)
-        n_events = tf.cast(n_events, dtype=tf.int64)
+                n_events = tnp.asarray(1, dtype=tnp.int64)
+        n_events = tnp.asarray(n_events, dtype=tnp.int64)
         # Now preparation of tensors
-        if momentum.shape.ndims == 1:
-            momentum = tf.expand_dims(momentum, axis=0)
+        if len(momentum.shape) == 1:
+            momentum = tnp.expand_dims(momentum, axis=0)
         return momentum, n_events
 
     @staticmethod
     @function_jit_fixedshape
     def _get_w_max(available_mass, masses):
-        emmax = available_mass + tf.gather(masses, indices=[0], axis=1)
-        emmin = tf.zeros_like(emmax, dtype=tf.float64)
-        w_max = tf.ones_like(emmax, dtype=tf.float64)
+        emmax = available_mass + tnp.take(masses, indices=[0], axis=1)
+        emmin = tnp.zeros_like(emmax, dtype=tnp.float64)
+        w_max = tnp.ones_like(emmax, dtype=tnp.float64)
         for i in range(1, masses.shape[1]):
-            emmin += tf.gather(masses, [i - 1], axis=1)
-            emmax += tf.gather(masses, [i], axis=1)
-            w_max *= pdk(emmax, emmin, tf.gather(masses, [i], axis=1))
+            emmin += tnp.take(masses, [i - 1], axis=1)
+            emmax += tnp.take(masses, [i], axis=1)
+            w_max *= pdk(emmax, emmin, tnp.take(masses, [i], axis=1))
         return w_max
 
     def _generate(self, momentum, n_events, rng):
@@ -307,7 +304,7 @@ class GenParticle:
         if not self.children:
             raise ValueError("No children have been configured")
         p_top, n_events = self._preprocess(momentum, n_events)
-        top_mass = tf.broadcast_to(kin.mass(p_top), (n_events, 1))
+        top_mass = tnp.broadcast_to(kin.mass(p_top), (n_events, 1))
         n_particles = len(self.children)
 
         # Prepare masses
@@ -320,11 +317,9 @@ class GenParticle:
                     output_mass += recurse_stable(child)
             return output_mass
 
-        mass_from_stable = tf.broadcast_to(
-            tf.reduce_sum(
-                input_tensor=[
-                    child.get_mass() for child in self.children if child.has_fixed_mass
-                ],
+        mass_from_stable = tnp.broadcast_to(
+            tnp.sum(
+                [child.get_mass() for child in self.children if child.has_fixed_mass],
                 axis=0,
             ),
             (n_events, 1),
@@ -333,47 +328,45 @@ class GenParticle:
         masses = []
         for child in self.children:
             if child.has_fixed_mass:
-                masses.append(tf.broadcast_to(child.get_mass(), (n_events, 1)))
+                masses.append(tnp.broadcast_to(child.get_mass(), (n_events, 1)))
             else:
                 # Recurse that particle to know the minimum mass we need to generate
-                min_mass = tf.broadcast_to(recurse_stable(child), (n_events, 1))
+                min_mass = tnp.broadcast_to(recurse_stable(child), (n_events, 1))
                 mass = child.get_mass(min_mass, max_mass, n_events)
-                mass = tf.reshape(mass, (n_events, 1))
+                mass = tnp.reshape(mass, (n_events, 1))
                 max_mass -= mass
                 masses.append(mass)
-        masses = tf.concat(masses, axis=-1)
-        # if masses.shape.ndims == 1:
-        #     masses = tf.expand_dims(masses, axis=0)
-        available_mass = top_mass - tf.reduce_sum(
-            input_tensor=masses, axis=1, keepdims=True
-        )
+        masses = tnp.concatenate(masses, axis=-1)
+        # if len(masses.shape) == 1:
+        #     masses = tnp.expand_dims(masses, axis=0)
+        available_mass = top_mass - tnp.sum(masses, axis=1, keepdims=True)
         tf.debugging.assert_greater_equal(
             available_mass,
-            tf.zeros_like(available_mass, dtype=tf.float64),
+            tnp.zeros_like(available_mass, dtype=tnp.float64),
             message="Forbidden decay",
             name="mass_check",
         )  # Calculate the max weight, initial beta, etc
         w_max = self._get_w_max(available_mass, masses)
         p_top_boost = kin.boost_components(p_top)
         # Start the generation
-        random_numbers = rng.uniform((n_events, n_particles - 2), dtype=tf.float64)
-        random = tf.concat(
+        random_numbers = rng.uniform((n_events, n_particles - 2), dtype=tnp.float64)
+        random = tnp.concatenate(
             [
-                tf.zeros((n_events, 1), dtype=tf.float64),
-                tf.sort(random_numbers, axis=1),
-                tf.ones((n_events, 1), dtype=tf.float64),
+                tnp.zeros((n_events, 1), dtype=tnp.float64),
+                tnp.sort(random_numbers, axis=1),
+                tnp.ones((n_events, 1), dtype=tnp.float64),
             ],
             axis=1,
         )
         if random.shape[1] is None:
             random.set_shape((None, n_particles))
-        # random = tf.expand_dims(random, axis=-1)
-        sum_ = tf.zeros((n_events, 1), dtype=tf.float64)
+        # random = tnp.expand_dims(random, axis=-1)
+        sum_ = tnp.zeros((n_events, 1), dtype=tnp.float64)
         inv_masses = []
         # TODO(Mayou36): rewrite with cumsum?
         for i in range(n_particles):
-            sum_ += tf.gather(masses, [i], axis=1)
-            inv_masses.append(tf.gather(random, [i], axis=1) * available_mass + sum_)
+            sum_ += tnp.take(masses, [i], axis=1)
+            inv_masses.append(tnp.take(random, [i], axis=1) * available_mass + sum_)
         generated_particles, weights = self._generate_part2(
             inv_masses, masses, n_events, n_particles, rng=rng
         )
@@ -382,8 +375,8 @@ class GenParticle:
             kin.lorentz_boost(part, p_top_boost) for part in generated_particles
         ]
         return (
-            tf.reshape(weights, (n_events,)),
-            tf.reshape(w_max, (n_events,)),
+            tnp.reshape(weights, (n_events,)),
+            tnp.reshape(w_max, (n_events,)),
             generated_particles,
             masses,
         )
@@ -396,19 +389,21 @@ class GenParticle:
         for i in range(n_particles - 1):
             pds.append(
                 pdk(
-                    inv_masses[i + 1], inv_masses[i], tf.gather(masses, [i + 1], axis=1)
+                    inv_masses[i + 1],
+                    inv_masses[i],
+                    tnp.take(masses, [i + 1], axis=1),
                 )
             )
-        weights = tf.reduce_prod(input_tensor=pds, axis=0)
-        zero_component = tf.zeros_like(pds[0], dtype=tf.float64)
+        weights = tnp.prod(pds, axis=0)
+        zero_component = tnp.zeros_like(pds[0], dtype=tnp.float64)
         generated_particles = [
-            tf.concat(
+            tnp.concatenate(
                 [
                     zero_component,
                     pds[0],
                     zero_component,
-                    tf.sqrt(
-                        tf.square(pds[0]) + tf.square(tf.gather(masses, [0], axis=1))
+                    tnp.sqrt(
+                        tnp.square(pds[0]) + tnp.square(tnp.take(masses, [0], axis=1))
                     ),
                 ],
                 axis=1,
@@ -417,38 +412,38 @@ class GenParticle:
         part_num = 1
         while True:
             generated_particles.append(
-                tf.concat(
+                tnp.concatenate(
                     [
                         zero_component,
                         -pds[part_num - 1],
                         zero_component,
-                        tf.sqrt(
-                            tf.square(pds[part_num - 1])
-                            + tf.square(tf.gather(masses, [part_num], axis=1))
+                        tnp.sqrt(
+                            tnp.square(pds[part_num - 1])
+                            + tnp.square(tnp.take(masses, [part_num], axis=1))
                         ),
                     ],
                     axis=1,
                 )
             )
-            # with tf.control_dependencies([n_events]):
-            cos_z = tf.constant(2.0, dtype=tf.float64) * rng.uniform(
-                (n_events, 1), dtype=tf.float64
-            ) - tf.constant(1.0, dtype=tf.float64)
-            sin_z = tf.sqrt(tf.constant(1.0, dtype=tf.float64) - cos_z * cos_z)
+
+            cos_z = tnp.asarray(2.0, dtype=tnp.float64) * rng.uniform(
+                (n_events, 1), dtype=tnp.float64
+            ) - tnp.asarray(1.0, dtype=tnp.float64)
+            sin_z = tnp.sqrt(tnp.asarray(1.0, dtype=tnp.float64) - cos_z * cos_z)
             ang_y = (
-                tf.constant(2.0, dtype=tf.float64)
-                * tf.constant(pi, dtype=tf.float64)
-                * rng.uniform((n_events, 1), dtype=tf.float64)
+                tnp.asarray(2.0, dtype=tnp.float64)
+                * tnp.asarray(pi, dtype=tnp.float64)
+                * rng.uniform((n_events, 1), dtype=tnp.float64)
             )
-            cos_y = tf.math.cos(ang_y)
-            sin_y = tf.math.sin(ang_y)
+            cos_y = tnp.cos(ang_y)
+            sin_y = tnp.sin(ang_y)
             # Do the rotations
             for j in range(part_num + 1):
                 px = kin.x_component(generated_particles[j])
                 py = kin.y_component(generated_particles[j])
                 # Rotate about z
                 # TODO(Mayou36): only list? will be overwritten below anyway, but can `*_component` handle it?
-                generated_particles[j] = tf.concat(
+                generated_particles[j] = tnp.concatenate(
                     [
                         cos_z * px - sin_z * py,
                         sin_z * px + cos_z * py,
@@ -460,7 +455,7 @@ class GenParticle:
                 # Rotate about y
                 px = kin.x_component(generated_particles[j])
                 pz = kin.z_component(generated_particles[j])
-                generated_particles[j] = tf.concat(
+                generated_particles[j] = tnp.concatenate(
                     [
                         cos_y * px - sin_y * pz,
                         kin.y_component(generated_particles[j]),
@@ -471,12 +466,13 @@ class GenParticle:
                 )
             if part_num == (n_particles - 1):
                 break
-            betas = pds[part_num] / tf.sqrt(
-                tf.square(pds[part_num]) + tf.square(inv_masses[part_num])
+            betas = pds[part_num] / tnp.sqrt(
+                tnp.square(pds[part_num]) + tnp.square(inv_masses[part_num])
             )
             generated_particles = [
                 kin.lorentz_boost(
-                    part, tf.concat([zero_component, betas, zero_component], axis=1)
+                    part,
+                    tnp.concatenate([zero_component, betas, zero_component], axis=1),
                 )
                 for part in generated_particles
             ]
@@ -523,8 +519,8 @@ class GenParticle:
             momentum = boost_to
         else:
             if self.has_fixed_mass:
-                momentum = tf.broadcast_to(
-                    tf.stack((0.0, 0.0, 0.0, self.get_mass()), axis=-1), (n_events, 4)
+                momentum = tnp.broadcast_to(
+                    tnp.stack((0.0, 0.0, 0.0, self.get_mass()), axis=-1), (n_events, 4)
                 )
             else:
                 raise ValueError("Cannot use resonance as top particle")
@@ -536,7 +532,7 @@ class GenParticle:
             for child_num, child in enumerate(self.children)
         }
         output_masses = {
-            child.name: tf.gather(children_masses, [child_num], axis=1)
+            child.name: tnp.take(children_masses, [child_num], axis=1)
             for child_num, child in enumerate(self.children)
         }
         for child_num, child in enumerate(self.children):
@@ -579,7 +575,7 @@ class GenParticle:
                     get_flattened_values(current_mass_tree)
                 )
                 masses = []
-                w_max = tf.ones_like(available_mass)
+                w_max = tnp.ones_like(available_mass)
                 for child, child_mass in current_mass_tree.items():
                     if isinstance(child_mass, dict):
                         w_max *= recurse_w_max(
@@ -598,21 +594,20 @@ class GenParticle:
                         masses.append(sum(get_flattened_values(child_mass)))
                     else:
                         masses.append(child_mass)
-                masses = tf.concat(masses, axis=1)
+                masses = tnp.concatenate(masses, axis=1)
                 w_max *= self._get_w_max(available_mass, masses)
                 return w_max
 
             mass_tree = {}
             build_mass_tree(self, mass_tree)
             momentum = process_list_to_tensor(momentum)
-            if len(momentum.shape.as_list()) == 1:
-                momentum = tf.expand_dims(momentum, axis=-1)
-            weights_max = tf.reshape(
+            if len(momentum.shape) == 1:
+                momentum = tnp.expand_dims(momentum, axis=-1)
+            weights_max = tnp.reshape(
                 recurse_w_max(kin.mass(momentum), mass_tree[self.name]), (n_events,)
             )
         return weights, weights_max, output_particles, output_masses
 
-    # @tf.function(autograph=False)
     def generate(
         self,
         n_events: Union[int, tf.Tensor, tf.Variable],
@@ -661,12 +656,9 @@ class GenParticle:
                 f"The number of events requested ({n_events}) doesn't match the boost_to input size "
                 f"of {boost_to.shape}"
             )
-            tf.assert_equal(
-                tf.shape(input=boost_to)[0], tf.shape(input=n_events), message=message
-            )
+            tf.assert_equal(tf.shape(boost_to)[0], tf.shape(n_events), message=message)
         if not isinstance(n_events, tf.Variable):
-            n_events = tf.convert_to_tensor(value=n_events, dtype_hint=tf.int64)
-            n_events = tf.cast(n_events, dtype=tf.int64)
+            n_events = tnp.asarray(n_events, dtype=tnp.int64)
         weights, weights_max, parts, _ = self._recursive_generate(
             n_events=n_events,
             boost_to=boost_to,
