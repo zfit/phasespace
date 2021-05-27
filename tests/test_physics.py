@@ -26,6 +26,7 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 import uproot
 from phasespace import phasespace
+from phasespace.backend import tnp
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -37,6 +38,8 @@ PLOT_DIR = os.path.join(BASE_PATH, "tests", "plots")
 
 
 def setup_method():
+    import tensorflow as tf
+
     phasespace.GenParticle._sess.close()
     tf.compat.v1.reset_default_graph()
 
@@ -83,7 +86,7 @@ def create_ref_histos(n_pions):
 def run_test(n_particles, test_prefix):
     first_run_n_events = 100
     main_run_n_events = 100000
-    n_events = tf.Variable(initial_value=first_run_n_events, dtype=tf.int64)
+    n_events = tnp.asarray(first_run_n_events, dtype=tnp.int64)
 
     decay = phasespace.nbody_decay(decays.B0_MASS, [decays.PION_MASS] * n_particles)
     generate = decay.generate(n_events)
@@ -91,7 +94,7 @@ def run_test(n_particles, test_prefix):
     assert len(weights1) == first_run_n_events
 
     # change n_events and run again
-    n_events.assign(main_run_n_events)
+    n_events = tnp.asarray(main_run_n_events, dtype=tnp.int64)
     weights, particles = decay.generate(n_events)
     parts = np.concatenate(
         [particles[f"p_{part_num}"] for part_num in range(n_particles)], axis=1
