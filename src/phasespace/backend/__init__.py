@@ -9,10 +9,13 @@ import os
 import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
 
+from . import _tf_random as random
+
 __all__ = [
     "function",
     "function_jit",
     "function_jit_fixedshape",
+    "random",
     "tnp",
 ]
 

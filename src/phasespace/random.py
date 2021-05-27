@@ -8,6 +8,8 @@ Especially on the global random number generator which will be used to get new g
 
 import tensorflow as tf
 
+from phasespace.backend import random
+
 SeedLike = int | tf.random.Generator | None
 
 
@@ -32,9 +34,9 @@ def get_rng(seed: SeedLike = None) -> tf.random.Generator:
         A list of `tf.random.Generator`
     """
     if seed is None:
-        rng = tf.random.get_global_generator()
+        rng = random.default_rng()
     elif not isinstance(seed, tf.random.Generator):  # it's a seed, not an rng
-        rng = tf.random.Generator.from_seed(seed=seed)
+        rng = random.Generator.from_seed(seed=seed)
     else:
         rng = seed
     return rng
