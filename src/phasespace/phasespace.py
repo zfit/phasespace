@@ -21,7 +21,8 @@ from typing import TYPE_CHECKING, NoReturn
 
 import numpy as np
 import tensorflow as tf
-import tensorflow.experimental.numpy as tnp
+
+from phasespace.backend import tnp
 
 from . import kinematics as kin
 from .backend import function, function_jit_fixedshape

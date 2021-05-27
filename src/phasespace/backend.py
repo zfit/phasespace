@@ -4,7 +4,17 @@ This module provides standardized TensorFlow function decorators for different c
 strategies used throughout the phasespace package.
 """
 
+import os
+
 import tensorflow as tf
+import tensorflow.experimental.numpy as tnp
+
+__all__ = [
+    "function",
+    "function_jit",
+    "function_jit_fixedshape",
+    "tnp",
+]
 
 #: Whether to enable shape relaxation for JIT-compiled functions
 RELAX_SHAPES = True
@@ -21,3 +31,7 @@ function_jit = tf.function(
 function_jit_fixedshape = tf.function(
     autograph=False, reduce_retracing=False, jit_compile=True
 )
+
+# Set eager mode based on environment variable
+is_eager = bool(os.environ.get("PHASESPACE_EAGER"))
+tf.config.run_functions_eagerly(is_eager)
