@@ -26,7 +26,7 @@ import tensorflow as tf
 from phasespace.backend import tnp
 
 from . import kinematics as kin
-from .backend import function, function_jit_fixedshape
+from .backend import function, function_jit_fixedshape, get_shape
 from .random import SeedLike, generate_uniform, get_rng
 
 if TYPE_CHECKING:
@@ -263,7 +263,7 @@ class GenParticle:
             if n_events is not None:
                 momentum_shape = momentum.shape[0]
                 if momentum_shape is None:
-                    momentum_shape = tf.shape(momentum)[0]
+                    momentum_shape = get_shape(momentum)[0]
                     momentum_shape = tnp.asarray(momentum_shape, tnp.int64)
                 else:
                     momentum_shape = tnp.asarray(momentum_shape, dtype=tnp.int64)
@@ -277,7 +277,7 @@ class GenParticle:
             if len(momentum.shape) == 2:
                 n_events = momentum.shape[0]
                 if n_events is None:  # dynamic shape
-                    n_events = tf.shape(momentum)[0]
+                    n_events = get_shape(momentum)[0]
                     n_events = tnp.asarray(n_events, dtype=tnp.int64)
             else:
                 n_events = tnp.asarray(1, dtype=tnp.int64)

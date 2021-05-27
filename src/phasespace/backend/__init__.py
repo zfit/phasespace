@@ -15,9 +15,13 @@ __all__ = [
     "function",
     "function_jit",
     "function_jit_fixedshape",
+    "get_shape",
     "random",
     "tnp",
 ]
+
+# Get shape dynamically (for graph mode compatibility)
+get_shape = tf.shape
 
 #: Whether to enable shape relaxation for JIT-compiled functions
 RELAX_SHAPES = True
