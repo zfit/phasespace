@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import functools
 import inspect
+import warnings
 from collections.abc import Callable
 from math import pi
 from typing import TYPE_CHECKING, NoReturn
@@ -26,7 +27,7 @@ from phasespace.backend import tnp
 
 from . import kinematics as kin
 from .backend import function, function_jit_fixedshape
-from .random import SeedLike, get_rng
+from .random import SeedLike, generate_uniform, get_rng
 
 if TYPE_CHECKING:
     import vector
@@ -365,7 +366,7 @@ class GenParticle:
         w_max = self._get_w_max(available_mass, masses)
         p_top_boost = kin.boost_components(p_top)
         # Start the generation
-        random_numbers = rng.uniform((n_events, n_particles - 2), dtype=tnp.float64)
+        random_numbers = generate_uniform(rng, shape=(n_events, n_particles - 2))
         random = tnp.concatenate(
             [
                 tnp.zeros((n_events, 1), dtype=tnp.float64),
@@ -442,14 +443,14 @@ class GenParticle:
                 )
             )
 
-            cos_z = tnp.asarray(2.0, dtype=tnp.float64) * rng.uniform(
-                (n_events, 1), dtype=tnp.float64
+            cos_z = tnp.asarray(2.0, dtype=tnp.float64) * generate_uniform(
+                rng, shape=(n_events, 1)
             ) - tnp.asarray(1.0, dtype=tnp.float64)
             sin_z = tnp.sqrt(tnp.asarray(1.0, dtype=tnp.float64) - cos_z * cos_z)
             ang_y = (
                 tnp.asarray(2.0, dtype=tnp.float64)
                 * tnp.asarray(pi, dtype=tnp.float64)
-                * rng.uniform((n_events, 1), dtype=tnp.float64)
+                * generate_uniform(rng, shape=(n_events, 1))
             )
             cos_y = tnp.cos(ang_y)
             sin_y = tnp.sin(ang_y)
