@@ -12,6 +12,8 @@ import tensorflow.experimental.numpy as tnp
 from . import _tf_random as random
 
 __all__ = [
+    "Tensor",
+    "Variable",
     "assert_equal",
     "assert_greater_equal",
     "function",
@@ -21,6 +23,10 @@ __all__ = [
     "random",
     "tnp",
 ]
+
+# Type aliases for backend abstraction
+Tensor = tf.Tensor
+Variable = tf.Variable
 
 # Get shape dynamically (for graph mode compatibility)
 get_shape = tf.shape

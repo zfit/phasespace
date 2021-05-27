@@ -27,6 +27,8 @@ from phasespace.backend import tnp
 
 from . import kinematics as kin
 from .backend import (
+    Tensor,
+    Variable,
     assert_equal,
     assert_greater_equal,
     function,
@@ -118,7 +120,7 @@ class GenParticle:
                 return tnp.atleast_1d(
                     tnp.asarray(mass(*args, **kwargs), dtype=tnp.float64)
                 )
-        elif not isinstance(mass, tf.Variable):
+        elif not isinstance(mass, Variable):
             mass_preprocessed = tnp.atleast_1d(tnp.asarray(mass, dtype=tnp.float64))
         else:
             mass_preprocessed = mass
@@ -152,11 +154,11 @@ class GenParticle:
     @function
     def get_mass(
         self,
-        min_mass: tf.Tensor = None,
-        max_mass: tf.Tensor = None,
-        n_events: tf.Tensor | tf.Variable = None,
+        min_mass: Tensor = None,
+        max_mass: Tensor = None,
+        n_events: Tensor | Variable = None,
         seed: SeedLike = None,
-    ) -> tf.Tensor:
+    ) -> Tensor:
         """Get the particle mass.
 
         If the particle is resonant, the mass function will be called with the
@@ -635,13 +637,13 @@ class GenParticle:
 
     def generate(
         self,
-        n_events: int | tf.Tensor | tf.Variable,
-        boost_to: tf.Tensor | vector.Momentum | None = None,
+        n_events: int | Tensor | Variable,
+        boost_to: Tensor | vector.Momentum | None = None,
         normalize_weights: bool = True,
         seed: SeedLike = None,
         *,
         as_vectors: bool | None = None,
-    ) -> tuple[tf.Tensor, dict[str, tf.Tensor]]:
+    ) -> tuple[Tensor, dict[str, Tensor]]:
         """Generate normalized n-body phase space as tensorflow tensors.
 
         Any TensorFlow tensor can always be converted to a numpy array with the method ``numpy()``.
@@ -709,7 +711,7 @@ class GenParticle:
             if n_events is not None:
                 if boost_to.shape[0] not in (n_events, 1):
                     raise ValueError(message)
-        if not isinstance(n_events, tf.Variable):
+        if not isinstance(n_events, Variable):
             n_events = tnp.asarray(n_events, dtype=tnp.int64)
         weights, weights_max, parts, _ = self._recursive_generate(
             n_events=n_events,
