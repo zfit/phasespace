@@ -12,6 +12,8 @@ import tensorflow.experimental.numpy as tnp
 from . import _tf_random as random
 
 __all__ = [
+    "assert_equal",
+    "assert_greater_equal",
     "function",
     "function_jit",
     "function_jit_fixedshape",
@@ -22,6 +24,8 @@ __all__ = [
 
 # Get shape dynamically (for graph mode compatibility)
 get_shape = tf.shape
+assert_equal = tf.assert_equal
+assert_greater_equal = tf.debugging.assert_greater_equal
 
 #: Whether to enable shape relaxation for JIT-compiled functions
 RELAX_SHAPES = True

@@ -26,7 +26,13 @@ import tensorflow as tf
 from phasespace.backend import tnp
 
 from . import kinematics as kin
-from .backend import function, function_jit_fixedshape, get_shape
+from .backend import (
+    assert_equal,
+    assert_greater_equal,
+    function,
+    function_jit_fixedshape,
+    get_shape,
+)
 from .random import SeedLike, generate_uniform, get_rng
 
 if TYPE_CHECKING:
@@ -267,11 +273,11 @@ class GenParticle:
                     momentum_shape = tnp.asarray(momentum_shape, tnp.int64)
                 else:
                     momentum_shape = tnp.asarray(momentum_shape, dtype=tnp.int64)
-                # tf.assert_equal(
-                #     n_events,
-                #     momentum_shape,
-                #     message="Conflicting inputs -> momentum_shape and n_events",
-                # )
+                assert_equal(
+                    n_events,
+                    momentum_shape,
+                    message="Conflicting inputs -> momentum_shape and n_events",
+                )
 
         if n_events is None:
             if len(momentum.shape) == 2:
@@ -357,7 +363,7 @@ class GenParticle:
         # if len(masses.shape) == 1:
         #     masses = tnp.expand_dims(masses, axis=0)
         available_mass = top_mass - tnp.sum(masses, axis=1, keepdims=True)
-        tf.debugging.assert_greater_equal(
+        assert_greater_equal(
             available_mass,
             tnp.zeros_like(available_mass, dtype=tnp.float64),
             message="Forbidden decay",
