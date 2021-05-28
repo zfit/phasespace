@@ -12,6 +12,9 @@ __all__ = ["nbody_decay", "GenParticle", "random"]
 
 import tensorflow as tf
 
+from . import random
+from .phasespace import GenParticle, nbody_decay
+
 
 def _set_eager_mode():
     import os
@@ -21,6 +24,3 @@ def _set_eager_mode():
 
 
 _set_eager_mode()
-
-from . import random
-from .phasespace import GenParticle, nbody_decay

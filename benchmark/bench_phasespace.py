@@ -8,26 +8,13 @@
 
 import os
 import sys
+from timeit import default_timer
 
 import tensorflow as tf
 
 from phasespace import phasespace
 
 sys.path.append(os.path.dirname(__file__))
-
-# from .monitoring import Timer
-
-# !/usr/bin/env python
-# -*- coding: utf-8 -*-
-# =============================================================================
-# @file   monitoring.py
-# @author Albert Puig (albert.puig@cern.ch)
-# @date   14.02.2017
-# =============================================================================
-"""Various code monitoring utilities."""
-
-import os
-from timeit import default_timer
 
 
 def memory_usage():
@@ -99,8 +86,12 @@ class Timer:
 
 # to play around with optimization, no big effect though
 NUM_PARALLEL_EXEC_UNITS = 1
-# config = tf.ConfigProto(intra_op_parallelism_threads=NUM_PARALLEL_EXEC_UNITS, inter_op_parallelism_threads=1,
-#                         allow_soft_placement=True, device_count={'CPU': NUM_PARALLEL_EXEC_UNITS})
+# config = tf.ConfigProto(
+#     intra_op_parallelism_threads=NUM_PARALLEL_EXEC_UNITS,
+#     inter_op_parallelism_threads=1,
+#     allow_soft_placement=True,
+#     device_count={"CPU": NUM_PARALLEL_EXEC_UNITS},
+# )
 
 B_MASS = 5279.0
 B_AT_REST = tf.stack((0.0, 0.0, 0.0, B_MASS), axis=-1)

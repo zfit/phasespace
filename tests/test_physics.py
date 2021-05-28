@@ -29,8 +29,8 @@ from phasespace import phasespace
 
 sys.path.append(os.path.dirname(__file__))
 
-from .helpers import decays, rapidsim
-from .helpers.plotting import make_norm_histo
+from .helpers import decays, rapidsim  # noqa: E402
+from .helpers.plotting import make_norm_histo  # noqa: E402
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PLOT_DIR = os.path.join(BASE_PATH, "tests", "plots")
@@ -271,9 +271,9 @@ def test_kstargamma_kstarnonresonant_lhc():
 def test_kstargamma_resonant_at_rest():
     """Test B0 -> K* gamma physics with Gaussian mass for K*.
 
-    Since we don't have BW and we model the resonances with Gaussians, we can't really perform the Kolmogorov test wrt
-    to RapidSim, so plots are generated and can be inspected by the user. However, small differences are expected in the
-    tails of the energy distributions of the kaon and the pion.
+    Since we don't have BW and we model the resonances with Gaussians, we can't really perform the Kolmogorov
+    test wrt to RapidSim, so plots are generated and can be inspected by the user. However, small differences
+    are expected in the tails of the energy distributions of the kaon and the pion.
     """
     run_kstargamma(
         "B2KstGamma_RapidSim_7TeV_Tree.root", decays.KSTARZ_WIDTH, True, "Gaussian"
@@ -385,8 +385,8 @@ def test_k1gamma_kstarnonresonant_lhc():
 def test_k1gamma_resonant_at_rest():
     """Test B0 -> K1 (->K*pi) gamma physics.
 
-    Since we don't have BW and we model the resonances with Gaussians, we can't really perform the Kolmogorov test wrt
-    to RapidSim, so plots are generated and can be inspected by the user.
+    Since we don't have BW and we model the resonances with Gaussians, we can't really perform the Kolmogorov
+    test wrt to RapidSim, so plots are generated and can be inspected by the user.
     """
     run_k1_gamma(
         "B2K1Gamma_RapidSim_7TeV_Tree.root",

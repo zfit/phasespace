@@ -16,7 +16,7 @@ import phasespace
 
 sys.path.append(os.path.dirname(__file__))
 
-from .helpers import decays
+from .helpers import decays  # noqa: E402
 
 B0_MASS = decays.B0_MASS
 PION_MASS = decays.PION_MASS

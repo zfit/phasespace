@@ -16,7 +16,7 @@ from phasespace import GenParticle
 
 sys.path.append(os.path.dirname(__file__))
 
-from .helpers import decays
+from .helpers import decays  # noqa: E402
 
 
 def test_name_clashes():
