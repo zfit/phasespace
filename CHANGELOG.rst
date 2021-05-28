@@ -15,7 +15,6 @@ Behavioral changes
 
 Bug fixes and small changes
 ---------------------------
-- improved compilation in tf.functions, use of XLA where applicable
 
 Requirement changes
 -------------------
@@ -23,6 +22,23 @@ Requirement changes
 
 Thanks
 ------
+
+Develop
+==========
+
+
+Major Features and Improvements
+-------------------------------
+
+- Support Python 3.9
+- Support TensorFlow 2.5
+- improved compilation in tf.functions, use of XLA where applicable
+- developer: modernization of setup, CI and more
+
+Thanks
+------
+
+- Remco de Boer for many commits and cleanups
 
 1.2.0 (17.12.20)
 ================
