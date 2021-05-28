@@ -23,8 +23,8 @@ Requirement changes
 Thanks
 ------
 
-Develop
-==========
+1.3.0 (28.05.2021)
+===================
 
 
 Major Features and Improvements
