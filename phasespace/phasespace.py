@@ -761,7 +761,7 @@ def nbody_decay(mass_top: float, masses: list, top_name: str = "", names: list =
     if len(names) != len(masses):
         raise ValueError("Mismatch in length between children masses and their names.")
     return GenParticle(top_name, mass_top).set_children(
-        *[GenParticle(names[num], mass=mass) for num, mass in enumerate(masses)]
+        *(GenParticle(names[num], mass=mass) for num, mass in enumerate(masses))
     )
 
 
