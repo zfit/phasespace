@@ -18,6 +18,10 @@ These mass functions get three arguments, and must return a ``TensorFlow`` Tenso
 This function signature allows to handle threshold effects cleanly, giving enough information to produce kinematically
 allowed decays (NB: ``phasespace`` will throw an error if a kinematically forbidden decay is requested).
 
+A simple example
+--------------------------
+
+
 With these considerations in mind, one can build a decay chain by using the ``set_children`` method of the ``GenParticle``
 class (which returns the class itself). As an example, to build the :math:`B^{0}\to K^{*}\gamma` decay in which
 :math:`K^*\to K\pi` with a fixed mass, we would write:
@@ -53,11 +57,19 @@ The method returns:
 The ``generate`` method return an eager ``Tensor``: this is basically a wrapped numpy array. With ``Tensor.numpy()``,
 it can always directly be converted to a numpy array (if really needed).
 
+Boosting the particles
+--------------------------
+
+
 The particles are generated in the rest frame of the top particle.
 To produce them at a given momentum of the top particle, one can pass these momenta with the ``boost_to`` argument in both
 ``generate`` and ~`tf.Tensor`. This latter approach can be useful if the momentum of the top particle
 is generated according to some distribution, for example the kinematics of the LHC (see ``test_kstargamma_kstarnonresonant_lhc``
 and ``test_k1gamma_kstarnonresonant_lhc`` in ``tests/test_physics.py`` to see how this could be done).
+
+Weights
+--------------------------
+
 
 Additionally, it is possible to obtain the unnormalized weights by using the ``generate_unnormalized`` flag in
 ``generate``. In this case, the method returns the unnormalized weights, the per-event maximum weight
@@ -106,13 +118,19 @@ can be performed using normal python loops without loss in performance:
        #  (do something with weights and particles)
        ...
 
+
+
+Resonances with variable mass
+------------------------------
+
+
 To generate the mass of a resonance, we need to give a function as its mass instead of a floating number.
 This function should take as input the per-event lower mass allowed, per-event upper mass allowed and the number of
 events, and should return a ~`tf.Tensor` with the generated masses and shape (nevents,). Well suited for this task
 are the `TensorFlow Probability distributions <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions>`_
 or, for more customized mass shapes, the
-`zfit pdfs <https://zfit.github.io/zfit/model.html#tensor-sampling>`_ *(currently an
-experimental feature is needed, contact the `zfit developers <https://github.com/zfit/zfit>`_ to learn more).*
+`zfit pdfs <https://zfit.github.io/zfit/model.html#tensor-sampling>`_ (currently an
+*experimental feature* is needed, contact the `zfit developers <https://github.com/zfit/zfit>`_ to learn more).
 
 Following with the same example as above, and approximating the resonance shape by a gaussian, we could
 write the :math:`B^{0}\to K^{*}\gamma` decay chain as (more details can be found in ``tests/helpers/decays.py``):
