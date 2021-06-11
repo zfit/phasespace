@@ -26,7 +26,7 @@ With these considerations in mind, one can build a decay chain by using the ``se
 class (which returns the class itself). As an example, to build the :math:`B^{0}\to K^{*}\gamma` decay in which
 :math:`K^*\to K\pi` with a fixed mass, we would write:
 
-.. code-block:: python
+.. jupyter-execute::
 
    from phasespace import GenParticle
 
@@ -41,6 +41,9 @@ class (which returns the class itself). As an example, to build the :math:`B^{0}
    gamma = GenParticle('gamma', 0)
    bz = GenParticle('B0', B0_MASS).set_children(kstar, gamma)
 
+.. thebe-button:: Run this interactively
+
+
 Phasespace events can be generated using the ``generate`` method, which gets the number of events to generate as input.
 The method returns:
 
@@ -48,7 +51,7 @@ The method returns:
 - The 4-momenta of the generated particles as values of a dictionary with the particle name as key. These momenta
   are expressed as arrays of dimension (n_events, 4).
 
-.. code-block:: python
+.. jupyter-execute::
 
    N_EVENTS = 1000
 
@@ -75,48 +78,21 @@ Additionally, it is possible to obtain the unnormalized weights by using the ``g
 ``generate``. In this case, the method returns the unnormalized weights, the per-event maximum weight
 and the particle dictionary.
 
-.. code-block:: pycon
+.. jupyter-execute::
 
-   >>> particles
-   {'K*': array([[ 1732.79325872, -1632.88873127,   950.85807735,  2715.78804872],
-          [-1633.95329448,   239.88921123, -1961.0402768 ,  2715.78804872],
-          [  407.15613764, -2236.6569286 , -1185.16616251,  2715.78804872],
-          ...,
-          [ 1091.64603395, -1301.78721269,  1920.07503991,  2715.78804872],
-          [ -517.3125083 ,  1901.39296899,  1640.15905194,  2715.78804872],
-          [  656.56413668,  -804.76922982,  2343.99214816,  2715.78804872]]),
-    'K+': array([[  750.08077976,  -547.22569019,   224.6920906 ,  1075.30490935],
-          [-1499.90049089,   289.19714633, -1935.27960292,  2514.43047106],
-          [   97.64746732, -1236.68112923,  -381.09526192,  1388.47607911],
-          ...,
-          [  508.66157459,  -917.93523639,  1474.7064148 ,  1876.11771642],
-          [ -212.28646168,   540.26381432,   610.86656669,   976.63988936],
-          [  177.16656666,  -535.98777569,   946.12636904,  1207.28744488]]),
-    'gamma': array([[-1732.79325872,  1632.88873127,  -950.85807735,  2563.79195128],
-          [ 1633.95329448,  -239.88921123,  1961.0402768 ,  2563.79195128],
-          [ -407.15613764,  2236.6569286 ,  1185.16616251,  2563.79195128],
-          ...,
-          [-1091.64603395,  1301.78721269, -1920.07503991,  2563.79195128],
-          [  517.3125083 , -1901.39296899, -1640.15905194,  2563.79195128],
-          [ -656.56413668,   804.76922982, -2343.99214816,  2563.79195128]]),
-    'pi+': array([[  982.71247896, -1085.66304109,   726.16598675,  1640.48313937],
-          [ -134.0528036 ,   -49.3079351 ,   -25.76067389,   201.35757766],
-          [  309.50867032,  -999.97579937,  -804.0709006 ,  1327.31196961],
-          ...,
-          [  582.98445936,  -383.85197629,   445.36862511,   839.6703323 ],
-          [ -305.02604662,  1361.12915468,  1029.29248526,  1739.14815935],
-          [  479.39757002,  -268.78145413,  1397.86577911,  1508.50060384]])}
+    print(particles)
+
 
 It is worth noting that the graph generation is cached even when using ``generate``, so iterative generation
 can be performed using normal python loops without loss in performance:
 
-.. code-block:: python
+.. jupyter-execute::
 
-   for i in range(10):
-       weights, particles = bz.generate(n_events=1000)
-       ...
-       #  (do something with weights and particles)
-       ...
+   for i in range(5):
+       weights, particles = bz.generate(n_events=100)
+       # ...
+       # (do something with weights and particles)
+       # ...
 
 
 
@@ -135,33 +111,36 @@ or, for more customized mass shapes, the
 Following with the same example as above, and approximating the resonance shape by a gaussian, we could
 write the :math:`B^{0}\to K^{*}\gamma` decay chain as (more details can be found in ``tests/helpers/decays.py``):
 
-.. code-block:: python
+.. jupyter-execute::
+    :hide-output:
 
-   import tensorflow as tf
-   import tensorflow_probability as tfp
-   from phasespace import GenParticle
+    import tensorflow as tf
+    import tensorflow_probability as tfp
+    from phasespace import GenParticle
 
-   KSTARZ_MASS = 895.81
-   KSTARZ_WIDTH = 47.4
+    KSTARZ_MASS = 895.81
+    KSTARZ_WIDTH = 47.4
 
-     def kstar_mass(min_mass, max_mass, n_events):
-        min_mass = tf.cast(min_mass, tf.float64)
-        max_mass = tf.cast(max_mass, tf.float64)
-        kstar_width_cast = tf.cast(KSTARZ_WIDTH, tf.float64)
-        kstar_mass_cast = tf.cast(KSTARZ_MASS, dtype=tf.float64)
+    def kstar_mass(min_mass, max_mass, n_events):
+       min_mass = tf.cast(min_mass, tf.float64)
+       max_mass = tf.cast(max_mass, tf.float64)
+       kstar_width_cast = tf.cast(KSTARZ_WIDTH, tf.float64)
+       kstar_mass_cast = tf.cast(KSTARZ_MASS, dtype=tf.float64)
 
-        kstar_mass = tf.broadcast_to(kstar_mass_cast, shape=(n_events,))
-        if kstar_width > 0:
-            kstar_mass = tfp.distributions.TruncatedNormal(loc=kstar_mass,
-                                                           scale=kstar_width_cast,
-                                                           low=min_mass,
-                                                           high=max_mass).sample()
-        return kstar_mass
+       kstar_mass = tf.broadcast_to(kstar_mass_cast, shape=(n_events,))
+       if KSTARZ_WIDTH > 0:
+           kstar_mass = tfp.distributions.TruncatedNormal(loc=kstar_mass,
+                                                          scale=kstar_width_cast,
+                                                          low=min_mass,
+                                                          high=max_mass).sample()
+       return kstar_mass
 
-   bz = GenParticle('B0', B0_MASS).set_children(GenParticle('K*0', mass=kstar_mass)
+    bz = GenParticle('B0', B0_MASS).set_children(GenParticle('K*0', mass=kstar_mass)
                                                 .set_children(GenParticle('K+', mass=KAON_MASS),
                                                               GenParticle('pi-', mass=PION_MASS)),
                                                 GenParticle('gamma', mass=0.0))
+
+    bz.generate(n_events=500)
 
 
 Shortcut for simple decays
@@ -176,7 +155,7 @@ The generation of simple `n`-body decay chains can be done using the ``nbody_dec
 
 If the names are not given, `top` and `p_{i}` are assigned. For example, to generate :math:`B^0\to K\pi`, one would do:
 
-.. code-block:: python
+.. jupyter-execute::
 
    import phasespace
 
