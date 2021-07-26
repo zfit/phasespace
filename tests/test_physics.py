@@ -231,7 +231,7 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
                 os.path.join(
                     PLOT_DIR,
                     "B0_Kstar_gamma_Kstar{}_{}_{}.png".format(
-                        suffix, tf_part, coord_name
+                        suffix, tf_part.replace('*', 'star'), coord_name
                     ),
                 )
             )
@@ -340,7 +340,7 @@ def run_k1_gamma(input_file, k1_width, kstar_width, b_at_rest, suffix):
                 os.path.join(
                     PLOT_DIR,
                     "Bp_K1_gamma_K1Kstar{}_{}_{}.png".format(
-                        suffix, tf_part, coord_name
+                        suffix, tf_part.replace('*', 'star'), coord_name
                     ),
                 )
             )
