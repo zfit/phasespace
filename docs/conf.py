@@ -38,9 +38,17 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
     "sphinx.ext.mathjax",
+    "sphinx_math_dollar",
     "jupyter_sphinx",
 ]
 
+
+mathjax_config = {
+    "tex2jax": {
+        "inlineMath": [["\\(", "\\)"]],
+        "displayMath": [["\\[", "\\]"]],
+    },
+}
 using_numpy_style = False  # False -> google style
 
 # Napoleon settings (convert numpy/google docstrings to proper ReST
