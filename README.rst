@@ -115,7 +115,7 @@ For example, to generate :math:`B^0\to K\pi`, we would do:
 
    import phasespace
 
-   B0_MASS = 5279.58
+   B0_MASS = 5279.65
    PION_MASS = 139.57018
    KAON_MASS = 493.677
 
@@ -137,14 +137,14 @@ As an example, to build the :math:`B^{0}\to K^{*}\gamma` decay in which :math:`K
 
    from phasespace import GenParticle
 
-   B0_MASS = 5279.58
-   KSTARZ_MASS = 895.81
+   B0_MASS = 5279.65
+   KSTARZ_MASS = 895.55
    PION_MASS = 139.57018
    KAON_MASS = 493.677
 
-   pion = GenParticle('pi+', PION_MASS)
    kaon = GenParticle('K+', KAON_MASS)
-   kstar = GenParticle('K*', KSTARZ_MASS).set_children(pion, kaon)
+   pion = GenParticle('pi-', PION_MASS)
+   kstar = GenParticle('K*', KSTARZ_MASS).set_children(kaon, pion)
    gamma = GenParticle('gamma', 0)
    bz = GenParticle('B0', B0_MASS).set_children(kstar, gamma)
 
@@ -177,7 +177,7 @@ In this case, ``particles`` is a ``dict`` with the particle names as keys:
           [-1091.64603395,  1301.78721269, -1920.07503991,  2563.79195128],
           [  517.3125083 , -1901.39296899, -1640.15905194,  2563.79195128],
           [ -656.56413668,   804.76922982, -2343.99214816,  2563.79195128]]),
-    'pi+': array([[  982.71247896, -1085.66304109,   726.16598675,  1640.48313937],
+    'pi-': array([[  982.71247896, -1085.66304109,   726.16598675,  1640.48313937],
           [ -134.0528036 ,   -49.3079351 ,   -25.76067389,   201.35757766],
           [  309.50867032,  -999.97579937,  -804.0709006 ,  1327.31196961],
           ...,
