@@ -23,6 +23,13 @@ Requirement changes
 Thanks
 ------
 
+1.4.1 (27.08.2021)
+==================
+
+Requirement changes
+-------------------
+- Losen restriction on TensorFlow, allow version 2.6 (and 2.5)
+
 1.4.0 (11.06.2021)
 ==================
 
