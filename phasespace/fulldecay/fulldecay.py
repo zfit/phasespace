@@ -1,24 +1,23 @@
-from phasespace import GenParticle
+import itertools
+from typing import Callable, Union
+
 import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
 from particle import Particle
 
+from phasespace import GenParticle
+
 from .mass_functions import _DEFAULT_CONVERTER
 
-from typing import Callable, Union
-import itertools
-
 _MASS_WIDTH_TOLERANCE = 0.01
-_DEFAULT_MASS_FUNC = 'rel-BW'
+_DEFAULT_MASS_FUNC = "rel-BW"
 
 
 class FullDecay:
-    """
-    A container that works like GenParticle that can handle multiple decays
-    """
+    """A container that works like GenParticle that can handle multiple decays."""
+
     def __init__(self, gen_particles: list[tuple[float, GenParticle]]):
-        """
-        Create an instance of FullDecay
+        """Create an instance of FullDecay.
 
         Parameters
         ----------
@@ -32,9 +31,13 @@ class FullDecay:
         self.gen_particles = gen_particles
 
     @classmethod
-    def from_dict(cls, dec_dict: dict, mass_converter: dict[str, Callable] = None, tolerance: float = _MASS_WIDTH_TOLERANCE):
-        """
-        Create a FullDecay instance from a dict in the decaylanguage format.
+    def from_dict(
+        cls,
+        dec_dict: dict,
+        mass_converter: dict[str, Callable] = None,
+        tolerance: float = _MASS_WIDTH_TOLERANCE,
+    ):
+        """Create a FullDecay instance from a dict in the decaylanguage format.
 
         Parameters
         ----------
@@ -59,13 +62,18 @@ class FullDecay:
             # Combine the mass functions specified by the package to the mass functions specified from the input.
             total_mass_converter = {**_DEFAULT_CONVERTER, **mass_converter}
 
-        gen_particles = _recursively_traverse(dec_dict, total_mass_converter, tolerance=tolerance)
+        gen_particles = _recursively_traverse(
+            dec_dict, total_mass_converter, tolerance=tolerance
+        )
         return cls(gen_particles)
 
-    def generate(self, n_events: int, normalize_weights: bool = False,
-                 **kwargs) -> Union[tuple[list[tf.Tensor], list[tf.Tensor]], tuple[list[tf.Tensor], list[tf.Tensor], list[tf.Tensor]]]:
-        """
-        Generate four-momentum vectors from the decay(s).
+    def generate(
+        self, n_events: int, normalize_weights: bool = False, **kwargs
+    ) -> Union[
+        tuple[list[tf.Tensor], list[tf.Tensor]],
+        tuple[list[tf.Tensor], list[tf.Tensor], list[tf.Tensor]],
+    ]:
+        """Generate four-momentum vectors from the decay(s).
 
         Parameters
         ----------
@@ -85,13 +93,17 @@ class FullDecay:
         Note that when normalize_weights is True, the weights are normalized to the maximum of all returned events.
         """
         # Input to tf.random.categorical must be 2D
-        rand_i = tf.random.categorical(tnp.log([[dm[0] for dm in self.gen_particles]]), n_events)
+        rand_i = tf.random.categorical(
+            tnp.log([[dm[0] for dm in self.gen_particles]]), n_events
+        )
         # Input to tf.unique_with_counts must be 1D
         dec_indices, _, counts = tf.unique_with_counts(rand_i[0])
         counts = tf.cast(counts, tf.int64)
         weights, max_weights, events = [], [], []
         for i, n in zip(dec_indices, counts):
-            weight, max_weight, four_vectors = self.gen_particles[i][1].generate(n, normalize_weights=False, **kwargs)
+            weight, max_weight, four_vectors = self.gen_particles[i][1].generate(
+                n, normalize_weights=False, **kwargs
+            )
             weights.append(weight)
             max_weights.append(max_weight)
             events.append(four_vectors)
@@ -105,8 +117,7 @@ class FullDecay:
 
 
 def _unique_name(name: str, preexisting_particles: set[str]) -> str:
-    """
-    Create a string that does not exist in preexisting_particles based on name.
+    """Create a string that does not exist in preexisting_particles based on name.
 
     Parameters
     ----------
@@ -125,17 +136,21 @@ def _unique_name(name: str, preexisting_particles: set[str]) -> str:
         preexisting_particles.add(name)
         return name
 
-    name += ' [0]'
+    name += " [0]"
     i = 1
     while name in preexisting_particles:
-        name = name[:name.rfind('[')] + f'[{str(i)}]'
+        name = name[: name.rfind("[")] + f"[{str(i)}]"
         i += 1
     preexisting_particles.add(name)
     return name
 
 
-def _get_particle_mass(name: str, mass_converter: dict[str, Callable], mass_func: str,
-                       tolerance: float = _MASS_WIDTH_TOLERANCE) -> Union[Callable, float]:
+def _get_particle_mass(
+    name: str,
+    mass_converter: dict[str, Callable],
+    mass_func: str,
+    tolerance: float = _MASS_WIDTH_TOLERANCE,
+) -> Union[Callable, float]:
     """
     Get mass or mass function of particle using the particle package.
     Parameters
@@ -160,10 +175,13 @@ def _get_particle_mass(name: str, mass_converter: dict[str, Callable], mass_func
     return mass_converter[mass_func](mass=particle.mass, width=particle.width)
 
 
-def _recursively_traverse(decaychain: dict, mass_converter: dict[str, Callable],
-                          preexisting_particles: set[str] = None, tolerance: float = _MASS_WIDTH_TOLERANCE) -> list[tuple[float, GenParticle]]:
-    """
-    Create all possible GenParticles by recursively traversing a dict from decaylanguage.
+def _recursively_traverse(
+    decaychain: dict,
+    mass_converter: dict[str, Callable],
+    preexisting_particles: set[str] = None,
+    tolerance: float = _MASS_WIDTH_TOLERANCE,
+) -> list[tuple[float, GenParticle]]:
+    """Create all possible GenParticles by recursively traversing a dict from decaylanguage.
 
     Parameters
     ----------
@@ -179,7 +197,9 @@ def _recursively_traverse(decaychain: dict, mass_converter: dict[str, Callable],
     list[tuple[float, GenParticle]]
         The generated particle
     """
-    original_mother_name = list(decaychain.keys())[0]  # Get the only key inside the dict
+    original_mother_name = list(decaychain.keys())[
+        0
+    ]  # Get the only key inside the dict
 
     if preexisting_particles is None:
         preexisting_particles = set()
@@ -193,21 +213,30 @@ def _recursively_traverse(decaychain: dict, mass_converter: dict[str, Callable],
     # This will contain GenParticle instances and their probabilities
     all_decays = []
     for dm in decay_modes:
-        dm_probability = dm['bf']
-        daughter_particles = dm['fs']
+        dm_probability = dm["bf"]
+        daughter_particles = dm["fs"]
         daughter_gens = []
 
         for daughter_name in daughter_particles:
             if isinstance(daughter_name, str):
                 # Always use constant mass for stable particles
-                daughter = GenParticle(_unique_name(daughter_name, preexisting_particles),
-                                       Particle.from_evtgen_name(daughter_name).mass)
-                daughter = [(1., daughter)]
+                daughter = GenParticle(
+                    _unique_name(daughter_name, preexisting_particles),
+                    Particle.from_evtgen_name(daughter_name).mass,
+                )
+                daughter = [(1.0, daughter)]
             elif isinstance(daughter_name, dict):
-                daughter = _recursively_traverse(daughter_name, mass_converter, preexisting_particles, tolerance=tolerance)
+                daughter = _recursively_traverse(
+                    daughter_name,
+                    mass_converter,
+                    preexisting_particles,
+                    tolerance=tolerance,
+                )
             else:
-                raise TypeError(f'Expected elements in decaychain["fs"] to only be str or dict '
-                                f'but found an instance of type {type(daughter_name)}')
+                raise TypeError(
+                    f'Expected elements in decaychain["fs"] to only be str or dict '
+                    f"but found an instance of type {type(daughter_name)}"
+                )
             daughter_gens.append(daughter)
 
         for daughter_combination in itertools.product(*daughter_gens):
@@ -215,11 +244,16 @@ def _recursively_traverse(decaychain: dict, mass_converter: dict[str, Callable],
             if is_top_particle:
                 mother_mass = Particle.from_evtgen_name(original_mother_name).mass
             else:
-                mother_mass = _get_particle_mass(original_mother_name, mass_converter=mass_converter,
-                                                 mass_func=dm.get('zfit', _DEFAULT_MASS_FUNC), tolerance=tolerance)
+                mother_mass = _get_particle_mass(
+                    original_mother_name,
+                    mass_converter=mass_converter,
+                    mass_func=dm.get("zfit", _DEFAULT_MASS_FUNC),
+                    tolerance=tolerance,
+                )
 
             one_decay = GenParticle(mother_name, mother_mass).set_children(
-                *[decay[1] for decay in daughter_combination])
+                *(decay[1] for decay in daughter_combination)
+            )
             all_decays.append((p, one_decay))
 
     return all_decays

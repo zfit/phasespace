@@ -1,12 +1,11 @@
-from phasespace.fulldecay import FullDecay
 from example_decay_chains import *  # TODO remove * since it is bad practice?
-
 from numpy.testing import assert_almost_equal
+
+from phasespace.fulldecay import FullDecay
 
 
 def check_norm(full_decay: FullDecay, **kwargs) -> list[tuple]:
-    """
-    Checks whether the normalize_weights argument works for FullDecay.generate
+    """Checks whether the normalize_weights argument works for FullDecay.generate.
 
     Parameters
     ----------
@@ -29,9 +28,11 @@ def check_norm(full_decay: FullDecay, **kwargs) -> list[tuple]:
     for norm in (True, False):
         return_args = full_decay.generate(normalize_weights=norm, **kwargs)
         assert len(return_args) == 2 if norm else 3
-        assert sum(len(w) for w in return_args[0]) == kwargs['n_events']
+        assert sum(len(w) for w in return_args[0]) == kwargs["n_events"]
         if not norm:
-            assert all(len(w) == len(mw) for w, mw in zip(return_args[0], return_args[1]))
+            assert all(
+                len(w) == len(mw) for w, mw in zip(return_args[0], return_args[1])
+            )
 
         all_return_args.append(return_args)
 
@@ -45,10 +46,10 @@ def test_single_chain():
     assert len(output_decay) == 1
     prob, gen = output_decay[0]
     assert_almost_equal(prob, 1)
-    assert gen.name == 'D+'
-    assert {p.name for p in gen.children} == {'K-', 'pi+', 'pi+ [0]', 'pi0'}
+    assert gen.name == "D+"
+    assert {p.name for p in gen.children} == {"K-", "pi+", "pi+ [0]", "pi0"}
     for p in gen.children:
-        if 'pi0' == p.name[:3]:
+        if "pi0" == p.name[:3]:
             assert not p.has_fixed_mass
         else:
             assert p.has_fixed_mass
@@ -57,7 +58,7 @@ def test_single_chain():
     (normed_weights, decay_list), _ = check_norm(container, n_events=100)
     assert len(decay_list) == 1
     events = decay_list[0]
-    assert set(events.keys()) == {'K-', 'pi+', 'pi+ [0]', 'pi0', 'gamma', 'gamma [0]'}
+    assert set(events.keys()) == {"K-", "pi+", "pi+ [0]", "pi0", "gamma", "gamma [0]"}
     assert all(len(p) == 100 for p in events.values())
 
 

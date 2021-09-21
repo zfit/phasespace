@@ -1,5 +1,4 @@
 import tensorflow as tf
-
 import zfit
 import zfit_physics as zphys
 
@@ -13,9 +12,12 @@ def gauss(mass, width):
     def mass_func(min_mass, max_mass, n_events):
         min_mass = tf.cast(min_mass, tf.float64)
         max_mass = tf.cast(max_mass, tf.float64)
-        pdf = zfit.pdf.Gauss(mu=particle_mass, sigma=particle_width, obs='')
+        pdf = zfit.pdf.Gauss(mu=particle_mass, sigma=particle_width, obs="")
         iterator = tf.stack([min_mass, max_mass], axis=-1)
-        return tf.vectorized_map(lambda lim: pdf.sample(1, limits=(lim[0], lim[1])), iterator)
+        return tf.vectorized_map(
+            lambda lim: pdf.sample(1, limits=(lim[0], lim[1])), iterator
+        )
+
     return mass_func
 
 
@@ -26,9 +28,12 @@ def breitwigner(mass, width):
     def mass_func(min_mass, max_mass, n_events):
         min_mass = tf.cast(min_mass, tf.float64)
         max_mass = tf.cast(max_mass, tf.float64)
-        pdf = zfit.pdf.Cauchy(m=particle_mass, gamma=particle_width, obs='')
+        pdf = zfit.pdf.Cauchy(m=particle_mass, gamma=particle_width, obs="")
         iterator = tf.stack([min_mass, max_mass], axis=-1)
-        return tf.vectorized_map(lambda lim: pdf.sample(1, limits=(lim[0], lim[1])), iterator)
+        return tf.vectorized_map(
+            lambda lim: pdf.sample(1, limits=(lim[0], lim[1])), iterator
+        )
+
     return mass_func
 
 
@@ -39,12 +44,21 @@ def relativistic_breitwigner(mass, width):
     def mass_func(min_mass, max_mass, n_events):
         min_mass = tf.cast(min_mass, tf.float64)
         max_mass = tf.cast(max_mass, tf.float64)
-        pdf = zphys.pdf.RelativisticBreitWigner(m=particle_mass, gamma=particle_width, obs='')
+        pdf = zphys.pdf.RelativisticBreitWigner(
+            m=particle_mass, gamma=particle_width, obs=""
+        )
         iterator = tf.stack([min_mass, max_mass], axis=-1)
         # TODO this works with map_fn but not with vectorized_map for some reason.
         #  Does not work for e.g., zfit.pdf.CrystalBall either
-        return tf.map_fn(lambda lim: pdf.sample(1, limits=(lim[0], lim[1])).unstack_x(), iterator)
+        return tf.map_fn(
+            lambda lim: pdf.sample(1, limits=(lim[0], lim[1])).unstack_x(), iterator
+        )
+
     return mass_func
 
 
-_DEFAULT_CONVERTER = {'gauss': gauss, 'BW': breitwigner, 'rel-BW': relativistic_breitwigner}
+_DEFAULT_CONVERTER = {
+    "gauss": gauss,
+    "BW": breitwigner,
+    "rel-BW": relativistic_breitwigner,
+}
