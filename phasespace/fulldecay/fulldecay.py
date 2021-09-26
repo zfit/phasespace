@@ -197,9 +197,8 @@ def _recursively_traverse(
     list[tuple[float, GenParticle]]
         The generated particle
     """
-    original_mother_name = list(decaychain.keys())[
-        0
-    ]  # Get the only key inside the dict
+    # Get the only key inside the decaychain dict
+    original_mother_name, = decaychain.keys()
 
     if preexisting_particles is None:
         preexisting_particles = set()
