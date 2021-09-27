@@ -14,10 +14,9 @@ _DEFAULT_MASS_FUNC = "rel-BW"
 
 
 class FullDecay:
-    """A container that works like GenParticle that can handle multiple decays."""
-
     def __init__(self, gen_particles: list[tuple[float, GenParticle]]):
-        """Create an instance of FullDecay.
+        """
+        A container that works like GenParticle that can handle multiple decays. Can be created from
 
         Parameters
         ----------
