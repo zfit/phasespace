@@ -24,8 +24,6 @@ def check_norm(full_decay: FullDecay, **kwargs) -> list[tuple]:
     -----
     The function is called check_norm instead of test_norm since it is used by other functions and is not a stand-alone test.
     """
-    a = 2
-    assert a == 1
     all_return_args = []
     for norm in (True, False):
         return_args = full_decay.generate(normalize_weights=norm, **kwargs)
