@@ -12,4 +12,3 @@ except ModuleNotFoundError as error:
         "Either install phasespace[fulldecay] or particle and zfit-physics.",
         file=sys.stderr,
     ) from error
-
