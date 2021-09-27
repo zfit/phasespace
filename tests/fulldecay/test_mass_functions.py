@@ -15,20 +15,16 @@ KSTARZ_WIDTH = _kstarz.width
 def ref_mass_func(min_mass, max_mass, n_events):
     """Reference mass function used to compare the behavior of the actual mass functions.
 
-    Parameters
-    ----------
-    min_mass
-    max_mass
-    n_events
+    Args:
+        min_mass: lower limit of mass.
+        max_mass: upper limit of mass.
+        n_events: number of mass values that should be generated.
 
-    Returns
-    -------
-    kstar_mass
-        Mass generated
+    Returns:
+        kstar_mass: Generated mass.
 
-    Notes
-    -----
-    Code taken from phasespace documentation.
+    Notes:
+        Code taken from phasespace documentation.
     """
     min_mass = tf.cast(min_mass, tf.float64)
     max_mass = tf.cast(max_mass, tf.float64)

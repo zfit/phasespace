@@ -6,24 +6,14 @@ from .example_decay_chains import *  # TODO remove * since it is bad practice?
 
 
 def check_norm(full_decay: FullDecay, **kwargs) -> list[tuple]:
-    """Checks whether the normalize_weights argument works for FullDecay.generate.
+    """Helper function that checks whether the normalize_weights argument works for FullDecay.generate.
+    Args:
+        full_decay: full_decay.generate will be called.
+        kwargs: Additional parameters passed to generate.
 
-    Parameters
-    ----------
-    full_decay : FullDecay
-        full_decay.generate will be called.
-    kwargs
-        Additional parameters passed to generate.
-
-    Returns
-    -------
-    list[tuple]
+    Returns:
         All the values returned by generate, both times.
         The return arguments from normalize_weights=True is the first element in the returned list.
-
-    Notes
-    -----
-    The function is called check_norm instead of test_norm since it is used by other functions and is not a stand-alone test.
     """
     all_return_args = []
     for norm in (True, False):
@@ -64,6 +54,7 @@ def test_single_chain():
 
 
 def test_branching_children():
+    """Test converting a decaylanguage dict where the mother particle can decay in many ways."""
     container = FullDecay.from_dict(pi0_4branches, tolerance=1e-10)
     output_decays = container.gen_particles
     assert len(output_decays) == 4
@@ -73,6 +64,7 @@ def test_branching_children():
 
 
 def test_branching_grandchilden():
+    """Test converting a decaylanguage dict where children to the mother particle can decay in many ways."""
     container = FullDecay.from_dict(dplus_4grandbranches)
     output_decays = container.gen_particles
     assert_almost_equal(sum(d[0] for d in output_decays), 1)

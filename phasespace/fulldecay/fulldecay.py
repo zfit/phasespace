@@ -17,14 +17,12 @@ class FullDecay:
     def __init__(self, gen_particles: list[tuple[float, GenParticle]]):
         """A container that works like GenParticle that can handle multiple decays. Can be created from.
 
-        Parameters
-        ----------
-        gen_particles : list[tuple[float, GenParticle]]
-            All the GenParticles and their corresponding probabilities.
+        Args:
+        gen_particles: All the GenParticles and their corresponding probabilities.
             The list must be of the format [[probability, GenParticle instance], [probability, ...
-        Notes
-        -----
-        Input format might change
+
+        Notes:
+            Input format might change
         """
         self.gen_particles = gen_particles
 
@@ -37,22 +35,15 @@ class FullDecay:
     ):
         """Create a FullDecay instance from a dict in the decaylanguage format.
 
-        Parameters
-        ----------
-        dec_dict : dict
-            The input dict from which the FullDecay object will be created from.
-        mass_converter : dict[str, Callable]
-            A dict with mass function names and their corresponding mass functions.
-            These functions should take the particle mass and the mass width as inputs
+        Args:
+            dec_dict: The input dict from which the FullDecay object will be created from.
+            mass_converter: A dict with mass function names and their corresponding mass functions.
+                These functions should take the particle mass and the mass width as inputs
+                and return a mass function that phasespace can understand.
+                This dict will be combined with the predefined mass functions in this package.
+            tolerance: Minimum mass width of the particle to use a mass function instead of assuming the mass to be constant.
 
-            and return a mass function that phasespace can understand.
-            This dict will be combined with the predefined mass functions in this package.
-        tolerance : float
-            Minimum mass width of the particle to use a mass function instead of assuming the mass to be constant.
-
-        Returns
-        -------
-        FullDecay
+        Returns:
             The created FullDecay object.
         """
         if mass_converter is None:
@@ -74,22 +65,17 @@ class FullDecay:
     ]:
         """Generate four-momentum vectors from the decay(s).
 
-        Parameters
-        ----------
-        n_events : int
-            Total number of events combined, for all the decays.
-        normalize_weights : bool
-            Normalize weights according to all events generated. This also changes the return values.
-            See the phasespace documentation for more details.
-        kwargs
-            Additional parameters passed to all calls of GenParticle.generate
+        Args:
+            n_events: Total number of events combined, for all the decays.
+            normalize_weights: Normalize weights according to all events generated. This also changes the return values.
+                See the phasespace documentation for more details.
+            kwargs: Additional parameters passed to all calls of GenParticle.generate
 
-        Returns
-        -------
-        The arguments returned by GenParticle.generate are returned. See the phasespace documentation for details.
-        However, instead of being 2 or 3 tensors, it is 2 or 3 lists of tensors, each entry in the lists corresponding
-        to the return arguments from the corresponding GenParticle instances in self.gen_particles.
-        Note that when normalize_weights is True, the weights are normalized to the maximum of all returned events.
+        Returns:
+            The arguments returned by GenParticle.generate are returned. See the phasespace documentation for details.
+            However, instead of being 2 or 3 tensors, it is 2 or 3 lists of tensors, each entry in the lists corresponding
+            to the return arguments from the corresponding GenParticle instances in self.gen_particles.
+            Note that when normalize_weights is True, the weights are normalized to the maximum of all returned events.
         """
         # Input to tf.random.categorical must be 2D
         rand_i = tf.random.categorical(
@@ -118,18 +104,13 @@ class FullDecay:
 def _unique_name(name: str, preexisting_particles: set[str]) -> str:
     """Create a string that does not exist in preexisting_particles based on name.
 
-    Parameters
-    ----------
-    name : str
-        Name that should be
-    preexisting_particles : set[str]
-        Preexisting names
+    Args:
+        name: Original name
+        preexisting_particles: Names that the particle cannot have as name.
 
-    Returns
-    -------
-    name : str
-        Will be `name` if `name` is not in preexisting_particles or of the format "name [i]" where i will begin at 0
-        and increase until the name is not preexisting_particles.
+    Returns:
+        name: Will be `name` if `name` is not in preexisting_particles or of the format "name [i]" where i begins at 0
+            and increases until the name is not preexisting_particles.
     """
     if name not in preexisting_particles:
         preexisting_particles.add(name)
@@ -152,18 +133,12 @@ def _get_particle_mass(
 ) -> Union[Callable, float]:
     """
     Get mass or mass function of particle using the particle package.
-    Parameters
-    ----------
-    name : str
-        Name of the particle. Name must be recognizable by the particle package.
-    tolerance : float
-        See _recursively_traverse
+    Args:
+        name: Name of the particle. Name must be recognizable by the particle package.
+        tolerance : See _recursively_traverse
 
-    Returns
-    -------
-    Callable, float
-        Returns a function if the mass has a width smaller than tolerance.
-        Otherwise, return a constant mass.
+    Returns:
+        A function if the mass has a width smaller than tolerance. Otherwise, return a constant mass.
     TODO try to cache results for this function in the future for speedup.
     """
     particle = Particle.from_evtgen_name(name)
@@ -182,19 +157,13 @@ def _recursively_traverse(
 ) -> list[tuple[float, GenParticle]]:
     """Create all possible GenParticles by recursively traversing a dict from decaylanguage.
 
-    Parameters
-    ----------
-    decaychain: dict
-        Decay chain with the format from decaylanguage
-    preexisting_particles : set
-        names of all particles that have already been created.
-    tolerance : float
-        Minimum mass width for a particle to set a non-constant mass to a particle.
+    Args:
+        decaychain: Decay chain with the format from decaylanguage
+    preexisting_particles: Names of all particles that have already been created.
+    tolerance: Minimum mass width for a particle to set a non-constant mass to a particle.
 
-    Returns
-    -------
-    list[tuple[float, GenParticle]]
-        The generated particle
+    Returns:
+        The generated GenParticle instances, one for each possible way of the decay.
     """
     # Get the only key inside the decaychain dict
     (original_mother_name,) = decaychain.keys()
