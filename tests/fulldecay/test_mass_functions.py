@@ -3,11 +3,13 @@ from typing import Callable
 import pytest
 import tensorflow as tf
 import tensorflow_probability as tfp
+from particle import Particle
 
 import phasespace.fulldecay.mass_functions as mf
 
-KSTARZ_MASS = 895.81
-KSTARZ_WIDTH = 47.4
+_kstarz = Particle.from_evtgen_name('K*0')
+KSTARZ_MASS = _kstarz.mass
+KSTARZ_WIDTH = _kstarz.width
 
 
 def ref_mass_func(min_mass, max_mass, n_events):
@@ -53,4 +55,4 @@ def test_shape(function: Callable, size: int, params: tuple = (1.0, 1.0)):
     assert sample.shape[0] == ref_sample.shape[0]
     assert all(
         i <= 1 for i in sample.shape[1:]
-    )  # Sample.shape have extra dimensions with just 1 or 0, but code still seems to work
+    )  # Sample.shape have extra dimensions with just 1 or 0, which can be ignored
