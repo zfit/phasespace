@@ -43,7 +43,8 @@ class FullDecay:
             The input dict from which the FullDecay object will be created from.
         mass_converter : dict[str, Callable]
             A dict with mass function names and their corresponding mass functions.
-            These functions should take the average particle mass and the mass width as inputs
+            These functions should take the particle mass and the mass width as inputs
+
             and return a mass function that phasespace can understand.
             This dict will be combined with the predefined mass functions in this package.
         tolerance : float
