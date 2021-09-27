@@ -1,4 +1,4 @@
-from example_decay_chains import *  # TODO remove * since it is bad practice?
+from .example_decay_chains import *  # TODO remove * since it is bad practice?
 from numpy.testing import assert_almost_equal
 
 from phasespace.fulldecay import FullDecay
@@ -24,6 +24,8 @@ def check_norm(full_decay: FullDecay, **kwargs) -> list[tuple]:
     -----
     The function is called check_norm instead of test_norm since it is used by other functions and is not a stand-alone test.
     """
+    a = 2
+    assert a == 1
     all_return_args = []
     for norm in (True, False):
         return_args = full_decay.generate(normalize_weights=norm, **kwargs)

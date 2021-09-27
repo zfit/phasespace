@@ -1,3 +1,4 @@
 import pytest
 
-pytest.register_assert_rewrite('fulldecay.test_fulldecay.check_norm')
+# This makes it so that assert errors are more helpful for e.g., the check_norm helper function
+pytest.register_assert_rewrite('fulldecay.test_fulldecay')
