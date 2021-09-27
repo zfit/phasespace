@@ -15,8 +15,7 @@ _DEFAULT_MASS_FUNC = "rel-BW"
 
 class FullDecay:
     def __init__(self, gen_particles: list[tuple[float, GenParticle]]):
-        """
-        A container that works like GenParticle that can handle multiple decays. Can be created from
+        """A container that works like GenParticle that can handle multiple decays. Can be created from.
 
         Parameters
         ----------
@@ -197,7 +196,7 @@ def _recursively_traverse(
         The generated particle
     """
     # Get the only key inside the decaychain dict
-    original_mother_name, = decaychain.keys()
+    (original_mother_name,) = decaychain.keys()
 
     if preexisting_particles is None:
         preexisting_particles = set()

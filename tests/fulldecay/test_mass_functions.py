@@ -7,7 +7,7 @@ from particle import Particle
 
 import phasespace.fulldecay.mass_functions as mf
 
-_kstarz = Particle.from_evtgen_name('K*0')
+_kstarz = Particle.from_evtgen_name("K*0")
 KSTARZ_MASS = _kstarz.mass
 KSTARZ_WIDTH = _kstarz.width
 

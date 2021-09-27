@@ -1,7 +1,8 @@
-from .example_decay_chains import *  # TODO remove * since it is bad practice?
 from numpy.testing import assert_almost_equal
 
 from phasespace.fulldecay import FullDecay
+
+from .example_decay_chains import *  # TODO remove * since it is bad practice?
 
 
 def check_norm(full_decay: FullDecay, **kwargs) -> list[tuple]:
