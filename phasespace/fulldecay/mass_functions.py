@@ -48,9 +48,8 @@ def relativistic_breitwigner(mass, width):
             m=particle_mass, gamma=particle_width, obs=""
         )
         iterator = tf.stack([min_mass, max_mass], axis=-1)
-        # TODO this works with map_fn but not with vectorized_map as no analytic sampling is available.
 
-        #  Does not work for e.g., zfit.pdf.CrystalBall either
+        # TODO this works with map_fn but not with vectorized_map as no analytic sampling is available.
         return tf.map_fn(
             lambda lim: pdf.sample(1, limits=(lim[0], lim[1])).unstack_x(), iterator
         )
