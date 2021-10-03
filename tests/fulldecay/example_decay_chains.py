@@ -20,7 +20,9 @@ dplus_4grandbranches = dfp.build_decay_chains("D+")
 # Specify different mass functions for the different decays of pi0
 mass_functions = ["relbw", "bw", "gauss"]
 
-for mass_function, decay_mode in zip(mass_functions, dplus_4grandbranches["D+"][0]["fs"][-1]["pi0"]):
+for mass_function, decay_mode in zip(
+    mass_functions, dplus_4grandbranches["D+"][0]["fs"][-1]["pi0"]
+):
     decay_mode["zfit"] = mass_function
 
 # D*+ particle that has multiple child particles, grandchild particles, many of which can decay in multiple ways.

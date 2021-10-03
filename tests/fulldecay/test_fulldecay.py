@@ -76,11 +76,14 @@ def test_branching_grandchilden():
 
 
 def test_mass_converter():
-    """Test that the mass_converter parameter works as intended"""
+    """Test that the mass_converter parameter works as intended."""
     dplus_4grandbranches_massfunc = dplus_4grandbranches.copy()
     dplus_4grandbranches_massfunc["D+"][0]["fs"][-1]["pi0"][-1]["zfit"] = "rel-BW"
-    container = FullDecay.from_dict(dplus_4grandbranches_massfunc, tolerance=1e-10,
-                                    mass_converter={"rel-BW": _DEFAULT_CONVERTER["relbw"]})
+    container = FullDecay.from_dict(
+        dplus_4grandbranches_massfunc,
+        tolerance=1e-10,
+        mass_converter={"rel-BW": _DEFAULT_CONVERTER["relbw"]},
+    )
     output_decays = container.gen_particles
     assert len(output_decays) == 4
     assert_almost_equal(sum(d[0] for d in output_decays), 1)
