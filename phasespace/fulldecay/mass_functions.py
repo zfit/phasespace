@@ -49,7 +49,7 @@ def relativistic_breitwigner(mass, width):
         )
         iterator = tf.stack([min_mass, max_mass], axis=-1)
 
-        # TODO this works with map_fn but not with vectorized_map as no analytic sampling is available.
+        # this works with map_fn but not with vectorized_map as no analytic sampling is available.
         return tf.map_fn(
             lambda lim: pdf.sample(1, limits=(lim[0], lim[1])).unstack_x(), iterator
         )
@@ -59,6 +59,6 @@ def relativistic_breitwigner(mass, width):
 
 _DEFAULT_CONVERTER = {
     "gauss": gauss,
-    "BW": breitwigner,
-    "rel-BW": relativistic_breitwigner,
+    "bw": breitwigner,
+    "relbw": relativistic_breitwigner,
 }

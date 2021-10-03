@@ -10,7 +10,7 @@ from phasespace import GenParticle
 from .mass_functions import _DEFAULT_CONVERTER
 
 _MASS_WIDTH_TOLERANCE = 0.01
-_DEFAULT_MASS_FUNC = "rel-BW"
+_DEFAULT_MASS_FUNC = "relbw"
 
 
 class FullDecay:
