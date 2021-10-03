@@ -64,30 +64,34 @@ def test_branching_children():
     (normed_weights, events), _ = check_norm(container, n_events=100)
 
 
-def test_mass_converter():
-    """Test that the mass_converter parameter works as intended"""
-    pi0_4branches_copy = pi0_4branches.copy()
-    pi0_4branches_copy[-1]["zfit"] = "rel-BW"
-    container = FullDecay.from_dict(pi0_4branches, tolerance=1e-10,
-                                    mass_converter={"rel-BW": _DEFAULT_CONVERTER["relbw"]})
-
-    output_decays = container.gen_particles
-    assert len(output_decays) == 4
-    assert_almost_equal(sum(d[0] for d in output_decays), 1)
-    assert all(not decay.has_fixed_mass() for decay in output_decays)
-
-    check_norm(container, n_events=1)
-    (normed_weights, events), _ = check_norm(container, n_events=100)
-
-
 def test_branching_grandchilden():
     """Test converting a decaylanguage dict where children to the mother particle can decay in many ways."""
     container = FullDecay.from_dict(dplus_4grandbranches)
     output_decays = container.gen_particles
+    assert len(output_decays) == 4
     assert_almost_equal(sum(d[0] for d in output_decays), 1)
     check_norm(container, n_events=1)
     (normed_weights, events), _ = check_norm(container, n_events=100)
     # TODO add more asserts here
+
+
+def test_mass_converter():
+    """Test that the mass_converter parameter works as intended"""
+    dplus_4grandbranches_massfunc = dplus_4grandbranches.copy()
+    dplus_4grandbranches_massfunc["D+"][0]["fs"][-1]["pi0"][-1]["zfit"] = "rel-BW"
+    container = FullDecay.from_dict(dplus_4grandbranches_massfunc, tolerance=1e-10,
+                                    mass_converter={"rel-BW": _DEFAULT_CONVERTER["relbw"]})
+    output_decays = container.gen_particles
+    assert len(output_decays) == 4
+    assert_almost_equal(sum(d[0] for d in output_decays), 1)
+
+    for decay in output_decays:
+        for child in decay[1].children:
+            if "pi0" in child.name:
+                assert not child.has_fixed_mass
+
+    check_norm(container, n_events=1)
+    (normed_weights, events), _ = check_norm(container, n_events=100)
 
 
 def test_big_decay():
