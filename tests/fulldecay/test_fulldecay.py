@@ -1,6 +1,7 @@
 from numpy.testing import assert_almost_equal
 
 from phasespace.fulldecay import FullDecay
+from phasespace.fulldecay.mass_functions import _DEFAULT_CONVERTER
 
 from .example_decay_chains import *  # TODO remove * since it is bad practice?
 
@@ -59,6 +60,22 @@ def test_branching_children():
     output_decays = container.gen_particles
     assert len(output_decays) == 4
     assert_almost_equal(sum(d[0] for d in output_decays), 1)
+    check_norm(container, n_events=1)
+    (normed_weights, events), _ = check_norm(container, n_events=100)
+
+
+def test_mass_converter():
+    """Test that the mass_converter parameter works as intended"""
+    pi0_4branches_copy = pi0_4branches.copy()
+    pi0_4branches_copy[-1]["zfit"] = "rel-BW"
+    container = FullDecay.from_dict(pi0_4branches, tolerance=1e-10,
+                                    mass_converter={"rel-BW": _DEFAULT_CONVERTER["relbw"]})
+
+    output_decays = container.gen_particles
+    assert len(output_decays) == 4
+    assert_almost_equal(sum(d[0] for d in output_decays), 1)
+    assert all(not decay.has_fixed_mass() for decay in output_decays)
+
     check_norm(container, n_events=1)
     (normed_weights, events), _ = check_norm(container, n_events=100)
 
