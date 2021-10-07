@@ -58,7 +58,7 @@ class FullDecay:
         return cls(gen_particles)
 
     def generate(
-        self, n_events: int, normalize_weights: bool = False, **kwargs
+        self, n_events: int, normalize_weights: bool = True, **kwargs
     ) -> Union[
         tuple[list[tf.Tensor], list[tf.Tensor]],
         tuple[list[tf.Tensor], list[tf.Tensor], list[tf.Tensor]],
