@@ -5,7 +5,7 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 from particle import Particle
 
-import phasespace.fulldecay.mass_functions as mf
+import phasespace.fromdecay.mass_functions as mf
 
 _kstarz = Particle.from_evtgen_name("K*0")
 KSTARZ_MASS = _kstarz.mass
