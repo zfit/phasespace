@@ -25,5 +25,5 @@ for mass_function, decay_mode in zip(
 ):
     decay_mode["zfit"] = mass_function
 
-# D*+ particle that has multiple child particles, grandchild particles, many of which can decay in multiple ways.
+# D*+ particle that has multiple children, grandchild particles, many of which can decay in multiple ways.
 dstarplus_big_decay = dfp.build_decay_chains("D*+")
