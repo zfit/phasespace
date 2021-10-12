@@ -41,8 +41,7 @@ class FullDecay:
                 These functions should take the particle mass and the mass width as inputs
                 and return a mass function that phasespace can understand.
                 This dict will be combined with the predefined mass functions in this package.
-            tolerance: Minimum mass width of the particle to use a mass function instead of assuming the mass
-                to be constant.
+            tolerance: Minimum mass width of the particle to use a mass function instead of assuming the mass to be constant.
 
         Returns:
             The created FullDecay object.
@@ -50,7 +49,7 @@ class FullDecay:
         if mass_converter is None:
             total_mass_converter = _DEFAULT_CONVERTER
         else:
-            # Combine the default mass functions with the mass functions specified from the input.
+            # Combine the mass functions specified by the package to the mass functions specified from the input.
             total_mass_converter = {**_DEFAULT_CONVERTER, **mass_converter}
 
         gen_particles = _recursively_traverse(
@@ -68,19 +67,15 @@ class FullDecay:
 
         Args:
             n_events: Total number of events combined, for all the decays.
-            normalize_weights: Normalize weights according to all events generated.
-                This also changes the return values.
+            normalize_weights: Normalize weights according to all events generated. This also changes the return values.
                 See the phasespace documentation for more details.
             kwargs: Additional parameters passed to all calls of GenParticle.generate
 
         Returns:
-            The arguments returned by GenParticle.generate are returned.
-            See the phasespace documentation for details.
-            However, instead of being 2 or 3 tensors, it is 2 or 3 lists of tensors, each entry in the lists
-            corresponding to the return arguments from the corresponding GenParticle instances in
-            self.gen_particles.
-            Note that when normalize_weights is True, the weights are normalized to the maximum of all
-            returned events.
+            The arguments returned by GenParticle.generate are returned. See the phasespace documentation for details.
+            However, instead of being 2 or 3 tensors, it is 2 or 3 lists of tensors, each entry in the lists corresponding
+            to the return arguments from the corresponding GenParticle instances in self.gen_particles.
+            Note that when normalize_weights is True, the weights are normalized to the maximum of all returned events.
         """
         # Input to tf.random.categorical must be 2D
         rand_i = tf.random.categorical(
@@ -114,8 +109,8 @@ def _unique_name(name: str, preexisting_particles: set[str]) -> str:
         preexisting_particles: Names that the particle cannot have as name.
 
     Returns:
-        name: Will be `name` if `name` is not in preexisting_particles or of the format "name [i]" where i
-            begins at 0 and increases until the name is not preexisting_particles.
+        name: Will be `name` if `name` is not in preexisting_particles or of the format "name [i]" where i begins at 0
+            and increases until the name is not preexisting_particles.
     """
     if name not in preexisting_particles:
         preexisting_particles.add(name)
