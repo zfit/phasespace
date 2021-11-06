@@ -20,9 +20,6 @@ class GenMultiDecay:
         Args:
         gen_particles: All the GenParticles and their corresponding probabilities.
             The list must be of the format [[probability, GenParticle instance], [probability, ...
-
-        Notes:
-            Input format might change
         """
         self.gen_particles = gen_particles
 
@@ -39,9 +36,6 @@ class GenMultiDecay:
             dec_dict:
                 The input dict from which the GenMultiDecay object will be created from.
                 A dec_dict has the same structure as the dicts used in DecayLanguage.
-                The structure of these dicts are:
-                >>> {particle_name: [{TODO}]}
-
             mass_converter: A dict with mass function names and their corresponding mass functions.
                 These functions should take the particle mass and the mass width as inputs
                 and return a mass function that phasespace can understand.
@@ -52,6 +46,68 @@ class GenMultiDecay:
 
         Returns:
             The created GenMultiDecay object.
+
+        Examples:
+            DecayLanguage is usually used to create a dict that can be understood by GenMultiDecay.
+            >>> from decaylanguage import DecFileParser
+            >>> from phasespace.fromdecay import GenMultiDecay
+
+            Parse a .dec file to create a DecayLanguage dict describing a D*+ particle
+            that can decay in 2 different ways: D*+ -> D0(->K- pi+) pi+ or D*+ -> D+ gamma.
+
+            >>> parser = DecFileParser('example_decays.dec')
+            >>> parser.parse()
+            >>> dst_chain = parser.build_decay_chains("D*+")
+            >>> dst_chain
+            {'D*+': [{'bf': 0.984,
+                'fs': [{'D0': [{'bf': 1.0,
+                        'fs': ['K-', 'pi+']}]},
+                    'pi+']},
+                {'bf': 0.016,
+                 'fs': ['D+', 'gamma']}]}
+
+            If the D0 particle should have a mass distribution of a gaussian when it decays into K- and pi+
+            a `zfit` parameter can be added to its decay dict:
+            >>> dst_chain["D*+"][0]["fs"][0]["D0"][0]["zfit"] = "gauss"
+            >>> dst_chain
+            {'D*+': [{'bf': 0.984,
+                'fs': [{'D0': [{'bf': 1.0,
+                        'fs': ['K-', 'pi+'],
+                        'zfit': 'gauss'}]},
+                    'pi+']},
+                {'bf': 0.016,
+                'fs': ['D+', 'gamma']}]}
+
+            This dict can then be passed to `GenMultiDecay.from_dict`:
+            >>> dst_gen = GenMultiDecay.from_dict(dst_chain)
+
+            If the decay of the D0 particle instead should be modelled by a mass distribution that does not
+            come with the package, a custom distribution can be created:
+            >>> def custom_gauss(mass, width):
+            >>>     particle_mass = tf.cast(mass, tf.float64)
+            >>>     particle_width = tf.cast(width, tf.float64)
+            >>>     def mass_func(min_mass, max_mass, n_events):
+            >>>         min_mass = tf.cast(min_mass, tf.float64)
+            >>>         max_mass = tf.cast(max_mass, tf.float64)
+            >>>         # Use a zfit PDF
+            >>>         pdf = zfit.pdf.Gauss(mu=particle_mass, sigma=particle_width, obs="")
+            >>>         iterator = tf.stack([min_mass, max_mass], axis=-1)
+            >>>         return tf.vectorized_map(
+            >>>             lambda lim: pdf.sample(1, limits=(lim[0], lim[1])), iterator
+            >>>         )
+            >>>     return mass_func
+
+            Once again change the distribution in the `dst_chain` dict. Here, it is changed to "custom gauss"
+            but any name can be used.
+            >>> dst_chain["D*+"][0]["fs"][0]["D0"][0]["zfit"] = "custom gauss"
+
+            One can then pass the `custom_gauss` function and its name (in this case "custom gauss") as a
+            `dict`to `from_dict` as the mass_converter parameter:
+            >>> dst_gen = GenMultiDecay.from_dict(dst_chain, mass_converter={"custom gauss": custom_gauss})
+
+        Notes:
+            For a more in-depth tutorial, see the tutorial on GenMultiDecay in the
+            [documentation](https://phasespace.readthedocs.io/en/stable/tutorials/GenMultiDecay_Tutorial).
         """
         if mass_converter is None:
             total_mass_converter = _DEFAULT_CONVERTER
