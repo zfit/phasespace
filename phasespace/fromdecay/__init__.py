@@ -1,6 +1,6 @@
 import sys
 
-from .multidecaychain import MultiDecayChain  # noqa: F401
+from .genmultidecay import GenMultiDecay  # noqa: F401
 
 try:
     import zfit  # noqa: F401

@@ -13,7 +13,7 @@ _MASS_WIDTH_TOLERANCE = 0.01
 _DEFAULT_MASS_FUNC = "relbw"
 
 
-class MultiDecayChain:
+class GenMultiDecay:
     def __init__(self, gen_particles: list[tuple[float, GenParticle]]):
         """A container that works like GenParticle that can handle multiple decays. Can be created from.
 
@@ -33,19 +33,25 @@ class MultiDecayChain:
         mass_converter: dict[str, Callable] = None,
         tolerance: float = _MASS_WIDTH_TOLERANCE,
     ):
-        """Create a MultiDecayChain instance from a dict in the decaylanguage format.
+        """Create a GenMultiDecay instance from a dict in the decaylanguage format.
 
         Args:
-            dec_dict: The input dict from which the MultiDecayChain object will be created from.
+            dec_dict:
+                The input dict from which the GenMultiDecay object will be created from.
+                A dec_dict has the same structure as the dicts used in DecayLanguage.
+                The structure of these dicts are:
+                >>> {particle_name: [{TODO}]}
+
             mass_converter: A dict with mass function names and their corresponding mass functions.
                 These functions should take the particle mass and the mass width as inputs
                 and return a mass function that phasespace can understand.
                 This dict will be combined with the predefined mass functions in this package.
+                TODO more docs here
             tolerance: Minimum mass width of the particle to use a mass function instead of
                 assuming the mass to be constant.
 
         Returns:
-            The created MultiDecayChain object.
+            The created GenMultiDecay object.
         """
         if mass_converter is None:
             total_mass_converter = _DEFAULT_CONVERTER
