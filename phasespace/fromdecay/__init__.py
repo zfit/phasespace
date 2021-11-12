@@ -1,4 +1,5 @@
 import sys
+from typing import Tuple
 
 from .genmultidecay import GenMultiDecay  # noqa: F401
 
@@ -12,3 +13,10 @@ except ModuleNotFoundError as error:
         "Either install phasespace[fromdecay] or particle and zfit-physics.",
         file=sys.stderr,
     ) from error
+
+
+__all__ = ("GenMultiDecay", "MASS_WIDTH_TOLERANCE", "DEFAULT_MASS_FUNC")
+
+
+def __dir__() -> Tuple[str, ...]:
+    return __all__

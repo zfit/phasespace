@@ -9,8 +9,8 @@ from phasespace import GenParticle
 
 from .mass_functions import _DEFAULT_CONVERTER
 
-_MASS_WIDTH_TOLERANCE = 0.01
-_DEFAULT_MASS_FUNC = "relbw"
+MASS_WIDTH_TOLERANCE = 0.01
+DEFAULT_MASS_FUNC = "relbw"
 
 
 class GenMultiDecay:
@@ -18,8 +18,8 @@ class GenMultiDecay:
         """A `GenParticle`-type container that can handle multiple decays.
 
         Args:
-        gen_particles: All the GenParticles and their corresponding probabilities.
-            The list must be of the format [[probability, GenParticle instance], [probability, ...
+            gen_particles: All the GenParticles and their corresponding probabilities.
+                The list must be of the format [[probability, GenParticle instance], [probability, ...
         """
         self.gen_particles = gen_particles
 
@@ -28,7 +28,7 @@ class GenMultiDecay:
         cls,
         dec_dict: dict,
         mass_converter: dict[str, Callable] = None,
-        tolerance: float = _MASS_WIDTH_TOLERANCE,
+        tolerance: float = MASS_WIDTH_TOLERANCE,
     ):
         """Create a `GenMultiDecay` instance from a dict in the `DecayLanguage` package format, which is
         typically the result of parsing a `.dec` decay file.
@@ -194,7 +194,7 @@ def _get_particle_mass(
     name: str,
     mass_converter: dict[str, Callable],
     mass_func: str,
-    tolerance: float = _MASS_WIDTH_TOLERANCE,
+    tolerance: float = MASS_WIDTH_TOLERANCE,
 ) -> Union[Callable, float]:
     """
     Get mass or mass function of particle using the particle package.
@@ -218,7 +218,7 @@ def _recursively_traverse(
     decaychain: dict,
     mass_converter: dict[str, Callable],
     preexisting_particles: set[str] = None,
-    tolerance: float = _MASS_WIDTH_TOLERANCE,
+    tolerance: float = MASS_WIDTH_TOLERANCE,
 ) -> list[tuple[float, GenParticle]]:
     """Create all possible GenParticles by recursively traversing a dict from DecayLanguage, see Examples.
 
@@ -279,7 +279,7 @@ def _recursively_traverse(
                 mother_mass = _get_particle_mass(
                     original_mother_name,
                     mass_converter=mass_converter,
-                    mass_func=dm.get("zfit", _DEFAULT_MASS_FUNC),
+                    mass_func=dm.get("zfit", DEFAULT_MASS_FUNC),
                     tolerance=tolerance,
                 )
 
