@@ -41,9 +41,10 @@ class GenMultiDecay:
                 These functions should take the particle mass and the mass width as inputs
                 and return a mass function that phasespace can understand.
                 This dict will be combined with the predefined mass functions in this package.
-                TODO more docs here
+                See the Example below or the tutorial for how to use this parameter.
             tolerance: Minimum mass width of the particle to use a mass function instead of
-                assuming the mass to be constant.
+                assuming the mass to be constant. The default value is defined by MASS_WIDTH_TOLERANCE and
+                can be customized if desired.
 
         Returns:
             The created GenMultiDecay object.
@@ -98,17 +99,17 @@ class GenMultiDecay:
             >>>         )
             >>>     return mass_func
 
-            Once again change the distribution in the `dst_chain` dict. Here, it is changed to "custom gauss"
+            Once again change the distribution in the `dst_chain` dict. Here, it is changed to "custom_gauss"
             but any name can be used.
-            >>> dst_chain["D*+"][0]["fs"][0]["D0"][0]["zfit"] = "custom gauss"
+            >>> dst_chain["D*+"][0]["fs"][0]["D0"][0]["zfit"] = "custom_gauss"
 
-            One can then pass the `custom_gauss` function and its name (in this case "custom gauss") as a
+            One can then pass the `custom_gauss` function and its name (in this case "custom_gauss") as a
             `dict`to `from_dict` as the mass_converter parameter:
-            >>> dst_gen = GenMultiDecay.from_dict(dst_chain, mass_converter={"custom gauss": custom_gauss})
+            >>> dst_gen = GenMultiDecay.from_dict(dst_chain, mass_converter={"custom_gauss": custom_gauss})
 
         Notes:
             For a more in-depth tutorial, see the tutorial on GenMultiDecay in the
-            [documentation](https://phasespace.readthedocs.io/en/stable/tutorials/GenMultiDecay_Tutorial).
+            [documentation](https://phasespace.readthedocs.io/en/stable/GenMultiDecay_Tutorial.html).
         """
         if mass_converter is None:
             total_mass_converter = _DEFAULT_CONVERTER
