@@ -15,7 +15,8 @@ _DEFAULT_MASS_FUNC = "relbw"
 
 class GenMultiDecay:
     def __init__(self, gen_particles: list[tuple[float, GenParticle]]):
-        """A container that works like GenParticle that can handle multiple decays. Can be created from.
+        """A `GenParticle`-type container that can handle multiple decays.
+
 
         Args:
         gen_particles: All the GenParticles and their corresponding probabilities.
