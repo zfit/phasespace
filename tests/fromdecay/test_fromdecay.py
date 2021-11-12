@@ -32,7 +32,7 @@ def check_norm(full_decay: GenMultiDecay, **kwargs) -> list[tuple]:
 
 
 def test_single_chain():
-    """Test converting a decaylanguage dict with only one possible decay."""
+    """Test converting a DecayLanguage dict with only one possible decay."""
     container = GenMultiDecay.from_dict(
         example_decay_chains.dplus_single, tolerance=1e-10
     )
@@ -57,7 +57,7 @@ def test_single_chain():
 
 
 def test_branching_children():
-    """Test converting a decaylanguage dict where the mother particle can decay in many ways."""
+    """Test converting a DecayLanguage dict where the mother particle can decay in many ways."""
     container = GenMultiDecay.from_dict(
         example_decay_chains.pi0_4branches, tolerance=1e-10
     )
@@ -69,7 +69,7 @@ def test_branching_children():
 
 
 def test_branching_grandchilden():
-    """Test converting a decaylanguage dict where children to the mother particle can decay in many ways."""
+    """Test converting a DecayLanguage dict where children to the mother particle can decay in many ways."""
     container = GenMultiDecay.from_dict(example_decay_chains.dplus_4grandbranches)
     output_decays = container.gen_particles
     assert len(output_decays) == 4

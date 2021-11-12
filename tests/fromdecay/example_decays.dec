@@ -1,4 +1,4 @@
-# File originally from decaylanguage tests: https://github.com/scikit-hep/decaylanguage/blob/master/tests/data/test_example_Dst.dec
+# File originally from DecayLanguage tests: https://github.com/scikit-hep/decaylanguage/blob/master/tests/data/test_example_Dst.dec
 # Example decay chain for testing purposes
 # Considered by itself, this file in in fact incomplete,
 # as there are no instructions on how to decay the anti-D0 and the D-!

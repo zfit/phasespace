@@ -220,12 +220,12 @@ def _recursively_traverse(
     preexisting_particles: set[str] = None,
     tolerance: float = _MASS_WIDTH_TOLERANCE,
 ) -> list[tuple[float, GenParticle]]:
-    """Create all possible GenParticles by recursively traversing a dict from decaylanguage.
+    """Create all possible GenParticles by recursively traversing a dict from DecayLanguage, see Examples.
 
     Args:
-        decaychain: Decay chain with the format from decaylanguage
-    preexisting_particles: Names of all particles that have already been created.
-    tolerance: Minimum mass width for a particle to set a non-constant mass to a particle.
+        decaychain: Decay chain with the format from DecayLanguage
+        preexisting_particles: Names of all particles that have already been created.
+        tolerance: Minimum mass width for a particle to set a non-constant mass to a particle.
 
     Returns:
         The generated GenParticle instances, one for each possible way of the decay.
