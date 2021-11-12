@@ -1,6 +1,5 @@
-"""This submodule makes it possible for `phasespace` and.
+"""This submodule makes it possible for `phasespace` and `DecayLanguage` to work together.
 
-[`DecayLanguage`](https://github.com/scikit-hep/decaylanguage/) to work together.
 More generally, the `GenMultiDecay` object can also be used as a high-level interface for simulating particles
 that can decay in multiple different ways.
 """

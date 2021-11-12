@@ -78,7 +78,7 @@ def test_branching_grandchilden():
     assert len(output_decays) == 4
     assert_almost_equal(sum(d[0] for d in output_decays), 1)
     check_norm(container, n_events=1)
-    (normed_weights, events), _ = check_norm(container, n_events=100)
+    check_norm(container, n_events=100)
     # TODO add more asserts here
 
 
@@ -101,7 +101,7 @@ def test_mass_converter():
                 assert not child.has_fixed_mass
 
     check_norm(container, n_events=1)
-    (normed_weights, events), _ = check_norm(container, n_events=100)
+    check_norm(container, n_events=100)
 
 
 def test_big_decay():
@@ -109,5 +109,5 @@ def test_big_decay():
     output_decays = container.gen_particles
     assert_almost_equal(sum(d[0] for d in output_decays), 1)
     check_norm(container, n_events=1)
-    (normed_weights, events), _ = check_norm(container, n_events=100)
+    check_norm(container, n_events=100)
     # TODO add more asserts here
