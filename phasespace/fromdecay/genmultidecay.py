@@ -17,7 +17,6 @@ class GenMultiDecay:
     def __init__(self, gen_particles: list[tuple[float, GenParticle]]):
         """A `GenParticle`-type container that can handle multiple decays.
 
-
         Args:
         gen_particles: All the GenParticles and their corresponding probabilities.
             The list must be of the format [[probability, GenParticle instance], [probability, ...
