@@ -30,8 +30,7 @@ class GenMultiDecay:
         mass_converter: Dict[str, Callable] = None,
         tolerance: float = MASS_WIDTH_TOLERANCE,
     ):
-        """Create a `GenMultiDecay` instance from a dict in the `DecayLanguage` package format, which is
-        typically the result of parsing a `.dec` decay file.
+        """Create a `GenMultiDecay` instance from a dict in the `DecayLanguage` package format.
 
         Args:
             dec_dict:
