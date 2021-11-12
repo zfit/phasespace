@@ -1,5 +1,5 @@
 import itertools
-from typing import Callable, Union
+from typing import Callable, Dict, List, Set, Tuple, Union
 
 import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
@@ -7,14 +7,14 @@ from particle import Particle
 
 from phasespace import GenParticle
 
-from .mass_functions import _DEFAULT_CONVERTER
+from .mass_functions import DEFAULT_CONVERTER
 
 MASS_WIDTH_TOLERANCE = 0.01
 DEFAULT_MASS_FUNC = "relbw"
 
 
 class GenMultiDecay:
-    def __init__(self, gen_particles: list[tuple[float, GenParticle]]):
+    def __init__(self, gen_particles: List[Tuple[float, GenParticle]]):
         """A `GenParticle`-type container that can handle multiple decays.
 
         Args:
@@ -27,7 +27,7 @@ class GenMultiDecay:
     def from_dict(
         cls,
         dec_dict: dict,
-        mass_converter: dict[str, Callable] = None,
+        mass_converter: Dict[str, Callable] = None,
         tolerance: float = MASS_WIDTH_TOLERANCE,
     ):
         """Create a `GenMultiDecay` instance from a dict in the `DecayLanguage` package format, which is
@@ -112,10 +112,10 @@ class GenMultiDecay:
             [documentation](https://phasespace.readthedocs.io/en/stable/GenMultiDecay_Tutorial.html).
         """
         if mass_converter is None:
-            total_mass_converter = _DEFAULT_CONVERTER
+            total_mass_converter = DEFAULT_CONVERTER
         else:
             # Combine the default mass functions specified with the mass functions from input.
-            total_mass_converter = {**_DEFAULT_CONVERTER, **mass_converter}
+            total_mass_converter = {**DEFAULT_CONVERTER, **mass_converter}
 
         gen_particles = _recursively_traverse(
             dec_dict, total_mass_converter, tolerance=tolerance
@@ -125,8 +125,8 @@ class GenMultiDecay:
     def generate(
         self, n_events: int, normalize_weights: bool = True, **kwargs
     ) -> Union[
-        tuple[list[tf.Tensor], list[tf.Tensor]],
-        tuple[list[tf.Tensor], list[tf.Tensor], list[tf.Tensor]],
+        Tuple[List[tf.Tensor], List[tf.Tensor]],
+        Tuple[List[tf.Tensor], List[tf.Tensor], List[tf.Tensor]],
     ]:
         """Generate four-momentum vectors from the decay(s).
 
@@ -167,7 +167,7 @@ class GenMultiDecay:
         return weights, max_weights, events
 
 
-def _unique_name(name: str, preexisting_particles: set[str]) -> str:
+def _unique_name(name: str, preexisting_particles: Set[str]) -> str:
     """Create a string that does not exist in preexisting_particles based on name.
 
     Args:
@@ -193,7 +193,7 @@ def _unique_name(name: str, preexisting_particles: set[str]) -> str:
 
 def _get_particle_mass(
     name: str,
-    mass_converter: dict[str, Callable],
+    mass_converter: Dict[str, Callable],
     mass_func: str,
     tolerance: float = MASS_WIDTH_TOLERANCE,
 ) -> Union[Callable, float]:
@@ -217,10 +217,10 @@ def _get_particle_mass(
 
 def _recursively_traverse(
     decaychain: dict,
-    mass_converter: dict[str, Callable],
-    preexisting_particles: set[str] = None,
+    mass_converter: Dict[str, Callable],
+    preexisting_particles: Set[str] = None,
     tolerance: float = MASS_WIDTH_TOLERANCE,
-) -> list[tuple[float, GenParticle]]:
+) -> List[Tuple[float, GenParticle]]:
     """Create all possible GenParticles by recursively traversing a dict from DecayLanguage, see Examples.
 
     Args:

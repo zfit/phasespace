@@ -57,7 +57,7 @@ def relativistic_breitwigner(mass, width):
     return mass_func
 
 
-_DEFAULT_CONVERTER = {
+DEFAULT_CONVERTER = {
     "gauss": gauss,
     "bw": breitwigner,
     "relbw": relativistic_breitwigner,
