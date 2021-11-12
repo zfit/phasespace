@@ -1,7 +1,17 @@
+"""This submodule makes it possible for `phasespace` and.
+
+[`DecayLanguage`](https://github.com/scikit-hep/decaylanguage/) to work together.
+More generally, the `GenMultiDecay` object can also be used as a high-level interface for simulating particles
+that can decay in multiple different ways.
+"""
 import sys
 from typing import Tuple
 
-from .genmultidecay import GenMultiDecay  # noqa: F401
+from .genmultidecay import (  # noqa: F401
+    DEFAULT_MASS_FUNC,
+    MASS_WIDTH_TOLERANCE,
+    GenMultiDecay,
+)
 
 try:
     import zfit  # noqa: F401

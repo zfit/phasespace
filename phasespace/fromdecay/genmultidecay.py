@@ -197,8 +197,8 @@ def _get_particle_mass(
     mass_func: str,
     tolerance: float = MASS_WIDTH_TOLERANCE,
 ) -> Union[Callable, float]:
-    """
-    Get mass or mass function of particle using the particle package.
+    """Get mass or mass function of particle using the particle package.
+
     Args:
         name: Name of the particle. Name must be recognizable by the particle package.
         tolerance : See _recursively_traverse

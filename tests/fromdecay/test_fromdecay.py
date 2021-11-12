@@ -10,6 +10,7 @@ from . import example_decay_chains
 
 def check_norm(full_decay: GenMultiDecay, **kwargs) -> List[tuple]:
     """Helper function that checks whether the normalize_weights argument works for GenMultiDecay.generate.
+
     Args:
         full_decay: full_decay.generate will be called.
         kwargs: Additional parameters passed to generate.
@@ -51,7 +52,7 @@ def test_single_chain():
             assert p.has_fixed_mass
 
     check_norm(container, n_events=1)
-    (normed_weights, decay_list), _ = check_norm(container, n_events=100)
+    (_, decay_list), _ = check_norm(container, n_events=100)
     assert len(decay_list) == 1
     events = decay_list[0]
     assert set(events.keys()) == {"K-", "pi+", "pi+ [0]", "pi0", "gamma", "gamma [0]"}
@@ -67,7 +68,7 @@ def test_branching_children():
     assert len(output_decays) == 4
     assert_almost_equal(sum(d[0] for d in output_decays), 1)
     check_norm(container, n_events=1)
-    (normed_weights, events), _ = check_norm(container, n_events=100)
+    check_norm(container, n_events=100)
 
 
 def test_branching_grandchilden():
