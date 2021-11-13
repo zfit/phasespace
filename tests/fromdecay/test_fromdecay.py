@@ -3,7 +3,7 @@ from typing import List
 from numpy.testing import assert_almost_equal
 
 from phasespace.fromdecay import GenMultiDecay
-from phasespace.fromdecay.mass_functions import _DEFAULT_CONVERTER
+from phasespace.fromdecay.mass_functions import DEFAULT_CONVERTER
 
 from . import example_decay_chains
 
@@ -89,7 +89,7 @@ def test_mass_converter():
     container = GenMultiDecay.from_dict(
         dplus_4grandbranches_massfunc,
         tolerance=1e-10,
-        mass_converter={"rel-BW": _DEFAULT_CONVERTER["relbw"]},
+        mass_converter={"rel-BW": DEFAULT_CONVERTER["relbw"]},
     )
     output_decays = container.gen_particles
     assert len(output_decays) == 4

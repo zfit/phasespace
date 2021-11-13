@@ -9,11 +9,11 @@ from phasespace import GenParticle
 
 from .mass_functions import DEFAULT_CONVERTER
 
-MASS_WIDTH_TOLERANCE = 0.01
-DEFAULT_MASS_FUNC = "relbw"
-
 
 class GenMultiDecay:
+    MASS_WIDTH_TOLERANCE = 0.01
+    DEFAULT_MASS_FUNC = "relbw"
+
     def __init__(self, gen_particles: List[Tuple[float, GenParticle]]):
         """A `GenParticle`-type container that can handle multiple decays.
 
@@ -194,7 +194,7 @@ def _get_particle_mass(
     name: str,
     mass_converter: Dict[str, Callable],
     mass_func: str,
-    tolerance: float = MASS_WIDTH_TOLERANCE,
+    tolerance: float = GenMultiDecay.MASS_WIDTH_TOLERANCE,
 ) -> Union[Callable, float]:
     """Get mass or mass function of particle using the particle package.
 
@@ -218,7 +218,7 @@ def _recursively_traverse(
     decaychain: dict,
     mass_converter: Dict[str, Callable],
     preexisting_particles: Set[str] = None,
-    tolerance: float = MASS_WIDTH_TOLERANCE,
+    tolerance: float = GenMultiDecay.MASS_WIDTH_TOLERANCE,
 ) -> List[Tuple[float, GenParticle]]:
     """Create all possible GenParticles by recursively traversing a dict from DecayLanguage, see Examples.
 
@@ -279,7 +279,7 @@ def _recursively_traverse(
                 mother_mass = _get_particle_mass(
                     original_mother_name,
                     mass_converter=mass_converter,
-                    mass_func=dm.get("zfit", DEFAULT_MASS_FUNC),
+                    mass_func=dm.get("zfit", GenMultiDecay.DEFAULT_MASS_FUNC),
                     tolerance=tolerance,
                 )
 

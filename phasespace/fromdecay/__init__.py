@@ -6,11 +6,7 @@ that can decay in multiple different ways.
 import sys
 from typing import Tuple
 
-from .genmultidecay import (  # noqa: F401
-    DEFAULT_MASS_FUNC,
-    MASS_WIDTH_TOLERANCE,
-    GenMultiDecay,
-)
+from .genmultidecay import GenMultiDecay  # noqa: F401
 
 try:
     import zfit  # noqa: F401
@@ -24,7 +20,7 @@ except ModuleNotFoundError as error:
     ) from error
 
 
-__all__ = ("GenMultiDecay", "MASS_WIDTH_TOLERANCE", "DEFAULT_MASS_FUNC")
+__all__ = ("GenMultiDecay",)
 
 
 def __dir__() -> Tuple[str, ...]:
