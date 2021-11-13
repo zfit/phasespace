@@ -42,8 +42,8 @@ class GenMultiDecay:
                 This dict will be combined with the predefined mass functions in this package.
                 See the Example below or the tutorial for how to use this parameter.
             tolerance: Minimum mass width of the particle to use a mass function instead of
-                assuming the mass to be constant. The default value is defined by MASS_WIDTH_TOLERANCE and
-                can be customized if desired.
+                assuming the mass to be constant. The default value is defined by the class variable
+                MASS_WIDTH_TOLERANCE and can be customized if desired.
 
         Returns:
             The created GenMultiDecay object.
