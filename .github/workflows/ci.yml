@@ -54,8 +54,12 @@ jobs:
       - name: Test with pytest
         run: |
           PHASESPACE_EAGER=0 pytest --basetemp={envtmpdir}
-          PHASESPACE_EAGER=0 pytest --nbval-lax docs
+          cd docs
+          PHASESPACE_EAGER=0 pytest --nbval-lax
+          cd ..
       - name: Test with pytest (eager mode)
         run: |
           PHASESPACE_EAGER=1 pytest --basetemp={envtmpdir}
+          cd docs
           PHASESPACE_EAGER=1 pytest --nbval-lax docs
+          cd ..
