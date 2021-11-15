@@ -55,11 +55,11 @@ jobs:
         run: |
           PHASESPACE_EAGER=0 pytest --basetemp={envtmpdir} tests
           cd docs
-          PHASESPACE_EAGER=0 pytest --nbval-lax
+          PHASESPACE_EAGER=0 pytest --nbval-lax --ignore=.ipynb_checkpoints
           cd ..
       - name: Test with pytest (eager mode)
         run: |
           PHASESPACE_EAGER=1 pytest --basetemp={envtmpdir} tests
           cd docs
-          PHASESPACE_EAGER=1 pytest --nbval-lax docs
+          PHASESPACE_EAGER=1 pytest --nbval-lax --ignore=.ipynb_checkpoints
           cd ..
