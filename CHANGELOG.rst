@@ -18,6 +18,7 @@ Bug fixes and small changes
 
 Requirement changes
 -------------------
+- drop Python 3.6 support
 
 
 Thanks
