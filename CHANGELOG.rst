@@ -18,10 +18,18 @@ Bug fixes and small changes
 
 Requirement changes
 -------------------
+- drop Python 3.6 support
 
 
 Thanks
 ------
+
+1.4.2 (5.11.2021)
+==================
+
+Requirement changes
+-------------------
+- Losen restriction on TensorFlow, allow version 2.7 (and 2.5, 2.6)
 
 1.4.1 (27.08.2021)
 ==================
