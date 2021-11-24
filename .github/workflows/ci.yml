@@ -3,7 +3,7 @@
 
 name: tests
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   codecov:
@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install --use-feature=2020-resolver -e .[test]
+          pip install --use-feature=2020-resolver -e .[dev]
           pip install coverage
       - name: Download test data
         run: python data/download_test_files.py > /dev/null
@@ -48,10 +48,19 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          sudo apt-get install graphviz -y
           pip install --use-feature=2020-resolver -e .[dev]
       - name: Download test data
         run: python data/download_test_files.py > /dev/null
       - name: Test with pytest
-        run: PHASESPACE_EAGER=0 pytest --basetemp={envtmpdir}
+        run: |
+          PHASESPACE_EAGER=0 pytest --basetemp={envtmpdir} tests
+          cd docs
+          PHASESPACE_EAGER=0 pytest --nbval-lax --ignore=.ipynb_checkpoints
+          cd ..
       - name: Test with pytest (eager mode)
-        run: PHASESPACE_EAGER=1 pytest --basetemp={envtmpdir}
+        run: |
+          PHASESPACE_EAGER=1 pytest --basetemp={envtmpdir} tests
+          cd docs
+          PHASESPACE_EAGER=1 pytest --nbval-lax --ignore=.ipynb_checkpoints
+          cd ..
