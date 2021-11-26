@@ -9,13 +9,12 @@ build:
     python: "3.8"
 
 python:
-  version: "3.8"
   install:
     - method: pip
       path: .
       extra_requirements:
         - docs
-  system_packages: true
+  system_packages: true  # can contain TF and more packages
 
 sphinx:
   builder: html
