@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from collections.abc import Callable
+
 #!/usr/bin/env python3
 # =============================================================================
 # @file   phasespace.py
@@ -13,7 +17,7 @@ The code is based on the GENBOD function (W515 from CERNLIB), documented in:
 import inspect
 import warnings
 from math import pi
-from typing import Callable, Dict, Optional, Tuple, Union
+from typing import Optional, Union
 
 import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
@@ -88,7 +92,7 @@ class GenParticle:
             converted to a `tf.constant`.
     """
 
-    def __init__(self, name: str, mass: Union[Callable, int, float]) -> None:  # noqa
+    def __init__(self, name: str, mass: Callable | int | float) -> None:  # noqa
         self.name = name
         self.children = []
         self._mass_val = mass
@@ -129,7 +133,7 @@ class GenParticle:
         self,
         min_mass: tf.Tensor = None,
         max_mass: tf.Tensor = None,
-        n_events: Union[tf.Tensor, tf.Variable] = None,
+        n_events: tf.Tensor | tf.Variable = None,
         seed: SeedLike = None,
     ) -> tf.Tensor:
         """Get the particle mass.
@@ -609,11 +613,11 @@ class GenParticle:
 
     def generate(
         self,
-        n_events: Union[int, tf.Tensor, tf.Variable],
-        boost_to: Optional[tf.Tensor] = None,
+        n_events: int | tf.Tensor | tf.Variable,
+        boost_to: tf.Tensor | None = None,
         normalize_weights: bool = True,
         seed: SeedLike = None,
-    ) -> Tuple[tf.Tensor, Dict[str, tf.Tensor]]:
+    ) -> tuple[tf.Tensor, dict[str, tf.Tensor]]:
         """Generate normalized n-body phase space as tensorflow tensors.
 
         Any TensorFlow tensor can always be converted to a numpy array with the method `numpy()`.

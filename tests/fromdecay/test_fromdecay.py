@@ -1,4 +1,4 @@
-from typing import List
+from __future__ import annotations
 
 from numpy.testing import assert_almost_equal
 
@@ -8,7 +8,7 @@ from phasespace.fromdecay.mass_functions import DEFAULT_CONVERTER
 from . import example_decay_chains
 
 
-def check_norm(full_decay: GenMultiDecay, **kwargs) -> List[tuple]:
+def check_norm(full_decay: GenMultiDecay, **kwargs) -> list[tuple]:
     """Helper function that checks whether the normalize_weights argument works for GenMultiDecay.generate.
 
     Args:

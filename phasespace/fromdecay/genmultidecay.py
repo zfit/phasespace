@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import itertools
-from typing import Callable, Dict, List, Set, Tuple, Union
+from collections.abc import Callable
+from typing import Union
 
 import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
@@ -14,7 +17,7 @@ class GenMultiDecay:
     MASS_WIDTH_TOLERANCE = 0.01
     DEFAULT_MASS_FUNC = "relbw"
 
-    def __init__(self, gen_particles: List[Tuple[float, GenParticle]]):
+    def __init__(self, gen_particles: list[tuple[float, GenParticle]]):
         """A `GenParticle`-type container that can handle multiple decays.
 
         Args:
@@ -27,7 +30,7 @@ class GenMultiDecay:
     def from_dict(
         cls,
         dec_dict: dict,
-        mass_converter: Dict[str, Callable] = None,
+        mass_converter: dict[str, Callable] = None,
         tolerance: float = MASS_WIDTH_TOLERANCE,
     ):
         """Create a `GenMultiDecay` instance from a dict in the `DecayLanguage` package format.
@@ -123,10 +126,10 @@ class GenMultiDecay:
 
     def generate(
         self, n_events: int, normalize_weights: bool = True, **kwargs
-    ) -> Union[
-        Tuple[List[tf.Tensor], List[tf.Tensor]],
-        Tuple[List[tf.Tensor], List[tf.Tensor], List[tf.Tensor]],
-    ]:
+    ) -> (
+        tuple[list[tf.Tensor], list[tf.Tensor]]
+        | tuple[list[tf.Tensor], list[tf.Tensor], list[tf.Tensor]]
+    ):
         """Generate four-momentum vectors from the decay(s).
 
         Args:
@@ -166,7 +169,7 @@ class GenMultiDecay:
         return weights, max_weights, events
 
 
-def _unique_name(name: str, preexisting_particles: Set[str]) -> str:
+def _unique_name(name: str, preexisting_particles: set[str]) -> str:
     """Create a string that does not exist in preexisting_particles based on name.
 
     Args:
@@ -192,10 +195,10 @@ def _unique_name(name: str, preexisting_particles: Set[str]) -> str:
 
 def _get_particle_mass(
     name: str,
-    mass_converter: Dict[str, Callable],
+    mass_converter: dict[str, Callable],
     mass_func: str,
     tolerance: float = GenMultiDecay.MASS_WIDTH_TOLERANCE,
-) -> Union[Callable, float]:
+) -> Callable | float:
     """Get mass or mass function of particle using the particle package.
 
     Args:
@@ -216,10 +219,10 @@ def _get_particle_mass(
 
 def _recursively_traverse(
     decaychain: dict,
-    mass_converter: Dict[str, Callable],
-    preexisting_particles: Set[str] = None,
+    mass_converter: dict[str, Callable],
+    preexisting_particles: set[str] = None,
     tolerance: float = GenMultiDecay.MASS_WIDTH_TOLERANCE,
-) -> List[Tuple[float, GenParticle]]:
+) -> list[tuple[float, GenParticle]]:
     """Create all possible GenParticles by recursively traversing a dict from DecayLanguage, see Examples.
 
     Args:
