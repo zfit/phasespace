@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from collections.abc import Callable
+
 #!/usr/bin/env python3
 # =============================================================================
 # @file   phasespace.py
@@ -13,7 +17,7 @@ The code is based on the GENBOD function (W515 from CERNLIB), documented in:
 import inspect
 import warnings
 from math import pi
-from typing import Callable, Dict, Optional, Tuple, Union
+from typing import Optional, Union
 
 import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
@@ -613,7 +617,7 @@ class GenParticle:
         boost_to: Optional[tf.Tensor] = None,
         normalize_weights: bool = True,
         seed: SeedLike = None,
-    ) -> Tuple[tf.Tensor, Dict[str, tf.Tensor]]:
+    ) -> tuple[tf.Tensor, dict[str, tf.Tensor]]:
         """Generate normalized n-body phase space as tensorflow tensors.
 
         Any TensorFlow tensor can always be converted to a numpy array with the method `numpy()`.
