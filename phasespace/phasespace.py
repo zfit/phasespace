@@ -92,7 +92,7 @@ class GenParticle:
             converted to a `tf.constant`.
     """
 
-    def __init__(self, name: str, mass: Union[Callable, int, float]) -> None:  # noqa
+    def __init__(self, name: str, mass: Callable | int | float) -> None:  # noqa
         self.name = name
         self.children = []
         self._mass_val = mass
@@ -133,7 +133,7 @@ class GenParticle:
         self,
         min_mass: tf.Tensor = None,
         max_mass: tf.Tensor = None,
-        n_events: Union[tf.Tensor, tf.Variable] = None,
+        n_events: tf.Tensor | tf.Variable = None,
         seed: SeedLike = None,
     ) -> tf.Tensor:
         """Get the particle mass.
@@ -613,8 +613,8 @@ class GenParticle:
 
     def generate(
         self,
-        n_events: Union[int, tf.Tensor, tf.Variable],
-        boost_to: Optional[tf.Tensor] = None,
+        n_events: int | tf.Tensor | tf.Variable,
+        boost_to: tf.Tensor | None = None,
         normalize_weights: bool = True,
         seed: SeedLike = None,
     ) -> tuple[tf.Tensor, dict[str, tf.Tensor]]:

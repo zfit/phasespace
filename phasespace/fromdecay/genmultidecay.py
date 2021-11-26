@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import Callable
 import itertools
+from collections.abc import Callable
 from typing import Union
 
 import tensorflow as tf
@@ -126,10 +126,10 @@ class GenMultiDecay:
 
     def generate(
         self, n_events: int, normalize_weights: bool = True, **kwargs
-    ) -> Union[
-        tuple[list[tf.Tensor], list[tf.Tensor]],
-        tuple[list[tf.Tensor], list[tf.Tensor], list[tf.Tensor]],
-    ]:
+    ) -> (
+        tuple[list[tf.Tensor], list[tf.Tensor]]
+        | tuple[list[tf.Tensor], list[tf.Tensor], list[tf.Tensor]]
+    ):
         """Generate four-momentum vectors from the decay(s).
 
         Args:
@@ -198,7 +198,7 @@ def _get_particle_mass(
     mass_converter: dict[str, Callable],
     mass_func: str,
     tolerance: float = GenMultiDecay.MASS_WIDTH_TOLERANCE,
-) -> Union[Callable, float]:
+) -> Callable | float:
     """Get mass or mass function of particle using the particle package.
 
     Args:

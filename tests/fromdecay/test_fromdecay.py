@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 from numpy.testing import assert_almost_equal
 
 from phasespace.fromdecay import GenMultiDecay

@@ -14,7 +14,7 @@ python:
       path: .
       extra_requirements:
         - docs
-  system_packages: true  # can contain TF and more packages
+  system_packages: true # can contain TF and more packages
 
 sphinx:
   builder: html
