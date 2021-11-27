@@ -11,6 +11,7 @@ Table of Contents
    :maxdepth: 1
 
    usage
+   DecayChain <GenMultiDecay_Tutorial.ipynb>
    API <phasespace>
    contributing
    authors

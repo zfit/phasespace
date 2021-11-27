@@ -16,3 +16,16 @@ phasespace.kinematics module
     :members:
     :undoc-members:
     :show-inheritance:
+
+phasespace.fromdecay module
+------------------------------
+
+.. automodule:: phasespace.fromdecay.genmultidecay
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: phasespace.fromdecay.mass_functions
+    :members:
+    :undoc-members:
+    :show-inheritance:

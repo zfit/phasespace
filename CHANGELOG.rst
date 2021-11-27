@@ -2,19 +2,18 @@
 Changelog
 *********
 
-Develop
-==========
+
+1.5.0 (27 Nov 2021)
+===================
 
 
 Major Features and Improvements
 -------------------------------
+- add support to generate from a DecayChain using
+  `the decaylanguage <https://github.com/scikit-hep/decaylanguage>`_ package from Scikit-HEP.
+  This is in the new subpackage "fromdecay" and can be used by installing the extra with
+  ``pip install phasespace[fromdecay]``.
 
-Behavioral changes
-------------------
-
-
-Bug fixes and small changes
----------------------------
 
 Requirement changes
 -------------------
@@ -23,6 +22,7 @@ Requirement changes
 
 Thanks
 ------
+- to Simon Thor for contributing the ``fromdecay`` subpackage.
 
 1.4.2 (5.11.2021)
 ==================

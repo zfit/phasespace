@@ -40,6 +40,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx_math_dollar",
     "jupyter_sphinx",
+    "myst_nb",
 ]
 
 
@@ -108,15 +109,15 @@ pygments_style = "sphinx"
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
-# makes the jupyter extension executable
-jupyter_sphinx_thebelab_config = {
-    "requestKernel": True,
-    "binderOptions": {
-        "repo": "zfit/phasespace",
-        "binderUrl": "https://mybinder.org",
-        "repoProvider": "github",
-    },
-}
+# # makes the jupyter extension executable
+# jupyter_sphinx_thebelab_config = {
+#     "requestKernel": True,
+#     "binderOptions": {
+#         "repo": "zfit/phasespace",
+#         "binderUrl": "https://mybinder.org",
+#         "repoProvider": "github",
+#     },
+# }
 
 # -- Options for HTML output -------------------------------------------
 
@@ -141,6 +142,7 @@ html_theme_options = {
     "navbar_links": [
         ("Phasespace", "index"),
         ("Usage", "usage"),
+        ("DecayChain", "GenMultiDecay_Tutorial"),
         ("API", "phasespace"),
         ("Contributing", "contributing"),
         # ("Link", "http://example.com", True),
