@@ -2,6 +2,27 @@
 Changelog
 *********
 
+Develop
+==========
+
+
+Major Features and Improvements
+-------------------------------
+
+Behavioral changes
+------------------
+
+
+Bug fixes and small changes
+---------------------------
+
+Requirement changes
+-------------------
+
+
+Thanks
+------
+
 
 1.5.0 (27 Nov 2021)
 ===================
