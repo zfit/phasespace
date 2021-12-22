@@ -44,8 +44,8 @@ class GenMultiDecay:
                 This dict will be combined with the predefined mass functions in this package.
                 See the Example below or the tutorial for how to use this parameter.
             tolerance: Minimum mass width of the particle to use a mass function instead of
-                assuming the mass to be constant. The default value is defined by the class variable
-                MASS_WIDTH_TOLERANCE and can be customized if desired.
+                assuming the mass to be constant. If None, the default value, defined by the class variable
+                MASS_WIDTH_TOLERANCE, will be used. This value can be customized if desired.
 
         Returns:
             The created GenMultiDecay object.
@@ -112,6 +112,9 @@ class GenMultiDecay:
             For a more in-depth tutorial, see the tutorial on GenMultiDecay in the
             [documentation](https://phasespace.readthedocs.io/en/stable/GenMultiDecay_Tutorial.html).
         """
+        if tolerance is None:
+            tolerance = cls.MASS_WIDTH_TOLERANCE
+
         if mass_converter is None:
             total_mass_converter = DEFAULT_CONVERTER
         else:
@@ -219,7 +222,7 @@ def _recursively_traverse(
     decaychain: dict,
     mass_converter: dict[str, Callable],
     preexisting_particles: set[str] = None,
-    tolerance: float = GenMultiDecay.MASS_WIDTH_TOLERANCE,
+    tolerance: float = None,
 ) -> list[tuple[float, GenParticle]]:
     """Create all possible GenParticles by recursively traversing a dict from DecayLanguage, see Examples.
 
@@ -227,10 +230,13 @@ def _recursively_traverse(
         decaychain: Decay chain with the format from DecayLanguage
         preexisting_particles: Names of all particles that have already been created.
         tolerance: Minimum mass width for a particle to set a non-constant mass to a particle.
+        If None, set to default value, given by GenMultiDecay.MASS_WIDTH_TOLERANCE
 
     Returns:
         The generated GenParticle instances, one for each possible way of the decay.
     """
+    if tolerance is None:
+        tolerance = GenMultiDecay.MASS_WIDTH_TOLERANCE
     # Get the only key inside the decaychain dict
     (original_mother_name,) = decaychain.keys()
 
