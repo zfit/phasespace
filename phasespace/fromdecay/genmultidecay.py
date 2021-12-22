@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import itertools
 from collections.abc import Callable
-from typing import Union
 
 import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
@@ -126,10 +125,9 @@ class GenMultiDecay:
 
     def generate(
         self, n_events: int, normalize_weights: bool = True, **kwargs
-    ) -> (
-        tuple[list[tf.Tensor], list[tf.Tensor]]
-        | tuple[list[tf.Tensor], list[tf.Tensor], list[tf.Tensor]]
-    ):
+    ) -> tuple[list[tf.Tensor], list[tf.Tensor]] | tuple[
+        list[tf.Tensor], list[tf.Tensor], list[tf.Tensor]
+    ]:
         """Generate four-momentum vectors from the decay(s).
 
         Args:
