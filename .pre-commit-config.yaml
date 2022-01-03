@@ -8,7 +8,7 @@ repos:
       - id: check-useless-excludes
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.1
+    rev: v4.1.0
     hooks:
       - id: check-added-large-files
       - id: check-case-conflict
@@ -47,17 +47,17 @@ repos:
       - id: rst-directive-colons
 
   - repo: https://github.com/PyCQA/flake8
-    rev: 3.9.2
+    rev: 4.0.1
     hooks:
       - id: flake8
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.9.3
+    rev: 5.10.1
     hooks:
       - id: isort
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.29.0
+    rev: v2.31.0
     hooks:
       - id: pyupgrade
         args: [--py37-plus]
@@ -69,18 +69,18 @@ repos:
         stages: [manual]
 
   - repo: https://github.com/sondrelg/pep585-upgrade
-    rev: "5f7033a0d0174c65105b041500060b993c1bc211" # Use the sha / tag you want to point at
+    rev: "v1" # Use the sha / tag you want to point at
     hooks:
       - id: upgrade-type-hints
         args: ["--futures=true"]
 
   - repo: https://github.com/psf/black
-    rev: 21.9b0
+    rev: 21.12b0
     hooks:
       - id: black
 
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.4.1
+    rev: v2.5.1
     hooks:
       - id: prettier
 
