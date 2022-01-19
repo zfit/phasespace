@@ -31,6 +31,7 @@ class GenMultiDecay:
         dec_dict: dict,
         mass_converter: dict[str, Callable] = None,
         tolerance: float = MASS_WIDTH_TOLERANCE,
+        particle_model_map: dict[str, str] = None,
     ):
         """Create a `GenMultiDecay` instance from a dict in the `DecayLanguage` package format.
 
@@ -46,7 +47,7 @@ class GenMultiDecay:
             tolerance: Minimum mass width of the particle to use a mass function instead of
                 assuming the mass to be constant. If None, the default value, defined by the class variable
                 MASS_WIDTH_TOLERANCE, will be used. This value can be customized if desired.
-
+            particle_model_map: TODO
         Returns:
             The created GenMultiDecay object.
 
@@ -114,7 +115,8 @@ class GenMultiDecay:
         """
         if tolerance is None:
             tolerance = cls.MASS_WIDTH_TOLERANCE
-
+        if particle_model_map is None:
+            particle_model_map = {}
         if mass_converter is None:
             total_mass_converter = DEFAULT_CONVERTER
         else:
@@ -122,7 +124,10 @@ class GenMultiDecay:
             total_mass_converter = {**DEFAULT_CONVERTER, **mass_converter}
 
         gen_particles = _recursively_traverse(
-            dec_dict, total_mass_converter, tolerance=tolerance
+            dec_dict,
+            total_mass_converter,
+            tolerance=tolerance,
+            particle_model_map=particle_model_map,
         )
         return cls(gen_particles)
 
@@ -221,6 +226,7 @@ def _get_particle_mass(
 def _recursively_traverse(
     decaychain: dict,
     mass_converter: dict[str, Callable],
+    particle_model_map: dict[str, str],
     preexisting_particles: set[str] = None,
     tolerance: float = None,
 ) -> list[tuple[float, GenParticle]]:
@@ -283,10 +289,17 @@ def _recursively_traverse(
             if is_top_particle:
                 mother_mass = Particle.from_evtgen_name(original_mother_name).mass
             else:
+                if "zfit" in dm:
+                    mass_func = dm["zfit"]
+                elif original_mother_name in particle_model_map:
+                    mass_func = particle_model_map[original_mother_name]
+                else:
+                    mass_func = GenMultiDecay.DEFAULT_MASS_FUNC
+
                 mother_mass = _get_particle_mass(
                     original_mother_name,
                     mass_converter=mass_converter,
-                    mass_func=dm.get("zfit", GenMultiDecay.DEFAULT_MASS_FUNC),
+                    mass_func=mass_func,
                     tolerance=tolerance,
                 )
 
