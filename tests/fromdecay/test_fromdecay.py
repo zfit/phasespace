@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+from decaylanguage import DecayChain, DecayMode
 from numpy.testing import assert_almost_equal
 
 from phasespace.fromdecay import GenMultiDecay
@@ -32,6 +34,16 @@ def check_norm(full_decay: GenMultiDecay, **kwargs) -> list[tuple]:
         all_return_args.append(return_args)
 
     return all_return_args
+
+
+def test_invalid_chain():
+    """Test that a ValueError is raised when a value in the fs key is not a str or dict."""
+    dm1 = DecayMode(1, "K- pi+ pi+ pi0", model="PHSP", zfit="rel-BW")
+    dm2 = DecayMode(1, "gamma gamma")
+    dc = DecayChain("D+", {"D+": dm1, "pi0": dm2}).to_dict()
+    dc["D+"][0]["fs"][0] = 1
+    with pytest.raises(TypeError):
+        GenMultiDecay.from_dict(dc)
 
 
 def test_single_chain():
