@@ -126,8 +126,8 @@ class GenMultiDecay:
         gen_particles = _recursively_traverse(
             dec_dict,
             total_mass_converter,
-            tolerance=tolerance,
             particle_model_map=particle_model_map,
+            tolerance=tolerance,
         )
         return cls(gen_particles)
 
@@ -203,7 +203,7 @@ def _get_particle_mass(
     name: str,
     mass_converter: dict[str, Callable],
     mass_func: str,
-    tolerance: float = GenMultiDecay.MASS_WIDTH_TOLERANCE,
+    tolerance: float,
 ) -> Callable | float:
     """Get mass or mass function of particle using the particle package.
 
@@ -227,8 +227,8 @@ def _recursively_traverse(
     decaychain: dict,
     mass_converter: dict[str, Callable],
     particle_model_map: dict[str, str],
+    tolerance: float,
     preexisting_particles: set[str] = None,
-    tolerance: float = None,
 ) -> list[tuple[float, GenParticle]]:
     """Create all possible GenParticles by recursively traversing a dict from DecayLanguage, see Examples.
 
@@ -274,8 +274,9 @@ def _recursively_traverse(
                 daughter = _recursively_traverse(
                     daughter_name,
                     mass_converter,
+                    particle_model_map,
+                    tolerance,
                     preexisting_particles,
-                    tolerance=tolerance,
                 )
             else:
                 raise TypeError(
