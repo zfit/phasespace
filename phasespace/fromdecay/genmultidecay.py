@@ -47,7 +47,12 @@ class GenMultiDecay:
             tolerance: Minimum mass width of the particle to use a mass function instead of
                 assuming the mass to be constant. If None, the default value, defined by the class variable
                 MASS_WIDTH_TOLERANCE, will be used. This value can be customized if desired.
-            particle_model_map: TODO
+            particle_model_map: A dict where the key is a particle name and the value is a mass function name.
+                If a particle is specified in the particle_model_map, then all appearances of this particle
+                in dec_dict will get the same mass function. This way, one does not have to manually add the
+                zfit parameter to every place where this particle appears in dec_dict. If the zfit parameter
+                is specified for a particle which is also included in particle_model_map, the zfit parameter
+                mass function name will be prioritized.
         Returns:
             The created GenMultiDecay object.
 
@@ -108,6 +113,7 @@ class GenMultiDecay:
             One can then pass the `custom_gauss` function and its name (in this case "custom_gauss") as a
             `dict`to `from_dict` as the mass_converter parameter:
             >>> dst_gen = GenMultiDecay.from_dict(dst_chain, mass_converter={"custom_gauss": custom_gauss})
+            TODO add example with particle_model_map
 
         Notes:
             For a more in-depth tutorial, see the tutorial on GenMultiDecay in the
@@ -209,7 +215,9 @@ def _get_particle_mass(
 
     Args:
         name: Name of the particle. Name must be recognizable by the particle package.
-        tolerance : See _recursively_traverse
+        mass_converter: See _recursively_traverse
+        mass_func: See the name of the mass function, e.g., 'rel-bw'. Must be a valid key for mass_converter.
+        tolerance: See _recursively_traverse
 
     Returns:
         A function if the mass has a width smaller than tolerance. Otherwise, return a constant mass.
@@ -234,6 +242,8 @@ def _recursively_traverse(
 
     Args:
         decaychain: Decay chain with the format from DecayLanguage
+        mass_converter: Maps from mass function names to the actual callable mass function.
+        particle_model_map: See GenMultiDecay.from_dict.
         preexisting_particles: Names of all particles that have already been created.
         tolerance: Minimum mass width for a particle to set a non-constant mass to a particle.
         If None, set to default value, given by GenMultiDecay.MASS_WIDTH_TOLERANCE
