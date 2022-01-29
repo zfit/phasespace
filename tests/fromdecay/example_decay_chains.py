@@ -9,7 +9,7 @@ dfp.parse()
 
 # D+ particle with only one way of decaying
 dplus_decay = DecayMode(1, "K- pi+ pi+ pi0", model="PHSP", zfit="relbw")
-pi0_decay = DecayMode(1, "gamma gamma")
+pi0_decay = DecayMode(1, "gamma gamma", zfit="relbw")
 dplus_single = DecayChain("D+", {"D+": dplus_decay, "pi0": pi0_decay}).to_dict()
 
 # pi0 particle that can decay in 4 possible ways
