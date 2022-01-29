@@ -2,9 +2,10 @@ import tensorflow as tf
 import zfit
 import zfit_physics as zphys
 
-
 # TODO refactor these mass functions using e.g. a decorator.
 #  Right now there is a lot of code repetition.
+
+
 def gauss(mass, width):
     particle_mass = tf.cast(mass, tf.float64)
     particle_width = tf.cast(width, tf.float64)
@@ -17,6 +18,8 @@ def gauss(mass, width):
         return tf.vectorized_map(
             lambda lim: pdf.sample(1, limits=(lim[0], lim[1])), iterator
         )
+
+    mass_func.__name__ = "gauss"
 
     return mass_func
 
@@ -33,6 +36,8 @@ def breitwigner(mass, width):
         return tf.vectorized_map(
             lambda lim: pdf.sample(1, limits=(lim[0], lim[1])), iterator
         )
+
+    mass_func.__name__ = "breitwigner"
 
     return mass_func
 
@@ -53,6 +58,8 @@ def relativistic_breitwigner(mass, width):
         return tf.map_fn(
             lambda lim: pdf.sample(1, limits=(lim[0], lim[1])).unstack_x(), iterator
         )
+
+    mass_func.__name__ = "relativistic_breitwigner"
 
     return mass_func
 
