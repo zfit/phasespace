@@ -3,7 +3,6 @@ from __future__ import annotations
 import pytest
 from decaylanguage import DecayChain, DecayMode
 from numpy.testing import assert_almost_equal
-from particle import Particle
 
 from phasespace.fromdecay import GenMultiDecay
 from phasespace.fromdecay.mass_functions import DEFAULT_CONVERTER
@@ -47,29 +46,12 @@ def test_invalid_chain():
         GenMultiDecay.from_dict(dc)
 
 
-def test_decay_chain_dict():
-    """Create a DecayChain object and convert it to a dict."""
-    dm1 = DecayMode(1, "K- pi+ pi+ pi0", model="PHSP")
-    dm2 = DecayMode(1, "gamma gamma", zfit="relbw")
-    dc = DecayChain("D+", {"D+": dm1, "pi0": dm2}).to_dict()
-    container = GenMultiDecay.from_dict(
-        dc, tolerance=Particle.from_evtgen_name("pi0").width / 1.1
-    )
-
-    assert len(container.gen_particles) == 1
-    gen_particle = container.gen_particles[0][1]
-    assert gen_particle.name == "D+"
-    assert gen_particle.has_fixed_mass
-
-    children_name = [p.name for p in gen_particle.children]
-    assert set(children_name) == {"K-", "pi+", "pi+ [0]", "pi0"}
-    pi0 = gen_particle.children[children_name.index("pi0")]
-    assert {p.name for p in pi0.children} == {"gamma", "gamma [0]"}
-    assert pi0._mass.__name__ == "relativistic_breitwigner"
-
-
 def test_single_chain():
-    """Test converting a DecayLanguage dict with only one possible decay."""
+    """Test converting a DecayLanguage dict with only one possible decay.
+
+    Since dplus_single is constructed using DecayChain.to_dict, this also tests that the code works dicts
+    created from DecayChains, not just .dec files.
+    """
     container = GenMultiDecay.from_dict(
         example_decay_chains.dplus_single, tolerance=1e-10
     )
@@ -82,6 +64,7 @@ def test_single_chain():
     for p in gen.children:
         if "pi0" == p.name[:3]:
             assert not p.has_fixed_mass
+            assert p._mass.__name__ == "relativistic_breitwigner"
         else:
             assert p.has_fixed_mass
 
