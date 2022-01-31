@@ -37,7 +37,7 @@ def breitwigner(mass, width):
             lambda lim: pdf.sample(1, limits=(lim[0], lim[1])), iterator
         )
 
-    mass_func.__name__ = "breitwigner"
+    mass_func.__name__ = "bw"
 
     return mass_func
 
@@ -59,7 +59,7 @@ def relativistic_breitwigner(mass, width):
             lambda lim: pdf.sample(1, limits=(lim[0], lim[1])).unstack_x(), iterator
         )
 
-    mass_func.__name__ = "relativistic_breitwigner"
+    mass_func.__name__ = "relbw"
 
     return mass_func
 
