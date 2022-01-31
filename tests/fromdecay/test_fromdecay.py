@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from copy import deepcopy
+
 import pytest
 from decaylanguage import DecayChain, DecayMode
 from numpy.testing import assert_almost_equal
@@ -11,7 +13,7 @@ from . import example_decay_chains
 
 
 def check_norm(full_decay: GenMultiDecay, **kwargs) -> list[tuple]:
-    """Helper function that checks whether the normalize_weights argument works for GenMultiDecay.generate.
+    """Helper function that tests whether the normalize_weights argument works for GenMultiDecay.generate.
 
     Args:
         full_decay: full_decay.generate will be called.
@@ -64,7 +66,7 @@ def test_single_chain():
     for p in gen.children:
         if "pi0" == p.name[:3]:
             assert not p.has_fixed_mass
-            assert p._mass.__name__ == "relativistic_breitwigner"
+            assert p._mass.__name__ == "relbw"
         else:
             assert p.has_fixed_mass
 
@@ -90,13 +92,50 @@ def test_branching_children():
 
 def test_branching_grandchilden():
     """Test converting a DecayLanguage dict where children to the mother particle can decay in many ways."""
-    container = GenMultiDecay.from_dict(example_decay_chains.dplus_4grandbranches)
+    # Specify different mass functions for the different decays of pi0
+    decay_dict = deepcopy(example_decay_chains.dplus_4grandbranches)
+
+    # Add different zfit parameters to all pi0 decays. The fourth decay has no zfit parameter
+    for mass_function, decay_mode in zip(
+        ("relbw", "bw", "gauss"), decay_dict["D+"][0]["fs"][-1]["pi0"]
+    ):
+        decay_mode["zfit"] = mass_function
+
+    container = GenMultiDecay.from_dict(decay_dict, tolerance=1e-10)
+
     output_decays = container.gen_particles
     assert len(output_decays) == 4
     assert_almost_equal(sum(d[0] for d in output_decays), 1)
+
+    for p, mass_func in zip(
+        output_decays, ("relbw", "bw", "gauss", GenMultiDecay.DEFAULT_MASS_FUNC)
+    ):
+        gen_particle = p[1]  # Ignore probability
+        assert gen_particle.children[-1].name == "pi0"
+        # Check that the zfit parameter assigns the correct mass function
+        assert gen_particle.children[-1]._mass.__name__ == mass_func
+
     check_norm(container, n_events=1)
     check_norm(container, n_events=100)
-    # TODO add more asserts here
+
+
+def test_particle_model_map():
+    """Test that the particle_model_map parameter works as intended."""
+    container = GenMultiDecay.from_dict(
+        example_decay_chains.dplus_4grandbranches,
+        particle_model_map={"pi0": "bw"},
+        tolerance=1e-10,
+    )
+    output_decays = container.gen_particles
+    assert len(output_decays) == 4
+    assert_almost_equal(sum(d[0] for d in output_decays), 1)
+    for p in output_decays:
+        gen_particle = p[1]  # Ignore probability
+        assert gen_particle.children[-1].name[:3] == "pi0"
+        # Check that particle_model_map has assigned the bw mass function to all pi0 decays.
+        assert gen_particle.children[-1]._mass.__name__ == "bw"
+    check_norm(container, n_events=1)
+    check_norm(container, n_events=100)
 
 
 def test_mass_converter():
