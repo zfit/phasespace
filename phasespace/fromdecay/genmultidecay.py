@@ -30,7 +30,7 @@ class GenMultiDecay:
         cls,
         dec_dict: dict,
         mass_converter: dict[str, Callable] = None,
-        tolerance: float = MASS_WIDTH_TOLERANCE,
+        tolerance: float = None,
         particle_model_map: dict[str, str] = None,
     ):
         """Create a `GenMultiDecay` instance from a dict in the `DecayLanguage` package format.
