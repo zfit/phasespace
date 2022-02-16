@@ -161,9 +161,41 @@ def test_mass_converter():
 
 
 def test_big_decay():
+    """Create a GenMultiDecay object from a large dict with many branches and subbranches."""
     container = GenMultiDecay.from_dict(example_decay_chains.dstarplus_big_decay)
     output_decays = container.gen_particles
     assert_almost_equal(sum(d[0] for d in output_decays), 1)
     check_norm(container, n_events=1)
     check_norm(container, n_events=100)
     # TODO add more asserts here
+
+
+def test_mass_width_tolerance():
+    """Test changing the MASS_WIDTH_TOLERANCE class variable."""
+    GenMultiDecay.MASS_WIDTH_TOLERANCE = 1e-10
+    output_decays = GenMultiDecay.from_dict(
+        example_decay_chains.dplus_4grandbranches
+    ).gen_particles
+    for p in output_decays:
+        gen_particle = p[1]  # Ignore probability
+        assert gen_particle.children[-1].name[:3] == "pi0"
+        # Check that particle_model_map has assigned the bw mass function to all pi0 decays.
+        assert not gen_particle.children[-1].has_fixed_mass
+    # Restore class variable to not affect other tests
+    GenMultiDecay.MASS_WIDTH_TOLERANCE = 1e-10
+
+
+def test_default_mass_func():
+    """Test changing the DEFAULT_MASS_FUNC class variable."""
+    GenMultiDecay.DEFAULT_MASS_FUNC = "bw"
+    output_decays = GenMultiDecay.from_dict(
+        example_decay_chains.dplus_4grandbranches, tolerance=1e-10
+    ).gen_particles
+    for p in output_decays:
+        gen_particle = p[1]  # Ignore probability
+        assert gen_particle.children[-1].name[:3] == "pi0"
+        # Check that particle_model_map has assigned the bw mass function to all pi0 decays.
+        assert gen_particle.children[-1]._mass.__name__ == "bw"
+
+    # Restore class variable to not affect other tests
+    GenMultiDecay.DEFAULT_MASS_FUNC = "bw"
