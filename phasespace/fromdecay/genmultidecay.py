@@ -75,8 +75,13 @@ class GenMultiDecay:
                 {'bf': 0.016,
                  'fs': ['D+', 'gamma']}]}
 
-            If the D0 particle should have a mass distribution of a gaussian when it decays into K- and pi+
-            a `zfit` parameter can be added to its decay dict:
+            If the D0 particle should have a mass distribution of a gaussian when it decays, one can pass the
+            `particle_model_map` parameter to `from_dict`:
+            >>> dst_gen = GenMultiDecay.from_dict(dst_chain, particle_model_map={"D0": "gauss"})
+            This will then set the mass function of D0 to a gaussian for all its decays.
+
+            If more custom control is required, e.g., if D0 can decay in multiple ways and one of the decays
+            should have a specific mass function, a `zfit` parameter can be added to its decay dict:
             >>> dst_chain["D*+"][0]["fs"][0]["D0"][0]["zfit"] = "gauss"
             >>> dst_chain
             {'D*+': [{'bf': 0.984,
@@ -86,11 +91,13 @@ class GenMultiDecay:
                     'pi+']},
                 {'bf': 0.016,
                 'fs': ['D+', 'gamma']}]}
-
             This dict can then be passed to `GenMultiDecay.from_dict`:
             >>> dst_gen = GenMultiDecay.from_dict(dst_chain)
+            This will now convert make the D0 particle have a gaussian mass function, only when it decays into
+            K- and pi+. In this case, there are no other ways that D0 can decay, so using `particle_model_map`
+            is a cleaner and easier option.
 
-            If the decay of the D0 particle instead should be modelled by a mass distribution that does not
+            If the decay of the D0 particle should be modelled by a mass distribution that does not
             come with the package, a custom distribution can be created:
             >>> def custom_gauss(mass, width):
             >>>     particle_mass = tf.cast(mass, tf.float64)
@@ -113,7 +120,6 @@ class GenMultiDecay:
             One can then pass the `custom_gauss` function and its name (in this case "custom_gauss") as a
             `dict`to `from_dict` as the mass_converter parameter:
             >>> dst_gen = GenMultiDecay.from_dict(dst_chain, mass_converter={"custom_gauss": custom_gauss})
-            TODO add example with particle_model_map
 
         Notes:
             For a more in-depth tutorial, see the tutorial on GenMultiDecay in the
