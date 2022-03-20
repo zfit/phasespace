@@ -140,7 +140,7 @@ def test_particle_model_map():
 
 def test_mass_converter():
     """Test that the mass_converter parameter works as intended."""
-    dplus_4grandbranches_massfunc = example_decay_chains.dplus_4grandbranches.copy()
+    dplus_4grandbranches_massfunc = deepcopy(example_decay_chains.dplus_4grandbranches)
     dplus_4grandbranches_massfunc["D+"][0]["fs"][-1]["pi0"][-1]["zfit"] = "rel-BW"
     container = GenMultiDecay.from_dict(
         dplus_4grandbranches_massfunc,
