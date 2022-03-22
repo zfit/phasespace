@@ -12,10 +12,9 @@ The code is based on the GENBOD function (W515 from CERNLIB), documented in:
 """
 from __future__ import annotations
 
-from collections.abc import Callable
-
 import inspect
 import warnings
+from collections.abc import Callable
 from math import pi
 
 import tensorflow as tf
