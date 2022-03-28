@@ -1,7 +1,3 @@
-from __future__ import annotations
-
-from collections.abc import Callable
-
 #!/usr/bin/env python3
 # =============================================================================
 # @file   phasespace.py
@@ -14,10 +10,12 @@ The code is based on the GENBOD function (W515 from CERNLIB), documented in:
 
       F. James, Monte Carlo Phase Space, CERN 68-15 (1968)
 """
+from __future__ import annotations
+
 import inspect
 import warnings
+from collections.abc import Callable
 from math import pi
-from typing import Optional, Union
 
 import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
