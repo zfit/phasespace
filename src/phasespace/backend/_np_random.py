@@ -1,17 +1,19 @@
+from __future__ import annotations
+
 __all__ = [
     "Generator",
     "from_seed",
     "default_rng",
 ]
 
-from typing import Optional, Type
+from typing import Optional
 
 from numpy.random import PCG64, BitGenerator, Generator, default_rng
 
 
 def from_seed(
     seed,
-    alg: Optional[Type[BitGenerator]] = None,
+    alg: Optional[type[BitGenerator]] = None,
 ) -> Generator:
     """Function that mimicks `tf.random.Generator.from_seed`."""
     if alg is None:

@@ -5,8 +5,7 @@ As the random number generation is not a trivial thing, this module handles it u
 It mimics the TensorFlows API on random generators and relies (currently) in global states on the TF states.
 Especially on the global random number generator which will be used to get new generators.
 """
-
-from typing import Tuple
+from __future__ import annotations
 
 from phasespace.backend import random, tnp
 
@@ -43,7 +42,7 @@ def get_rng(seed: SeedLike = None) -> random.Generator:
 
 
 def generate_uniform(
-    rng: random.Generator, shape: Tuple[int, ...], minval=0, maxval=1, dtype=tnp.float64
+    rng: random.Generator, shape: tuple[int, ...], minval=0, maxval=1, dtype=tnp.float64
 ) -> tnp.ndarray:
     try:
         return rng.uniform(shape, minval=minval, maxval=maxval, dtype=dtype)
