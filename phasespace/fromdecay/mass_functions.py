@@ -6,11 +6,11 @@ import zfit_physics as zphys
 #  Right now there is a lot of code repetition.
 
 
-def gauss(mass, width):
+def gauss_factory(mass, width):
     particle_mass = tf.cast(mass, tf.float64)
     particle_width = tf.cast(width, tf.float64)
 
-    def mass_func(min_mass, max_mass, n_events):
+    def gauss(min_mass, max_mass, n_events):
         min_mass = tf.cast(min_mass, tf.float64)
         max_mass = tf.cast(max_mass, tf.float64)
         pdf = zfit.pdf.Gauss(mu=particle_mass, sigma=particle_width, obs="")
@@ -19,16 +19,14 @@ def gauss(mass, width):
             lambda lim: pdf.sample(1, limits=(lim[0], lim[1])), iterator
         )
 
-    mass_func.__name__ = "gauss"
-
-    return mass_func
+    return gauss
 
 
-def breitwigner(mass, width):
+def breitwigner_factory(mass, width):
     particle_mass = tf.cast(mass, tf.float64)
     particle_width = tf.cast(width, tf.float64)
 
-    def mass_func(min_mass, max_mass, n_events):
+    def bw(min_mass, max_mass, n_events):
         min_mass = tf.cast(min_mass, tf.float64)
         max_mass = tf.cast(max_mass, tf.float64)
         pdf = zfit.pdf.Cauchy(m=particle_mass, gamma=particle_width, obs="")
@@ -37,16 +35,14 @@ def breitwigner(mass, width):
             lambda lim: pdf.sample(1, limits=(lim[0], lim[1])), iterator
         )
 
-    mass_func.__name__ = "bw"
-
-    return mass_func
+    return bw
 
 
-def relativistic_breitwigner(mass, width):
+def relativistic_breitwigner_factory(mass, width):
     particle_mass = tf.cast(mass, tf.float64)
     particle_width = tf.cast(width, tf.float64)
 
-    def mass_func(min_mass, max_mass, n_events):
+    def relbw(min_mass, max_mass, n_events):
         min_mass = tf.cast(min_mass, tf.float64)
         max_mass = tf.cast(max_mass, tf.float64)
         pdf = zphys.pdf.RelativisticBreitWigner(
@@ -59,13 +55,11 @@ def relativistic_breitwigner(mass, width):
             lambda lim: pdf.sample(1, limits=(lim[0], lim[1])).unstack_x(), iterator
         )
 
-    mass_func.__name__ = "relbw"
-
-    return mass_func
+    return relbw
 
 
 DEFAULT_CONVERTER = {
-    "gauss": gauss,
-    "bw": breitwigner,
-    "relbw": relativistic_breitwigner,
+    "gauss": gauss_factory,
+    "bw": breitwigner_factory,
+    "relbw": relativistic_breitwigner_factory,
 }
