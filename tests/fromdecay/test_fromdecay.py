@@ -48,6 +48,15 @@ def test_invalid_chain():
         GenMultiDecay.from_dict(dc)
 
 
+def test_invalid_mass_func_name():
+    """Test if an invalid mass function name as the zfit parameter raises a KeyError."""
+    dm1 = DecayMode(1, "K- pi+ pi+ pi0", model="PHSP")
+    dm2 = DecayMode(1, "gamma gamma", zfit="invalid name")
+    dc = DecayChain("D+", {"D+": dm1, "pi0": dm2}).to_dict()
+    with pytest.raises(KeyError):
+        GenMultiDecay.from_dict(dc, tolerance=1e-10)
+
+
 def test_single_chain():
     """Test converting a DecayLanguage dict with only one possible decay.
 
