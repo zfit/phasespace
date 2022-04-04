@@ -24,7 +24,7 @@ def memory_usage():
         import psutil
 
         process = psutil.Process(pid)
-        mem = process.memory_info()[0] / float(2 ** 20)
+        mem = process.memory_info()[0] / float(2**20)
     except ImportError:
         import subprocess
 
