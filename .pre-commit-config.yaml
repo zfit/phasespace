@@ -57,30 +57,30 @@ repos:
       - id: isort
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.31.0
+    rev: v2.31.1
     hooks:
       - id: pyupgrade
         args: [--py37-plus]
 
   - repo: https://github.com/mgedmin/check-manifest
-    rev: "0.47"
+    rev: "0.48"
     hooks:
       - id: check-manifest
         stages: [manual]
 
   - repo: https://github.com/sondrelg/pep585-upgrade
-    rev: "v1" # Use the sha / tag you want to point at
+    rev: "v1.0" # Use the sha / tag you want to point at
     hooks:
       - id: upgrade-type-hints
         args: ["--futures=true"]
 
   - repo: https://github.com/psf/black
-    rev: 21.12b0
+    rev: 22.3.0
     hooks:
       - id: black
 
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.5.1
+    rev: v2.6.2
     hooks:
       - id: prettier
 
