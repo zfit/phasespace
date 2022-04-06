@@ -40,7 +40,8 @@ def ref_mass_func(min_mass, max_mass, n_events):
 
 
 @pytest.mark.parametrize(
-    "function", (mf.gauss, mf.breitwigner, mf.relativistic_breitwigner)
+    "function",
+    (mf.gauss_factory, mf.breitwigner_factory, mf.relativistic_breitwigner_factory),
 )
 @pytest.mark.parametrize("size", (1, 10))
 def test_shape(function: Callable, size: int, params: tuple = (1.0, 1.0)):
