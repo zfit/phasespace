@@ -79,15 +79,6 @@ broad peak).
 Installing
 ==========
 
-``phasespace`` is available on conda-forge and pip.
-
-To install ``phasespace`` with conda, run:
-
-
-.. code-block:: console
-
-    $ conda install phasespace -c conda-forge
-
 To install with pip:
 
 .. code-block:: console
@@ -95,20 +86,24 @@ To install with pip:
     $ pip install phasespace
 
 This is the preferred method to install ``phasespace``, as it will always install the most recent stable release.
-
-For the newest development version, which may be unstable, you can install the version from git with
+To install the necessary dependencies to be used with
+`DecayLanguage <https://github.com/scikit-hep/decaylanguage>`_, use
 
 .. code-block:: console
 
-   $ pip install git+https://github.com/zfit/phasespace
+    $ pip install phasespace[fromdecay]
 
 
 How to use
 ==========
 
+Phasespace can directly be used to generate from a DecayChain using the
+`DecayLanguage <https://github.com/scikit-hep/decaylanguage>`_ package as
+`explained in the tutorial <https://phasespace.readthedocs.io/en/latest/GenMultiDecay_Tutorial.html>`_.
+
 The generation of simple `n`-body decays can be done using the ``nbody_decay`` shortcut to create a decay chain
 with a very simple interface: one needs to pass the mass of the top particle and the masses of the children particle as
-a list, optionally giving the names of the particles. Then, the `generate` method can be used to produce the desired sample.
+a list, optionally giving the names of the particles. Then, the ``generate`` method can be used to produce the desired sample.
 For example, to generate :math:`B^0\to K\pi`, we would do:
 
 .. code-block:: python
