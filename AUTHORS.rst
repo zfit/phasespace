@@ -7,10 +7,12 @@ Development Lead
 
 * Albert Puig Navarro <albert.puig@cern.ch>
 
-Core Developers
----------------
+Developers
+-----------
 
 * Jonas Eschle <jonas.eschle@cern.ch>
+* Simon Thor
+* Eduardo Rodrigues <eduardo.rodrigues@cern.ch>
 
 Contributors
 ------------
