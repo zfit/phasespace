@@ -2,9 +2,8 @@
 Changelog
 *********
 
-Develop
-==========
-
+1.6.0 (14 Apr 2022)
+====================
 
 Major Features and Improvements
 -------------------------------
