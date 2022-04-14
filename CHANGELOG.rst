@@ -2,6 +2,28 @@
 Changelog
 *********
 
+
+Develop
+==========
+
+
+Major Features and Improvements
+-------------------------------
+
+Behavioral changes
+------------------
+
+
+Bug fixes and small changes
+---------------------------
+
+Requirement changes
+-------------------
+
+
+Thanks
+------
+
 1.6.0 (14 Apr 2022)
 ====================
 
