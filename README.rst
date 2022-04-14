@@ -20,6 +20,8 @@ PhaseSpace
 .. image:: https://badges.gitter.im/zfit/phasespace.svg
    :target: https://gitter.im/zfit/phasespace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
    :alt: Gitter chat
+.. image:: https://badge.fury.io/py/phasespace.svg
+   :target: https://badge.fury.io/py/phasespace
 
 Python implementation of the Raubold and Lynch method for `n`-body events using
 TensorFlow as a backend.
