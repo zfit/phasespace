@@ -7,7 +7,7 @@ else:
     from importlib.metadata import PackageNotFoundError, version
 
 try:
-    __version__ = version("package-name")
+    __version__ = version("phasespace")
 except PackageNotFoundError:
     pass
 
