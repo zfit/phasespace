@@ -2,6 +2,7 @@
 Changelog
 *********
 
+
 Develop
 ==========
 
@@ -22,6 +23,17 @@ Requirement changes
 
 Thanks
 ------
+
+1.6.0 (14 Apr 2022)
+====================
+
+Major Features and Improvements
+-------------------------------
+- Improved GenMultiDecay to have better control on the decay mass of non-stable particles.
+- Added a `particle_model_map` argument to the `GenMultiDecay` class. This is a
+  dict where the key is a particle name and the value is a mass function name.
+  The feature can be seen in the
+  `GenMultiDecay Tutorial <https://github.com/zfit/phasespace/blob/master/docs/GenMultiDecay_Tutorial.ipynb>`_.
 
 
 1.5.0 (27 Nov 2021)
