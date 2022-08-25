@@ -13,7 +13,7 @@ from numpy.random import PCG64, BitGenerator, Generator, default_rng
 
 def from_seed(
     seed,
-    alg: Optional[type[BitGenerator]] = None,
+    alg: type[BitGenerator] | None = None,
 ) -> Generator:
     """Function that mimicks `tf.random.Generator.from_seed`."""
     if alg is None:

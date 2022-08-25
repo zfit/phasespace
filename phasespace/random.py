@@ -7,7 +7,6 @@ Especially on the global random number generator which will be used to get new g
 """
 from __future__ import annotations
 
-
 from typing import Optional, Union
 
 from phasespace.backend import random, tnp
