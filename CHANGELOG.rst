@@ -3,26 +3,21 @@ Changelog
 *********
 
 
-Develop
-==========
+1.7.0 (1. Sep 2022)
+====================
 
+Upgraded Python and TensorFlow version.
 
-Major Features and Improvements
--------------------------------
-
-Behavioral changes
-------------------
-
-
-Bug fixes and small changes
----------------------------
+Added ``tf`` and ``tensorflow`` extra to requirements. If you intend to use
+phasespace with TensorFlow in the future (and not another backend like numpy or JAX),
+make sure to always install with ``phasespace[tf]``.
 
 Requirement changes
 -------------------
+- upgrade to TensorFlow >= 2.7
+- Python from 3.7 to 3.10 is now supported
 
 
-Thanks
-------
 
 1.6.0 (14 Apr 2022)
 ====================
