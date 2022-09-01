@@ -17,8 +17,6 @@ Requirement changes
 - upgrade to TensorFlow >= 2.7
 - Python from 3.7 to 3.10 is now supported
 
-
-
 1.6.0 (14 Apr 2022)
 ====================
 
