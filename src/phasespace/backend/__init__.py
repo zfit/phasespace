@@ -24,14 +24,19 @@ __all__ = [
 class BackendType(Enum):
     TENSORFLOW = auto()
     NUMPY = auto()
+    JAX = auto()
 
     @staticmethod
     def get_backend(backend: str) -> "BackendType":
         backend_formatted = backend.lower().strip()
         if backend_formatted in {"", "np", "numpy"}:
             return BackendType.NUMPY
-        if backend_formatted in {"tf", "tensorflow"}:
+        elif backend_formatted in {"tf", "tensorflow"}:
             return BackendType.TENSORFLOW
+        elif backend_formatted in {
+            "jax",
+        }:
+            return BackendType.JAX
         raise NotImplementedError(f'No backend implemented for "{backend}"')
 
 
@@ -72,7 +77,7 @@ if BACKEND == BackendType.TENSORFLOW:
     is_eager = bool(os.environ.get("PHASESPACE_EAGER"))
     tf.config.run_functions_eagerly(is_eager)
 
-if BACKEND == BackendType.NUMPY:
+elif BACKEND == BackendType.NUMPY:
     import numpy as tnp
 
     from . import _np_random as random
@@ -90,3 +95,28 @@ if BACKEND == BackendType.NUMPY:
 
     def assert_greater_equal(x, y, message: str, name: str = "") -> None:
         return tnp.testing.assert_array_less(-x, -y, err_msg=message)
+
+elif BACKEND == BackendType.JAX:
+    import jax.numpy as jnp
+
+    tnp = jnp
+    import numpy as _np
+
+    from . import _jax_random as random
+
+    # TODO: jax cannot handle arbitrary shapes and has no Variables. No JIT available ATM
+    function = lambda x: x
+    function_jit = lambda x: x
+    function_jit_fixedshape = lambda x: x
+
+    Tensor = jnp.ndarray
+    Variable = jnp.ndarray
+    get_shape = jnp.shape  # get shape dynamically
+
+    def assert_equal(x, y, message: str, name: str = "") -> None:
+        return _np.testing.assert_equal(x, y, err_msg=message)
+
+    def assert_greater_equal(x, y, message: str, name: str = "") -> None:
+        return _np.testing.assert_array_less(-x, -y, err_msg=message)
+
+    is_eager = True  # TODO: add jit and make this switchable
