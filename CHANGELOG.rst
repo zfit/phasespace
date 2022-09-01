@@ -2,6 +2,27 @@
 Changelog
 *********
 
+Develop
+==========
+
+
+Major Features and Improvements
+-------------------------------
+
+Behavioral changes
+------------------
+
+
+Bug fixes and small changes
+---------------------------
+
+Requirement changes
+-------------------
+
+
+Thanks
+------
+
 
 1.7.0 (1. Sep 2022)
 ====================
