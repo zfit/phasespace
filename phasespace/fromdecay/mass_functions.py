@@ -16,7 +16,7 @@ def gauss_factory(mass, width):
         pdf = zfit.pdf.Gauss(mu=particle_mass, sigma=particle_width, obs="")
         iterator = tf.stack([min_mass, max_mass], axis=-1)
         return tf.vectorized_map(
-            lambda lim: pdf.sample(1, limits=(lim[0], lim[1])), iterator
+            lambda lim: pdf.sample(1, limits=(lim[0], lim[1])).unstack_x(), iterator
         )
 
     return gauss
@@ -32,7 +32,7 @@ def breitwigner_factory(mass, width):
         pdf = zfit.pdf.Cauchy(m=particle_mass, gamma=particle_width, obs="")
         iterator = tf.stack([min_mass, max_mass], axis=-1)
         return tf.vectorized_map(
-            lambda lim: pdf.sample(1, limits=(lim[0], lim[1])), iterator
+            lambda lim: pdf.sample(1, limits=(lim[0], lim[1])).unstack_x(), iterator
         )
 
     return bw
