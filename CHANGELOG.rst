@@ -23,6 +23,14 @@ Requirement changes
 Thanks
 ------
 
+1.8.0 (27 Jan 2023)
+===================
+
+Requirement changes
+-------------------
+- upgrade to zfit >= 0.10.0 and zfit-physics >= 0.3.0
+- pinning uproot and awkward to ~4 and ~1, respectively
+
 
 1.7.0 (1. Sep 2022)
 ====================
