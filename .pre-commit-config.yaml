@@ -34,7 +34,7 @@ repos:
           - --wrap-summaries=110
 
   - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.9.0 # Use the ref you want to point at
+    rev: v1.10.0 # Use the ref you want to point at
     hooks:
       - id: python-use-type-annotations
       - id: python-check-mock-methods
@@ -47,7 +47,7 @@ repos:
       - id: flake8
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.11.4
+    rev: 5.12.0
     hooks:
       - id: isort
 
@@ -70,12 +70,12 @@ repos:
         args: ["--futures=true"]
 
   - repo: https://github.com/psf/black
-    rev: 22.12.0
+    rev: 23.3.0
     hooks:
       - id: black
 
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0-alpha.4
+    rev: v3.0.0-alpha.6
     hooks:
       - id: prettier
 
