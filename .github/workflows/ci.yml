@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8]
+        python-version: ["3.8"]
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -38,13 +38,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.7", "3.9", "3.10"]
+        python-version: ["3.9", "3.10", "3.11"]
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v1
+        id: cpu-cores
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -52,15 +55,15 @@ jobs:
           pip install -e .[dev]
       - name: Download test data
         run: python data/download_test_files.py > /dev/null
-      - name: Test with pytest
+      - name: Test with pytest (compiled)
         run: |
           PHASESPACE_EAGER=0 pytest --basetemp={envtmpdir} tests
           cd docs
-          PHASESPACE_EAGER=0 pytest --nbval-lax --ignore=.ipynb_checkpoints
+          PHASESPACE_EAGER=0 pytest --dist loadscope --nbval-lax --ignore=.ipynb_checkpoints -n${{ steps.cpu-cores.outputs.count }}
           cd ..
       - name: Test with pytest (eager mode)
         run: |
           PHASESPACE_EAGER=1 pytest --basetemp={envtmpdir} tests
           cd docs
-          PHASESPACE_EAGER=1 pytest --nbval-lax --ignore=.ipynb_checkpoints
+          PHASESPACE_EAGER=1 pytest --dist loadscope --nbval-lax --ignore=.ipynb_checkpoints -n${{ steps.cpu-cores.outputs.count }}
           cd ..

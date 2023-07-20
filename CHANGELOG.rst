@@ -22,6 +22,10 @@ Requirement changes
 
 Thanks
 ------
+1.9.0 (20 Jul 2023)
+===================
+
+Add support for Python 3.11, drop support for 3.7
 
 1.8.0 (27 Jan 2023)
 ===================
