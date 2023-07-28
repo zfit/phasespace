@@ -3,7 +3,11 @@
 
 name: Build and deploy
 
-on: [push]
+on:
+  push:
+  release:
+    types:
+      - published
 
 jobs:
   dist:
