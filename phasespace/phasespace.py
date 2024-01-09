@@ -200,8 +200,7 @@ class GenParticle:
                 f"Have to set at least 2 children, not {len(children)} for a particle to decay"
             )
         # Check name clashes
-        name_clash = self._do_names_clash(children)
-        if name_clash:
+        if name_clash := self._do_names_clash(children):
             raise KeyError(f"Particle name {name_clash} already used")
         self.children = children
         return self
