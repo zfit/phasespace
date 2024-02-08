@@ -21,9 +21,9 @@ if platform.system() == "Darwin":
 import os
 
 import matplotlib.pyplot as plt
-import uproot4
 import tensorflow as tf
 import uproot
+import uproot4
 
 from phasespace import phasespace
 from phasespace.backend import tnp
