@@ -17,14 +17,18 @@ import warnings
 from collections.abc import Callable
 from math import pi
 
-import tensorflow as tf
-import tensorflow.experimental.numpy as tnp
-
 from . import kinematics as kin
-from .backend import function, function_jit_fixedshape
-from .random import SeedLike, get_rng
-
-RELAX_SHAPES = False
+from .backend import (
+    Tensor,
+    Variable,
+    assert_equal,
+    assert_greater_equal,
+    function,
+    function_jit_fixedshape,
+    get_shape,
+    tnp,
+)
+from .random import SeedLike, generate_uniform, get_rng
 
 
 def process_list_to_tensor(lst):
@@ -94,12 +98,10 @@ class GenParticle:
         self.name = name
         self.children = []
         self._mass_val = mass
-        if not callable(mass) and not isinstance(mass, tf.Variable):
+        if not callable(mass) and not isinstance(mass, Variable):
             mass = tnp.asarray(mass, dtype=tnp.float64)
         else:
-            mass = tf.function(
-                mass, autograph=False, experimental_relax_shapes=RELAX_SHAPES
-            )
+            mass = function(mass)
         self._mass = mass
         self._generate_called = False  # not yet called, children can be set
 
@@ -129,11 +131,11 @@ class GenParticle:
     @function
     def get_mass(
         self,
-        min_mass: tf.Tensor = None,
-        max_mass: tf.Tensor = None,
-        n_events: tf.Tensor | tf.Variable = None,
+        min_mass: Tensor = None,
+        max_mass: Tensor = None,
+        n_events: Union[Tensor, Variable] = None,
         seed: SeedLike = None,
-    ) -> tf.Tensor:
+    ) -> Tensor:
         """Get the particle mass.
 
         If the particle is resonant, the mass function will be called with the
@@ -246,11 +248,11 @@ class GenParticle:
             if n_events is not None:
                 momentum_shape = momentum.shape[0]
                 if momentum_shape is None:
-                    momentum_shape = tf.shape(momentum)[0]
+                    momentum_shape = get_shape(momentum)[0]
                     momentum_shape = tnp.asarray(momentum_shape, tnp.int64)
                 else:
                     momentum_shape = tnp.asarray(momentum_shape, dtype=tnp.int64)
-                tf.assert_equal(
+                assert_equal(
                     n_events,
                     momentum_shape,
                     message="Conflicting inputs -> momentum_shape and n_events",
@@ -260,7 +262,7 @@ class GenParticle:
             if len(momentum.shape) == 2:
                 n_events = momentum.shape[0]
                 if n_events is None:  # dynamic shape
-                    n_events = tf.shape(momentum)[0]
+                    n_events = get_shape(momentum)[0]
                     n_events = tnp.asarray(n_events, dtype=tnp.int64)
             else:
                 n_events = tnp.asarray(1, dtype=tnp.int64)
@@ -339,7 +341,7 @@ class GenParticle:
         # if len(masses.shape) == 1:
         #     masses = tnp.expand_dims(masses, axis=0)
         available_mass = top_mass - tnp.sum(masses, axis=1, keepdims=True)
-        tf.debugging.assert_greater_equal(
+        assert_greater_equal(
             available_mass,
             tnp.zeros_like(available_mass, dtype=tnp.float64),
             message="Forbidden decay",
@@ -348,7 +350,7 @@ class GenParticle:
         w_max = self._get_w_max(available_mass, masses)
         p_top_boost = kin.boost_components(p_top)
         # Start the generation
-        random_numbers = rng.uniform((n_events, n_particles - 2), dtype=tnp.float64)
+        random_numbers = generate_uniform(rng, shape=(n_events, n_particles - 2))
         random = tnp.concatenate(
             [
                 tnp.zeros((n_events, 1), dtype=tnp.float64),
@@ -425,14 +427,14 @@ class GenParticle:
                 )
             )
 
-            cos_z = tnp.asarray(2.0, dtype=tnp.float64) * rng.uniform(
-                (n_events, 1), dtype=tnp.float64
+            cos_z = tnp.asarray(2.0, dtype=tnp.float64) * generate_uniform(
+                rng, shape=(n_events, 1)
             ) - tnp.asarray(1.0, dtype=tnp.float64)
             sin_z = tnp.sqrt(tnp.asarray(1.0, dtype=tnp.float64) - cos_z * cos_z)
             ang_y = (
                 tnp.asarray(2.0, dtype=tnp.float64)
                 * tnp.asarray(pi, dtype=tnp.float64)
-                * rng.uniform((n_events, 1), dtype=tnp.float64)
+                * generate_uniform(rng, shape=(n_events, 1))
             )
             cos_y = tnp.cos(ang_y)
             sin_y = tnp.sin(ang_y)
@@ -610,11 +612,11 @@ class GenParticle:
 
     def generate(
         self,
-        n_events: int | tf.Tensor | tf.Variable,
-        boost_to: tf.Tensor | None = None,
+        n_events: Union[int, Tensor, Variable],
+        boost_to: Optional[Tensor] = None,
         normalize_weights: bool = True,
         seed: SeedLike = None,
-    ) -> tuple[tf.Tensor, dict[str, tf.Tensor]]:
+    ) -> Tuple[Tensor, Dict[str, Tensor]]:
         """Generate normalized n-body phase space as tensorflow tensors.
 
         Any TensorFlow tensor can always be converted to a numpy array with the method `numpy()`.
@@ -657,8 +659,8 @@ class GenParticle:
                 f"The number of events requested ({n_events}) doesn't match the boost_to input size "
                 f"of {boost_to.shape}"
             )
-            tf.assert_equal(tf.shape(boost_to)[0], tf.shape(n_events), message=message)
-        if not isinstance(n_events, tf.Variable):
+            assert_equal(len(boost_to), n_events, message=message)
+        if not isinstance(n_events, Variable):
             n_events = tnp.asarray(n_events, dtype=tnp.int64)
         weights, weights_max, parts, _ = self._recursive_generate(
             n_events=n_events,

@@ -67,7 +67,13 @@ jobs:
           cd ..
       - name: Test with pytest (eager mode)
         run: |
-          PHASESPACE_EAGER=1 pytest --basetemp={envtmpdir} tests
+          PHASESPACE_EAGER=1 pytest --basetemp={envtmpdir}
           cd docs
           PHASESPACE_EAGER=1 pytest --dist loadscope --nbval-lax --ignore=.ipynb_checkpoints -n${{ steps.cpu-cores.outputs.count }}
+          cd ..
+      - name: Test with pytest (NumPy backend)
+        run: |
+          PHASESPACE_BACKEND=NUMPY pytest --basetemp={envtmpdir}
+          cd docs
+          PHASESPACE_EAGER=NUMPY pytest --nbval-lax --ignore=.ipynb_checkpoints
           cd ..
