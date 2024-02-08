@@ -145,9 +145,10 @@ class GenMultiDecay:
 
     def generate(
         self, n_events: int, normalize_weights: bool = True, **kwargs
-    ) -> tuple[list[tf.Tensor], list[tf.Tensor]] | tuple[
-        list[tf.Tensor], list[tf.Tensor], list[tf.Tensor]
-    ]:
+    ) -> (
+        tuple[list[tf.Tensor], list[tf.Tensor]]
+        | tuple[list[tf.Tensor], list[tf.Tensor], list[tf.Tensor]]
+    ):
         """Generate four-momentum vectors from the decay(s).
 
         Args:

@@ -8,7 +8,7 @@
 
 The code is based on the GENBOD function (W515 from CERNLIB), documented in:
 
-      F. James, Monte Carlo Phase Space, CERN 68-15 (1968)
+F. James, Monte Carlo Phase Space, CERN 68-15 (1968)
 """
 from __future__ import annotations
 
@@ -202,8 +202,7 @@ class GenParticle:
                 f"Have to set at least 2 children, not {len(children)} for a particle to decay"
             )
         # Check name clashes
-        name_clash = self._do_names_clash(children)
-        if name_clash:
+        if name_clash := self._do_names_clash(children):
             raise KeyError(f"Particle name {name_clash} already used")
         self.children = children
         return self

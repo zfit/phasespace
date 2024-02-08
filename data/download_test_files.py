@@ -8,19 +8,19 @@ SCRIPT_DIR = dirname(abspath(__file__))
 FILE_URLS = [
     (
         "B2K1Gamma_RapidSim_7TeV_K1KstarNonResonant_Tree.root",
-        "https://cernbox.cern.ch/index.php/s/8mN10X8U7VGfaRc/download",
+        "https://cernbox.cern.ch/remote.php/dav/public-files/8mN10X8U7VGfaRc/B2K1Gamma_RapidSim_7TeV_K1KstarNonResonant_Tree.root",  # noqa: E501
     ),
     (
         "B2K1Gamma_RapidSim_7TeV_Tree.root",
-        "https://cernbox.cern.ch/index.php/s/pr3aM8n2hPT4Pag/download",
+        "https://cernbox.cern.ch/remote.php/dav/public-files/pr3aM8n2hPT4Pag/B2K1Gamma_RapidSim_7TeV_Tree.root",  # noqa: E501
     ),
     (
         "B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root",
-        "https://cernbox.cern.ch/index.php/s/QuP2cHeISTTSLVv/download",
+        "https://cernbox.cern.ch/remote.php/dav/public-files/QuP2cHeISTTSLVv/B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root",  # noqa: E501
     ),
     (
         "B2KstGamma_RapidSim_7TeV_Tree.root",
-        "https://cernbox.cern.ch/index.php/s/EH5yrCpGko7P7Mc/download",
+        "https://cernbox.cern.ch/remote.php/dav/public-files/EH5yrCpGko7P7Mc/B2KstGamma_RapidSim_7TeV_Tree.root",  # noqa: E501
     ),
 ]
 

@@ -22,6 +22,8 @@ import os
 
 import matplotlib.pyplot as plt
 import uproot4
+import tensorflow as tf
+import uproot
 
 from phasespace import phasespace
 from phasespace.backend import tnp
@@ -58,7 +60,7 @@ def create_ref_histos(n_pions):
             ),
         )
         subprocess.call(f"root -qb '{script}'", shell=True)
-    events = uproot4.open(ref_file)["events"]
+    events = uproot.open(ref_file)["events"]
     pion_names = [f"pion_{pion + 1}" for pion in range(n_pions)]
     pions = {pion_name: events[pion_name] for pion_name in pion_names}
     weights = events["weight"]

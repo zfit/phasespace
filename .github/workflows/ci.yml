@@ -3,6 +3,10 @@
 
 name: tests
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
 on: [push, pull_request]
 
 jobs:
@@ -11,17 +15,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8]
+        python-version: ["3.8"]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install --use-feature=2020-resolver -e .[dev]
+          pip install -e .[dev]
           pip install coverage
       - name: Download test data
         run: python data/download_test_files.py > /dev/null
@@ -29,7 +33,7 @@ jobs:
         run: coverage run -m pytest --basetemp={envtmpdir}
       - name: Create XML report
         run: coverage xml
-      - uses: codecov/codecov-action@v3.1.0
+      - uses: codecov/codecov-action@v4.0.0
         with:
           file: ./coverage.xml
 
@@ -38,31 +42,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.7", "3.9", "3.10"]
+        python-version: ["3.9", "3.10", "3.11"]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v2
+        id: cpu-cores
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           sudo apt-get install graphviz -y
-          pip install --use-feature=2020-resolver -e .[dev]
+          pip install -e .[dev]
       - name: Download test data
         run: python data/download_test_files.py > /dev/null
-      - name: Test with pytest
+      - name: Test with pytest (compiled)
         run: |
           PHASESPACE_EAGER=0 pytest --basetemp={envtmpdir} tests
           cd docs
-          PHASESPACE_EAGER=0 pytest --nbval-lax --ignore=.ipynb_checkpoints
+          PHASESPACE_EAGER=0 pytest --dist loadscope --nbval-lax --ignore=.ipynb_checkpoints -n${{ steps.cpu-cores.outputs.count }}
           cd ..
       - name: Test with pytest (eager mode)
         run: |
           PHASESPACE_EAGER=1 pytest --basetemp={envtmpdir}
           cd docs
-          PHASESPACE_EAGER=1 pytest --nbval-lax --ignore=.ipynb_checkpoints
+          PHASESPACE_EAGER=1 pytest --dist loadscope --nbval-lax --ignore=.ipynb_checkpoints -n${{ steps.cpu-cores.outputs.count }}
           cd ..
       - name: Test with pytest (NumPy backend)
         run: |

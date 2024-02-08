@@ -2,7 +2,6 @@
 Changelog
 *********
 
-
 Develop
 ==========
 
@@ -21,8 +20,36 @@ Requirement changes
 -------------------
 
 
+
 Thanks
 ------
+1.9.0 (20 Jul 2023)
+===================
+
+Add support for Python 3.11, drop support for 3.7
+
+1.8.0 (27 Jan 2023)
+===================
+
+Requirement changes
+-------------------
+- upgrade to zfit >= 0.10.0 and zfit-physics >= 0.3.0
+- pinning uproot and awkward to ~4 and ~1, respectively
+
+
+1.7.0 (1. Sep 2022)
+====================
+
+Upgraded Python and TensorFlow version.
+
+Added ``tf`` and ``tensorflow`` extra to requirements. If you intend to use
+phasespace with TensorFlow in the future (and not another backend like numpy or JAX),
+make sure to always install with ``phasespace[tf]``.
+
+Requirement changes
+-------------------
+- upgrade to TensorFlow >= 2.7
+- Python from 3.7 to 3.10 is now supported
 
 1.6.0 (14 Apr 2022)
 ====================

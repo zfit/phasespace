@@ -20,7 +20,6 @@ except ModuleNotFoundError as error:
         file=sys.stderr,
     ) from error
 
-
 __all__ = ("GenMultiDecay",)
 
 

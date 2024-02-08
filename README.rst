@@ -93,7 +93,7 @@ To install the necessary dependencies to be used with
 
 .. code-block:: console
 
-    $ pip install phasespace[fromdecay]
+    $ pip install "phasespace[fromdecay]"
 
 
 How to use
