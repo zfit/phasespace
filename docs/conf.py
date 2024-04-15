@@ -79,7 +79,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "TensorFlow PhaseSpace"
-copyright = "2019, Albert Puig Navarro"
+copyright = "2024, Albert Puig Navarro"
 author = "Albert Puig Navarro"
 
 # The version info for the project you're documenting, acts as replacement
