@@ -7,7 +7,21 @@ concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
 
-on: [push, pull_request]
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "*"
+    branches:
+      - main
+      - develop
+      - "release/*"
+      - "hotfix/*"
+  pull_request:
+    branches-ignore:
+      - "docs/*"
+      - "doc/*"
+
 
 jobs:
   codecov:
@@ -15,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8"]
+        python-version: ["3.9"]
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
@@ -42,7 +56,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        os: ubuntu-latest
+        python-version: ["3.10", "3.12"]
         include:
           - os: macos-latest
             python-version: "3.9"
