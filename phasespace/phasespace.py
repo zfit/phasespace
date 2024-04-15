@@ -10,6 +10,7 @@ The code is based on the GENBOD function (W515 from CERNLIB), documented in:
 
 F. James, Monte Carlo Phase Space, CERN 68-15 (1968)
 """
+
 from __future__ import annotations
 
 import inspect
@@ -511,7 +512,7 @@ class GenParticle:
                 and their output masses).
 
         Raise:
-            tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
+            tf.errors.InvalidArgumentError: If the decay is kinematically forbidden.
             ValueError: If `n_events` and the size of `boost_to` don't match.
             See `GenParticle.generate_unnormalized`.
         """

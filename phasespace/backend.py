@@ -8,12 +8,12 @@ else:
 function = tf.function(
     autograph=False,
     experimental_relax_shapes=RELAX_SHAPES,
-    **{jit_compile_argname: False}
+    **{jit_compile_argname: False},
 )
 function_jit = tf.function(
     autograph=False,
     experimental_relax_shapes=RELAX_SHAPES,
-    **{jit_compile_argname: True}
+    **{jit_compile_argname: True},
 )
 
 function_jit_fixedshape = tf.function(
