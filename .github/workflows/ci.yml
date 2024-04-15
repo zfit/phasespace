@@ -7,7 +7,21 @@ concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
 
-on: [push, pull_request]
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "*"
+    branches:
+      - main
+      - develop
+      - "release/*"
+      - "hotfix/*"
+  pull_request:
+    branches-ignore:
+      - "docs/*"
+      - "doc/*"
+
 
 jobs:
   codecov:
@@ -15,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8"]
+        python-version: ["3.9"]
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
@@ -25,6 +39,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          sudo apt install graphviz -y
           pip install -e .[dev]
           pip install coverage
       - name: Download test data
@@ -38,11 +53,20 @@ jobs:
           file: ./coverage.xml
 
   pytest:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    name: tests on ${{ matrix.os }} with ${{ matrix.python-version }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        os: [ ubuntu-latest ]
+        python-version: ["3.10", "3.12"]
+#        include:  # todo: activate when we can install graphviz on these platforms
+#          - os: macos-latest
+#            python-version: "3.9"
+#          - os: windows-latest
+#            python-version: "3.9"
+#          - os: macos-14  # Apple silicon runner
+#            python-version: '3.12'
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
@@ -55,7 +79,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          sudo apt-get install graphviz -y
+          sudo apt install graphviz -y
           pip install -e .[dev]
       - name: Download test data
         run: python data/download_test_files.py > /dev/null
