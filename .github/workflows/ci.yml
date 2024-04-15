@@ -52,11 +52,12 @@ jobs:
           file: ./coverage.xml
 
   pytest:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    name: tests on ${{ matrix.os }} with ${{ matrix.python-version }}
     strategy:
       fail-fast: false
       matrix:
-        os: ubuntu-latest
+        os: [ ubuntu-latest ]
         python-version: ["3.10", "3.12"]
         include:
           - os: macos-latest
