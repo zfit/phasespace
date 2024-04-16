@@ -123,7 +123,7 @@ class GenMultiDecay:
 
         Notes:
             For a more in-depth tutorial, see the tutorial on GenMultiDecay in the
-            [documentation](https://phasespace.readthedocs.io/en/stable/GenMultiDecay_Tutorial.html).
+            `documentation <https://phasespace.readthedocs.io/en/stable/GenMultiDecay_Tutorial.html>`_.
         """
         if tolerance is None:
             tolerance = cls.MASS_WIDTH_TOLERANCE
