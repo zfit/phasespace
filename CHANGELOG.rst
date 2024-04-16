@@ -2,8 +2,28 @@
 Changelog
 *********
 
-1.10.0 (16 Apr 2024
+Develop
 ====================
+
+Major Features and Improvements
+-------------------------------
+
+Behavioral changes
+------------------
+
+Bug fixes and small changes
+---------------------------
+
+Requirement changes
+-------------------
+
+
+Thanks
+------
+
+
+1.10.0 (16 Apr 2024)
+=====================
 
 Add support for Python 3.12, drop support for 3.8
 
