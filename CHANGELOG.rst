@@ -2,29 +2,23 @@
 Changelog
 *********
 
-Develop
-==========
+1.10.0 (16 Apr 2024
+====================
 
+Add support for Python 3.12, drop support for 3.8
 
 Major Features and Improvements
 -------------------------------
 
 - integrating `vector <https://vector.readthedocs.io/en/latest/index.html>`_ support for ``generate``: ``boost_to`` can be a Momentum Lorentz vector and return the boosted particles as a vector using ``as_vectors=True``.
 
-Behavioral changes
-------------------
-
-
-Bug fixes and small changes
----------------------------
 
 Requirement changes
 -------------------
 
+Upgrade to TensorFlow > 0.16
 
 
-Thanks
-------
 1.9.0 (20 Jul 2023)
 ===================
 
