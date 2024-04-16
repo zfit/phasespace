@@ -130,7 +130,7 @@ write the :math:`B^{0}\to K^{*}\gamma` decay chain as (more details can be found
 .. jupyter-execute::
     :hide-output:
 
-    import phasespace.numpy as tnp
+    from phasespace import numpy as tnp
     import tensorflow_probability as tfp
     from phasespace import GenParticle
 

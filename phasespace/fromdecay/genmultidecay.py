@@ -36,8 +36,7 @@ class GenMultiDecay:
         """Create a `GenMultiDecay` instance from a dict in the `DecayLanguage` package format.
 
         Args:
-            dec_dict:
-                The input dict from which the GenMultiDecay object will be created from.
+            dec_dict: The input dict from which the GenMultiDecay object will be created from.
                 A dec_dict has the same structure as the dicts used in DecayLanguage, see the examples below.
             mass_converter: A dict with mass function names and their corresponding mass functions.
                 These functions should take the particle mass and the mass width as inputs
@@ -53,6 +52,7 @@ class GenMultiDecay:
                 zfit parameter to every place where this particle appears in dec_dict. If the zfit parameter
                 is specified for a particle which is also included in particle_model_map, the zfit parameter
                 mass function name will be prioritized.
+
         Returns:
             The created GenMultiDecay object.
 

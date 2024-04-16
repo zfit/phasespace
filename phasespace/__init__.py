@@ -13,16 +13,18 @@ __maintainer__ = "zfit"
 
 __credits__ = ["Jonas Eschle <Jonas.Eschle@cern.ch>"]
 
-__all__ = ["nbody_decay", "GenParticle", "random"]
+__all__ = ["nbody_decay", "GenParticle", "random", "to_vectors", "numpy"]
 
-import tensorflow as tf
+import tensorflow.experimental.numpy as numpy
 
 from . import random
-from .phasespace import GenParticle, nbody_decay
+from .phasespace import GenParticle, nbody_decay, to_vectors
 
 
 def _set_eager_mode():
     import os
+
+    import tensorflow as tf
 
     is_eager = bool(os.environ.get("PHASESPACE_EAGER"))
     tf.config.run_functions_eagerly(is_eager)
