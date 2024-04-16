@@ -13,13 +13,15 @@ F. James, Monte Carlo Phase Space, CERN 68-15 (1968)
 
 from __future__ import annotations
 
+import functools
 import inspect
-import warnings
 from collections.abc import Callable
 from math import pi
 
+import numpy as np
 import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
+import vector
 
 from . import kinematics as kin
 from .backend import function, function_jit_fixedshape
@@ -87,21 +89,29 @@ class GenParticle:
 
     Arguments:
         name (str): Name of the particle.
-        mass (float, ~`tf.Tensor`, callable): Mass of the particle. If it's a float, it get
-            converted to a `tf.constant`.
+        mass (float, array-like, callable): Mass of the particle. If it's a float, it get
+            converted to array-like.
     """
 
-    def __init__(self, name: str, mass: Callable | int | float) -> None:  # noqa
+    def __init__(
+        self, name: str, mass: Callable | int | float | np.typing.ArrayLike
+    ) -> None:  # noqa
         self.name = name
         self.children = []
         self._mass_val = mass
-        if not callable(mass) and not isinstance(mass, tf.Variable):
-            mass = tnp.asarray(mass, dtype=tnp.float64)
+        if callable(mass):
+
+            @functools.wraps(mass)
+            def mass_preprocessed(*args, mass=mass, **kwargs):
+                return tnp.atleast_1d(
+                    tnp.asarray(mass(*args, **kwargs), dtype=tnp.float64)
+                )
+        elif not isinstance(mass, tf.Variable):
+            mass_preprocessed = tnp.atleast_1d(tnp.asarray(mass, dtype=tnp.float64))
         else:
-            mass = tf.function(
-                mass, autograph=False, experimental_relax_shapes=RELAX_SHAPES
-            )
-        self._mass = mass
+            mass_preprocessed = mass
+
+        self._mass = mass_preprocessed
         self._generate_called = False  # not yet called, children can be set
 
     def __repr__(self):
@@ -251,11 +261,11 @@ class GenParticle:
                     momentum_shape = tnp.asarray(momentum_shape, tnp.int64)
                 else:
                     momentum_shape = tnp.asarray(momentum_shape, dtype=tnp.int64)
-                tf.assert_equal(
-                    n_events,
-                    momentum_shape,
-                    message="Conflicting inputs -> momentum_shape and n_events",
-                )
+                # tf.assert_equal(
+                #     n_events,
+                #     momentum_shape,
+                #     message="Conflicting inputs -> momentum_shape and n_events",
+                # )
 
         if n_events is None:
             if len(momentum.shape) == 2:
@@ -521,7 +531,8 @@ class GenParticle:
         else:
             if self.has_fixed_mass:
                 momentum = tnp.broadcast_to(
-                    tnp.stack((0.0, 0.0, 0.0, self.get_mass()), axis=-1), (n_events, 4)
+                    tnp.stack((0.0, 0.0, 0.0, self.get_mass()[0]), axis=-1),
+                    (n_events, 4),
                 )
             else:
                 raise ValueError("Cannot use resonance as top particle")
@@ -612,9 +623,11 @@ class GenParticle:
     def generate(
         self,
         n_events: int | tf.Tensor | tf.Variable,
-        boost_to: tf.Tensor | None = None,
+        boost_to: tf.Tensor | vector.Momentum | None = None,
         normalize_weights: bool = True,
         seed: SeedLike = None,
+        *,
+        as_vectors: bool | None = None,
     ) -> tuple[tf.Tensor, dict[str, tf.Tensor]]:
         """Generate normalized n-body phase space as tensorflow tensors.
 
@@ -628,12 +641,14 @@ class GenParticle:
         Arguments:
             n_events (int): Number of events to generate.
             boost_to (optional): Momentum vector of shape (x, 4), where x is optional, to where
-                the resulting events will be boosted. If not specified, events are generated
-                in the rest frame of the particle.
+                the resulting events will be boosted in the (px, py, pz, E) format.
+                Can also be a `vector` momentum Lorentz vector.
+                If not specified, events are generated in the rest frame of the particle.
             normalize_weights (bool, optional): Normalize the event weight to its max?
             seed (`SeedLike`): The seed can be a number or a `tf.random.Generator` that are used
                 as a seed to create a random number generator inside the function or directly as
                 the random number generator instance, respectively.
+            as_vectors (bool, optional): If True, the output momenta are returned as `vector` objects.
 
         Return:
             tuple: Result of the generation, which varies with the value of `normalize_weights`:
@@ -654,11 +669,29 @@ class GenParticle:
         """
         rng = get_rng(seed)
         if boost_to is not None:
+            if isinstance(boost_to, vector.Vector):
+                if not (
+                    isinstance(boost_to, vector.Momentum)
+                    and isinstance(boost_to, vector.Lorentz)
+                ):
+                    raise ValueError("boost_to has to be a momentum Lorentz vector.")
+                try:
+                    boost_to = boost_to.to_pxpypzenergy()
+                except Exception as error:
+                    raise ValueError(
+                        "boost_to has to be a momentum Lorentz vector, failed to convert to pxpypzenergy."
+                    ) from error
+                boost_to = tnp.stack(
+                    [boost_to.px, boost_to.py, boost_to.pz, boost_to.energy], axis=-1
+                )
+
             message = (
                 f"The number of events requested ({n_events}) doesn't match the boost_to input size "
                 f"of {boost_to.shape}"
             )
-            tf.assert_equal(tf.shape(boost_to)[0], tf.shape(n_events), message=message)
+            if n_events is not None:
+                if boost_to.shape[0] not in (n_events, 1):
+                    raise ValueError(message)
         if not isinstance(n_events, tf.Variable):
             n_events = tnp.asarray(n_events, dtype=tnp.int64)
         weights, weights_max, parts, _ = self._recursive_generate(
@@ -667,6 +700,7 @@ class GenParticle:
             recalculate_max_weights=self.has_grandchildren,
             rng=rng,
         )
+        parts = to_vectors(parts) if as_vectors else parts
         return (
             (weights / weights_max, parts)
             if normalize_weights
@@ -713,13 +747,9 @@ class GenParticle:
         """
 
         # Run generation
-        warnings.warn(
-            "This function is depreceated. Use `generate` which does not return a Tensor as well."
+        raise RuntimeError(
+            "This function is removed. Use `generate` which does not return a Tensor as well."
         )
-        generate_tf = self.generate(n_events, boost_to, normalize_weights)
-        # self._cache = generate_tf
-        # self._set_cache_validity(True, propagate=True)
-        return generate_tf
 
 
 # legacy class to warn user about name change
@@ -762,7 +792,7 @@ def nbody_decay(mass_top: float, masses: list, top_name: str = "", names: list =
         names = [f"p_{num}" for num in range(len(masses))]
     if len(names) != len(masses):
         raise ValueError("Mismatch in length between children masses and their names.")
-    return GenParticle(top_name, mass_top).set_children(
+    return GenParticle(top_name, mass=mass_top).set_children(
         *(GenParticle(names[num], mass=mass) for num, mass in enumerate(masses))
     )
 
@@ -775,4 +805,18 @@ def generate_decay(*args, **kwargs):
     )
 
 
-# EOF
+def to_vectors(particles: dict[str, tf.Tensor]) -> dict[str, vector.Momentum]:
+    """Convert a dictionary of particles to a dictionary of `vector.Momentum` instances.
+
+    Arguments:
+        particles (dict): Dictionary of particles, with the keys being the particle names and the
+            values being the momenta.
+
+    Return:
+        dict: Dictionary of `vector.Momentum` instances with numpy arrays
+    """
+    newparticles = {}
+    for name, particle in particles.items():
+        px, py, pz, e = np.moveaxis(particle, -1, 0)  # numpy "unstack"
+        newparticles[name] = vector.array(dict(px=px, py=py, pz=pz, energy=e))
+    return newparticles

@@ -9,6 +9,8 @@ Develop
 Major Features and Improvements
 -------------------------------
 
+- integrating `vector <https://vector.readthedocs.io/en/latest/index.html>`_ support for ``generate``: ``boost_to`` can be a Momentum Lorentz vector and return the boosted particles as a vector using ``as_vectors=True``.
+
 Behavioral changes
 ------------------
 

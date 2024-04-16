@@ -32,10 +32,15 @@ def test_one_event():
     assert all(part.shape == (1, 4) for part in particles.values())
 
 
-def test_one_event_tf():
+@pytest.mark.parametrize("as_vectors", [True, False], ids=["as_vectors", "as_arrays"])
+def test_one_event_tf(as_vectors):
     """Test B->pi pi pi."""
     decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, PION_MASS, PION_MASS])
-    norm_weights, particles = decay.generate(n_events=1)
+    norm_weights, particles = decay.generate(n_events=1, as_vectors=as_vectors)
+    if as_vectors:
+        particles = {
+            k: np.stack([p.px, p.py, p.pz, p.E], axis=-1) for k, p in particles.items()
+        }
 
     assert norm_weights.shape[0] == 1
     assert np.alltrue(norm_weights < 1)
@@ -44,10 +49,15 @@ def test_one_event_tf():
 
 
 @pytest.mark.parametrize("n_events", argvalues=[5, 523])
-def test_n_events(n_events):
+@pytest.mark.parametrize("as_vectors", [True, False], ids=["as_vectors", "as_arrays"])
+def test_n_events(n_events, as_vectors):
     """Test 5 B->pi pi pi."""
     decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, PION_MASS, PION_MASS])
-    norm_weights, particles = decay.generate(n_events=n_events)
+    norm_weights, particles = decay.generate(n_events=n_events, as_vectors=as_vectors)
+    if as_vectors:
+        particles = {
+            k: np.stack([p.px, p.py, p.pz, p.E], axis=-1) for k, p in particles.items()
+        }
     assert norm_weights.shape[0] == n_events
     assert np.alltrue(norm_weights < 1)
     assert len(particles) == 3

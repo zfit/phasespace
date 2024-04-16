@@ -11,6 +11,7 @@ import subprocess
 
 import numpy as np
 import pytest
+import vector
 from scipy.stats import ks_2samp
 
 if platform.system() == "Darwin":
@@ -180,7 +181,7 @@ def test_four_body():
     run_test(4, "four_body")
 
 
-def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
+def run_kstargamma(input_file, kstar_width, b_at_rest, suffix, use_vector):
     """Run B0->K*gamma test."""
     n_events = 1000000
     if b_at_rest:
@@ -189,6 +190,15 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
     else:
         booster = rapidsim.generate_fonll(decays.B0_MASS, 7, "b", n_events)
         booster = booster.transpose()
+        if use_vector:
+            booster = vector.array(
+                dict(
+                    px=booster[:, 0],
+                    py=booster[:, 1],
+                    pz=booster[:, 2],
+                    e=booster[:, 3],
+                )
+            )
         rapidsim_getter = rapidsim.get_tree
     decay = decays.b0_to_kstar_gamma(kstar_width=kstar_width)
     norm_weights, particles = decay.generate(n_events=n_events, boost_to=booster)
@@ -247,23 +257,30 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix):
     return np.array(list(p_values.values()))
 
 
+@pytest.mark.parametrize("vector", [False, True])
 @pytest.mark.flaky(3)  # Stats are limited
-def test_kstargamma_kstarnonresonant_at_rest():
+def test_kstargamma_kstarnonresonant_at_rest(vector):
     """Test B0 -> K* gamma physics with fixed mass for K*."""
     p_values = run_kstargamma(
-        "B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root", 0, True, "NonResonant"
+        "B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root",
+        0,
+        True,
+        "NonResonant",
+        use_vector=vector,
     )
     assert np.all(p_values > 0.05)
 
 
+@pytest.mark.parametrize("vector", [False, True], ids=["no_vector", "vector"])
 @pytest.mark.flaky(3)  # Stats are limited
-def test_kstargamma_kstarnonresonant_lhc():
+def test_kstargamma_kstarnonresonant_lhc(vector):
     """Test B0 -> K* gamma physics with fixed mass for K* with LHC kinematics."""
     p_values = run_kstargamma(
         "B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root",
         0,
         False,
         "NonResonant_LHC",
+        use_vector=vector,
     )
     assert np.all(p_values > 0.05)
 
@@ -276,7 +293,11 @@ def test_kstargamma_resonant_at_rest():
     are expected in the tails of the energy distributions of the kaon and the pion.
     """
     run_kstargamma(
-        "B2KstGamma_RapidSim_7TeV_Tree.root", decays.KSTARZ_WIDTH, True, "Gaussian"
+        "B2KstGamma_RapidSim_7TeV_Tree.root",
+        decays.KSTARZ_WIDTH,
+        True,
+        "Gaussian",
+        use_vector=False,
     )
 
 
