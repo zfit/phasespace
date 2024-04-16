@@ -140,8 +140,8 @@ write the :math:`B^{0}\to K^{*}\gamma` decay chain as (more details can be found
     def kstar_mass(min_mass, max_mass, n_events):
        min_mass = tnp.asarray(min_mass, tf.float64)
        max_mass = tnp.asarray(max_mass, tf.float64)
-       kstar_width_cast = tnp.asarray(KSTARZ_WIDTH, tf.float64)
-       kstar_mass_cast = tnp.asarray(KSTARZ_MASS, dtype=tf.float64)
+       kstar_width_cast = tnp.asarray(KSTARZ_WIDTH, tnp.float64)
+       kstar_mass_cast = tnp.asarray(KSTARZ_MASS, dtype=tnp.float64)
 
        kstar_mass = tf.broadcast_to(kstar_mass_cast, shape=(n_events,))
        if KSTARZ_WIDTH > 0:
