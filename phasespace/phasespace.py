@@ -17,15 +17,19 @@ import functools
 import inspect
 from collections.abc import Callable
 from math import pi
+from typing import TYPE_CHECKING
 
 import numpy as np
 import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
-import vector
 
 from . import kinematics as kin
 from .backend import function, function_jit_fixedshape
 from .random import SeedLike, get_rng
+
+if TYPE_CHECKING:
+    import vector
+
 
 RELAX_SHAPES = False
 
@@ -669,6 +673,13 @@ class GenParticle:
         """
         rng = get_rng(seed)
         if boost_to is not None:
+            try:
+                import vector
+            except ImportError as error:
+                raise ImportError(
+                    "To use `boost_to`, the `vector` package has to be installed."
+                ) from error
+
             if isinstance(boost_to, vector.Vector):
                 if not (
                     isinstance(boost_to, vector.Momentum)
