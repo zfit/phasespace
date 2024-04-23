@@ -17,7 +17,7 @@ import functools
 import inspect
 from collections.abc import Callable
 from math import pi
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NoReturn
 
 import numpy as np
 import tensorflow as tf
@@ -676,10 +676,7 @@ class GenParticle:
             try:
                 import vector
             except ImportError as error:
-                raise ImportError(
-                    "To use `boost_to`, the `vector` package has to be installed."
-                ) from error
-
+                _raise_missing_vector_package(error)
             if isinstance(boost_to, vector.Vector):
                 if not (
                     isinstance(boost_to, vector.Momentum)
@@ -826,8 +823,18 @@ def to_vectors(particles: dict[str, tf.Tensor]) -> dict[str, vector.Momentum]:
     Return:
         dict: Dictionary of `vector.Momentum` instances with numpy arrays
     """
+    try:
+        import vector
+    except ImportError as error:
+        _raise_missing_vector_package(error)
     newparticles = {}
     for name, particle in particles.items():
         px, py, pz, e = np.moveaxis(particle, -1, 0)  # numpy "unstack"
         newparticles[name] = vector.array(dict(px=px, py=py, pz=pz, energy=e))
     return newparticles
+
+
+def _raise_missing_vector_package(exception: ImportError) -> NoReturn:
+    raise ImportError(
+        "To use `boost_to`, the `vector` package has to be installed."
+    ) from exception
