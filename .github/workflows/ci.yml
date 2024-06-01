@@ -48,7 +48,7 @@ jobs:
         run: coverage run -m pytest --basetemp={envtmpdir}
       - name: Create XML report
         run: coverage xml
-      - uses: codecov/codecov-action@v4.3.1
+      - uses: codecov/codecov-action@v4.4.1
         with:
           file: ./coverage.xml
 
