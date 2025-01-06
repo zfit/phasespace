@@ -5,9 +5,9 @@ build-backend = "hatchling.build"
 [project]
 name = "phasespace"
 description = "TensorFlow implementation of the Raubold and Lynch method for n-body events"
-authors = [{name = "Albert Puig Navarro", email = "apuignav@gmail.com"}]
-maintainers = [{name = "zfit", email = "zfit@physik.uzh.ch"}]
-license = {text = "BSD-3-Clause"}
+authors = [{ name = "Albert Puig Navarro", email = "apuignav@gmail.com" }]
+maintainers = [{ name = "zfit", email = "zfit@physik.uzh.ch" }]
+license = { text = "BSD-3-Clause" }
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
@@ -24,7 +24,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
 ]
 keywords = ["TensorFlow", "phasespace", "HEP"]
-urls = {Homepage = "https://github.com/zfit/phasespace"}
+urls = { Homepage = "https://github.com/zfit/phasespace" }
 requires-python = ">=3.9"
 dependencies = [
     "tensorflow>=2.16.0",
