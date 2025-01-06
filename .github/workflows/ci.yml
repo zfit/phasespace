@@ -54,7 +54,7 @@ jobs:
 
   pytest:
     runs-on: ${{ matrix.os }}
-    name: tests on ${{ matrix.os }} with ${{ matrix.python-version }} and eager=${{ matrix.eager }}
+    name: tests ${{ matrix.os }}, ${{ matrix.python-version }}, eager=${{ matrix.eager }}
     strategy:
       fail-fast: false
       matrix:
