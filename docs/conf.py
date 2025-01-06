@@ -18,9 +18,8 @@
 # absolute, like shown here.
 #
 
-import sphinx_bootstrap_theme
-
 import phasespace
+import sphinx_bootstrap_theme
 
 # -- General configuration ---------------------------------------------
 

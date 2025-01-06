@@ -10,9 +10,8 @@ import os
 import sys
 
 import numpy as np
-import pytest
-
 import phasespace
+import pytest
 
 sys.path.append(os.path.dirname(__file__))
 

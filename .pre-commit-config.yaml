@@ -23,15 +23,16 @@ repos:
       - id: fix-byte-order-marker
       - id: check-ast
 
-  - repo: https://github.com/PyCQA/docformatter
-    rev: v1.7.5
-    hooks:
-      - id: docformatter
-        args:
-          - -r
-          - --in-place
-          - --wrap-descriptions=110
-          - --wrap-summaries=110
+  # Requires a fix: https://github.com/PyCQA/docformatter/issues/293
+  #  - repo: https://github.com/PyCQA/docformatter
+  #    rev: v1.7.6
+  #    hooks:
+  #      - id: docformatter
+  #        args:
+  #          - -r
+  #          - --in-place
+  #          - --wrap-descriptions=110
+  #          - --wrap-summaries=110
 
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0 # Use the ref you want to point at
@@ -41,56 +42,51 @@ repos:
       - id: python-no-eval
       - id: rst-directive-colons
 
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.1.1
-    hooks:
-      - id: flake8
-
   - repo: https://github.com/PyCQA/isort
     rev: 5.13.2
     hooks:
       - id: isort
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.17.0
+    rev: v3.19.1
     hooks:
       - id: pyupgrade
-        args: [--py39-plus]
+        args: [ --py39-plus ]
 
   - repo: https://github.com/mgedmin/check-manifest
-    rev: "0.49"
+    rev: "0.50"
     hooks:
       - id: check-manifest
-        stages: [manual]
+        stages: [ manual ]
 
   - repo: https://github.com/sondrelg/pep585-upgrade
     rev: "v1.0" # Use the sha / tag you want to point at
     hooks:
       - id: upgrade-type-hints
-        args: ["--futures=true"]
+        args: [ "--futures=true" ]
 
-  -   repo: https://github.com/MarcoGorelli/auto-walrus
-      rev: 0.3.4
-      hooks:
-      -   id: auto-walrus
+  - repo: https://github.com/MarcoGorelli/auto-walrus
+    rev: 0.3.4
+    hooks:
+      - id: auto-walrus
 
 
-#  - repo: https://github.com/pre-commit/mirrors-prettier
-#    rev: "v4.0.0-alpha.8"
-#    hooks:
-#      - id: prettier
+  #  - repo: https://github.com/pre-commit/mirrors-prettier
+  #    rev: "v4.0.0-alpha.8"
+  #    hooks:
+  #      - id: prettier
 
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.7.1
+    rev: 0.8.1
     hooks:
       - id: nbstripout
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.6.9"
+    rev: "v0.8.6"
     hooks:
       - id: ruff
         types_or: [ python, pyi, jupyter ]
-        args: [ --fix, --unsafe-fixes, --show-fixes , --line-length=120]
+        args: [ --fix, --unsafe-fixes, --show-fixes , --line-length=120 ]
       # Run the formatter.
       - id: ruff-format
         types_or: [ python, pyi, jupyter ]

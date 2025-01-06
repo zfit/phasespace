@@ -11,7 +11,6 @@ import sys
 
 import numpy as np
 import pytest
-
 from phasespace import GenParticle
 
 sys.path.append(os.path.dirname(__file__))
