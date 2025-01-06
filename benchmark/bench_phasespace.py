@@ -11,7 +11,6 @@ import sys
 from timeit import default_timer
 
 import tensorflow as tf
-
 from phasespace import phasespace
 
 sys.path.append(os.path.dirname(__file__))

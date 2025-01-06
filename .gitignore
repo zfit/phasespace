@@ -110,3 +110,6 @@ tests/plots
 /data/backup/B2K1Gamma_RapidSim_7TeV_Tree.root
 /data/backup/B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root
 /data/backup/B2KstGamma_RapidSim_7TeV_Tree.root
+/src/phasespace/_version.py
+/.idea
+/data

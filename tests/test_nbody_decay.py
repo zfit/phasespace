@@ -7,7 +7,6 @@
 """Test n-body decay generator."""
 
 import pytest
-
 from phasespace import nbody_decay
 
 from .helpers import decays

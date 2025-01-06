@@ -5,7 +5,6 @@ from copy import deepcopy
 import pytest
 from decaylanguage import DecayChain, DecayMode
 from numpy.testing import assert_almost_equal
-
 from phasespace.fromdecay import GenMultiDecay
 from phasespace.fromdecay.mass_functions import DEFAULT_CONVERTER
 

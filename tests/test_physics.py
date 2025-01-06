@@ -25,7 +25,6 @@ import sys
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import uproot
-
 from phasespace import phasespace
 
 sys.path.append(os.path.dirname(__file__))

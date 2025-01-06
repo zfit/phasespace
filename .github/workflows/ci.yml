@@ -38,14 +38,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip uv
           sudo apt install graphviz -y
-          pip install -e .[dev]
-          pip install coverage
+          uv pip install -e .[dev] --system
+          uv pip install coverage --system
       - name: Download test data
         run: python data/download_test_files.py > /dev/null
       - name: Run pytest-cov
-        run: coverage run -m pytest --basetemp={envtmpdir}
+        run: PYTHONPATH=src coverage run -m pytest --basetemp={envtmpdir}
       - name: Create XML report
         run: coverage xml
       - uses: codecov/codecov-action@v5.0.7
@@ -54,12 +54,13 @@ jobs:
 
   pytest:
     runs-on: ${{ matrix.os }}
-    name: tests on ${{ matrix.os }} with ${{ matrix.python-version }}
+    name: tests ${{ matrix.os }}, ${{ matrix.python-version }}, eager=${{ matrix.eager }}
     strategy:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest ]
-        python-version: ["3.10", "3.12"]
+        python-version: ["3.9", "3.12"]
+        eager: [0, 1]
 #        include:  # todo: activate when we can install graphviz on these platforms
 #          - os: macos-latest
 #            python-version: "3.9"
@@ -78,20 +79,15 @@ jobs:
         id: cpu-cores
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip uv
           sudo apt install graphviz -y
-          pip install -e .[dev]
+          uv pip install -e .[dev] --system
+          uv pip install pytest-xdist --system
       - name: Download test data
         run: python data/download_test_files.py > /dev/null
-      - name: Test with pytest (compiled)
+      - name: Test with pytest, eager=${{ matrix.eager }}
         run: |
-          PHASESPACE_EAGER=0 pytest --basetemp={envtmpdir} tests
+          PHASESPACE_EAGER=${{ matrix.eager }} pytest -n auto --basetemp={envtmpdir} tests
           cd docs
-          PHASESPACE_EAGER=0 pytest --dist loadscope --nbval-lax --ignore=.ipynb_checkpoints -n${{ steps.cpu-cores.outputs.count }}
-          cd ..
-      - name: Test with pytest (eager mode)
-        run: |
-          PHASESPACE_EAGER=1 pytest --basetemp={envtmpdir} tests
-          cd docs
-          PHASESPACE_EAGER=1 pytest --dist loadscope --nbval-lax --ignore=.ipynb_checkpoints -n${{ steps.cpu-cores.outputs.count }}
+          PHASESPACE_EAGER=${{ matrix.eager }} pytest --dist loadscope --nbval-lax --ignore=.ipynb_checkpoints -n${{ steps.cpu-cores.outputs.count }}
           cd ..
