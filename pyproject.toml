@@ -38,8 +38,8 @@ content-type = "text/x-rst"
 
 [project.optional-dependencies]
 tf = [
-    "tensorflow", # TODO(2.0): make this the only requirement, add versions, remove from install_requires
-    "tensorflow_probability",
+    "tensorflow >=2.16.0", # TODO(2.0): make this the only requirement, add versions, remove from install_requires
+    "tensorflow_probability >=0.22.0",
 ]
 tensorflow = ["phasespace[tf]"]
 fromdecay = [
@@ -56,7 +56,7 @@ all = [
 ]
 test = [
     "phasespace[all]",
-    "awkward>=1.0,<2.0",
+    "awkward>=1.0",
     "coverage",
     "flaky",
     "matplotlib",
@@ -66,7 +66,7 @@ test = [
     "pytest-cov",
     "pytest-xdist",
     "scipy",
-    "uproot>=4.0,<5.0",
+    "uproot>=4.0",
     "wget",
 ]
 doc = [
