@@ -97,7 +97,7 @@ def test_kstargamma():
     decay = decays.b0_to_kstar_gamma()
     norm_weights, particles = decay.generate(n_events=1000)
     assert norm_weights.shape[0] == 1000
-    assert np.alltrue(norm_weights < 1)
+    assert np.all(norm_weights < 1)
     assert len(particles) == 4
     assert set(particles.keys()) == {"K*0", "gamma", "K+", "pi-"}
     assert all(part.shape == (1000, 4) for part in particles.values())
@@ -108,7 +108,7 @@ def test_k1gamma():
     decay = decays.bp_to_k1_kstar_pi_gamma()
     norm_weights, particles = decay.generate(n_events=1000)
     assert norm_weights.shape[0] == 1000
-    assert np.alltrue(norm_weights < 1)
+    assert np.all(norm_weights < 1)
     assert len(particles) == 6
     assert set(particles.keys()) == {"K1+", "K*0", "gamma", "K+", "pi-", "pi+"}
     assert all(part.shape == (1000, 4) for part in particles.values())

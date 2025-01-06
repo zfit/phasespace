@@ -26,7 +26,7 @@ def test_one_event():
     decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, PION_MASS, PION_MASS])
     norm_weights, particles = decay.generate(n_events=1)
     assert norm_weights.shape[0] == 1
-    assert np.alltrue(norm_weights < 1)
+    assert np.all(norm_weights < 1)
     assert len(particles) == 3
     assert all(part.shape == (1, 4) for part in particles.values())
 
@@ -42,7 +42,7 @@ def test_one_event_tf(as_vectors):
         }
 
     assert norm_weights.shape[0] == 1
-    assert np.alltrue(norm_weights < 1)
+    assert np.all(norm_weights < 1)
     assert len(particles) == 3
     assert all(part.shape == (1, 4) for part in particles.values())
 
@@ -58,7 +58,7 @@ def test_n_events(n_events, as_vectors):
             k: np.stack([p.px, p.py, p.pz, p.E], axis=-1) for k, p in particles.items()
         }
     assert norm_weights.shape[0] == n_events
-    assert np.alltrue(norm_weights < 1)
+    assert np.all(norm_weights < 1)
     assert len(particles) == 3
     assert all(part.shape == (n_events, 4) for part in particles.values())
 
