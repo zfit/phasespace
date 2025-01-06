@@ -45,7 +45,7 @@ jobs:
       - name: Download test data
         run: python data/download_test_files.py > /dev/null
       - name: Run pytest-cov
-        run: coverage run -m pytest --basetemp={envtmpdir}
+        run: PYTHONPATH=src coverage run -m pytest --basetemp={envtmpdir}
       - name: Create XML report
         run: coverage xml
       - uses: codecov/codecov-action@v5.0.7
@@ -54,7 +54,7 @@ jobs:
 
   pytest:
     runs-on: ${{ matrix.os }}
-    name: tests on ${{ matrix.os }} with ${{ matrix.python-version }}
+    name: tests on ${{ matrix.os }} with ${{ matrix.python-version }} and eager=${{ matrix.eager }}
     strategy:
       fail-fast: false
       matrix:
