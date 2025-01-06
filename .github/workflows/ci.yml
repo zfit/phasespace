@@ -82,11 +82,12 @@ jobs:
           python -m pip install --upgrade pip uv
           sudo apt install graphviz -y
           uv pip install -e .[dev] --system
+          uv pip install pytest-xdist --system
       - name: Download test data
         run: python data/download_test_files.py > /dev/null
       - name: Test with pytest, eager=${{ matrix.eager }}
         run: |
-          PHASESPACE_EAGER=${{ matrix.eager }} pytest --basetemp={envtmpdir} tests
+          PHASESPACE_EAGER=${{ matrix.eager }} pytest -n auto --basetemp={envtmpdir} tests
           cd docs
           PHASESPACE_EAGER=${{ matrix.eager }} pytest --dist loadscope --nbval-lax --ignore=.ipynb_checkpoints -n${{ steps.cpu-cores.outputs.count }}
           cd ..

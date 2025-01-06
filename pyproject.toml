@@ -105,13 +105,19 @@ docs,
 paper,
 scripts,
 utils"""
-max-line-length = "110"
+max-line-length = "120"
 statistics = "True"
 max-complexity = "30"
 
+[tool.coverage.paths]
+source = ["src", "*/site-packages"]
+
 [tool.coverage.run]
 branch = true
-include = ["phasespace/*"]
+source = ["src"]
+
+[tool.coverage.report]
+show_missing = true
 
 [tool.pytest.ini_options]
 addopts = """
