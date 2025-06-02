@@ -48,7 +48,7 @@ jobs:
         run: PYTHONPATH=src coverage run -m pytest --basetemp={envtmpdir}
       - name: Create XML report
         run: coverage xml
-      - uses: codecov/codecov-action@v5.4.2
+      - uses: codecov/codecov-action@v5.4.3
         with:
           file: ./coverage.xml
 
