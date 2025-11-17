@@ -17,6 +17,9 @@ def scalar_product(vec1, vec2):
     Args:
         vec1: First vector.
         vec2: Second vector.
+
+    Returns:
+        Scalar product of the two vectors.
     """
     return tnp.sum(vec1 * vec2, axis=1)
 
@@ -27,6 +30,9 @@ def spatial_component(vector):
 
     Args:
         vector: Input Lorentz vector (where indexes 0-2 are space, index 3 is time).
+
+    Returns:
+        Spatial components (3-vector) of the input Lorentz vector.
     """
     return tnp.take(vector, indices=[0, 1, 2], axis=-1)
 
@@ -37,6 +43,9 @@ def time_component(vector):
 
     Args:
         vector: Input Lorentz vector (where indexes 0-2 are space, index 3 is time).
+
+    Returns:
+        Time component of the input Lorentz vector.
     """
     return tnp.take(vector, indices=[3], axis=-1)
 
@@ -47,6 +56,9 @@ def x_component(vector):
 
     Args:
         vector: Input vector.
+
+    Returns:
+        X component of the input vector.
     """
     return tnp.take(vector, indices=[0], axis=-1)
 
@@ -57,6 +69,9 @@ def y_component(vector):
 
     Args:
         vector: Input vector.
+
+    Returns:
+        Y component of the input vector.
     """
     return tnp.take(vector, indices=[1], axis=-1)
 
@@ -67,6 +82,9 @@ def z_component(vector):
 
     Args:
         vector: Input vector.
+
+    Returns:
+        Z component of the input vector.
     """
     return tnp.take(vector, indices=[2], axis=-1)
 
@@ -77,6 +95,9 @@ def mass(vector):
 
     Args:
         vector: Input Lorentz momentum vector.
+
+    Returns:
+        Mass of the Lorentz 4-momentum vector.
     """
     return tnp.sqrt(
         tnp.sum(tnp.square(vector) * metric_tensor(), axis=-1, keepdims=True)
@@ -90,6 +111,9 @@ def lorentz_vector(space, time):
     Args:
         space: 3-vector of spatial components.
         time: Time component.
+
+    Returns:
+        Lorentz 4-vector combining spatial and time components.
     """
     return tnp.concatenate([space, time], axis=-1)
 
@@ -102,6 +126,9 @@ def lorentz_boost(vector, boostvector):
         vector: 4-vector to be boosted
         boostvector: Boost vector. Can be either 3-vector or 4-vector, since
             only spatial components are used.
+
+    Returns:
+        Boosted 4-vector.
     """
     boost = spatial_component(boostvector)
     b2 = tnp.expand_dims(scalar_product(boost, boost), axis=-1)
@@ -128,6 +155,9 @@ def beta(vector):
 
     Args:
         vector: Input Lorentz momentum vector.
+
+    Returns:
+        Beta (v/c) of the Lorentz momentum vector.
     """
     return mass(vector) / time_component(vector)
 
@@ -138,13 +168,20 @@ def boost_components(vector):
 
     Args:
         vector: Input Lorentz momentum vector.
+
+    Returns:
+        Boost components (3-vector) of the Lorentz momentum vector.
     """
     return spatial_component(vector) / time_component(vector)
 
 
 @function_jit
 def metric_tensor():
-    """Metric tensor for Lorentz space (constant)."""
+    """Metric tensor for Lorentz space (constant).
+
+    Returns:
+        Metric tensor for Lorentz space with signature (-1, -1, -1, 1).
+    """
     return tnp.asarray([-1.0, -1.0, -1.0, 1.0], dtype=tnp.float64)
 
 

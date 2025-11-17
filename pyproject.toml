@@ -75,7 +75,7 @@ doc = [
     "graphviz",
     "Sphinx",
     "myst-nb",
-    "sphinx_bootstrap_theme",
+    "pydata-sphinx-theme",
     "jupyter_sphinx",
     "sphinx-math-dollar",
 ]

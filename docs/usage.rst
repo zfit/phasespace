@@ -10,8 +10,8 @@ Functions are used to specify the mass of particles such as resonances, which ar
 a broad distribution.
 These mass functions get three arguments, and must return an array-like object of the same shape as the input arguments.
 
-- The minimum mass allowed by the decay chain, which will be of shape `(n_events,)`.
-- The maximum mass available, which will be of shape `(n_events,)`.
+- The minimum mass allowed by the decay chain, which will be of shape ``(n_events,)``.
+- The maximum mass available, which will be of shape ``(n_events,)``.
 - The number of events to generate.
 
 This function signature allows to handle threshold effects cleanly, giving enough information to produce kinematically
@@ -21,7 +21,7 @@ A simple example
 --------------------------
 
 
-With these considerations in mind, one can build a decay chain by using the ``set_children`` method of the :py:class:~`phasespace.GenParticle`
+With these considerations in mind, one can build a decay chain by using the ``set_children`` method of the :py:class:`~phasespace.GenParticle`
 class. As an example, to build the :math:`B^{0}\to K^{*}\gamma` decay in which
 :math:`K^*\to K\pi` with a fixed mass, one would write:
 
@@ -49,9 +49,9 @@ class. As an example, to build the :math:`B^{0}\to K^{*}\gamma` decay in which
 Phasespace events can be generated using the ``generate`` method, which gets the number of events to generate as input.
 The method returns:
 
-- The normalized weights of each event, as an array of dimension (n_events,).
+- The normalized weights of each event, as an array of dimension ``(n_events,)``.
 - The 4-momenta of the generated particles as values of a dictionary with the particle name as key. These momenta
-  are *either* expressed as arrays of dimension (n_events, 4) or :py:class:~`vector.Vector4D` objects, depending on the
+  are *either* expressed as arrays of dimension ``(n_events, 4)`` or :py:class:`~vector.Momentum` objects, depending on the
   ``as_vectors`` flag given to ``generate``.
 
 .. jupyter-execute::
@@ -74,7 +74,7 @@ To produce them at a given momentum of the top particle, one can pass these mome
 is generated according to some distribution, for example the kinematics of the LHC (see ``test_kstargamma_kstarnonresonant_lhc``
 and ``test_k1gamma_kstarnonresonant_lhc`` in ``tests/test_physics.py`` to see how this could be done).
 
-The ``boost_to`` argument can be a 4-momentum array of shape (n_events, 4) with (px, py, yz, energy) or a :py:class:~`vector.Vector4D` (both a momentum and a Lorentz vector).
+The ``boost_to`` argument can be a 4-momentum array of shape ``(n_events, 4)`` with ``(px, py, pz, energy)`` or a :py:class:`~vector.Momentum` (both a momentum and a Lorentz vector).
 
 .. jupyter-execute::
 

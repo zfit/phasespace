@@ -19,7 +19,6 @@
 #
 
 import phasespace
-import sphinx_bootstrap_theme
 
 # -- General configuration ---------------------------------------------
 
@@ -123,77 +122,55 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "bootstrap"
-html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
+html_theme = "pydata_sphinx_theme"
 html_theme_options = {
-    # Navigation bar title. (Default: ``project`` value)
-    "navbar_title": "phasespace",
-    # Tab name for entire site. (Default: "Site")
-    # 'navbar_site_name': "Docs",
-    # 'navbar_site_name': "Overview",
-    # A list of tuples containing pages or urls to link to.
-    # Valid tuples should be in the following forms:
-    #    (name, page)                 # a link to a page
-    #    (name, "/aa/bb", 1)          # a link to an arbitrary relative url
-    #    (name, "http://example.com", True) # arbitrary absolute url
-    # Note the "1" or "True" value above as the third argument to indicate
-    # an arbitrary url.
-    "navbar_links": [
-        ("Phasespace", "index"),
-        ("Usage", "usage"),
-        ("DecayChain", "GenMultiDecay_Tutorial"),
-        ("API", "phasespace"),
-        ("Contributing", "contributing"),
-        # ("Link", "http://example.com", True),
+    "logo": {
+        "text": "phasespace",
+    },
+    # Navbar configuration
+    "navbar_start": ["navbar-logo"],
+    "navbar_center": ["navbar-nav"],
+    "navbar_end": ["theme-switcher", "navbar-icon-links"],
+    "navbar_persistent": ["search-button-field"],
+    "navbar_align": "content",
+    # Sidebar configuration
+    "primary_sidebar_end": [],
+    "secondary_sidebar_items": ["page-toc", "edit-this-page"],
+    "show_toc_level": 2,
+    # Footer configuration
+    "footer_start": ["copyright"],
+    "footer_center": ["sphinx-version"],
+    # Navigation options
+    "navigation_with_keys": True,
+    "show_prev_next": True,
+    "show_nav_level": 3,
+    "navigation_depth": 3,
+    # External links
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/zfit/phasespace",
+            "icon": "fa-brands fa-github",
+            "type": "fontawesome",
+        },
     ],
-    # Render the next and previous page links in navbar. (Default: true)
-    "navbar_sidebarrel": False,
-    # Render the current pages TOC in the navbar. (Default: true)
-    "navbar_pagenav": False,
-    # Tab name for the current pages TOC. (Default: "Page")
-    # 'navbar_pagenav_name': "Page",
-    # Global TOC depth for "site" navbar tab. (Default: 1)
-    # Switching to -1 shows all levels.
-    "globaltoc_depth": 1,
-    # Include hidden TOCs in Site navbar?
-    #
-    # Note: If this is "false", you cannot have mixed ``:hidden:`` and
-    # non-hidden ``toctree`` directives in the same page, or else the build
-    # will break.
-    #
-    # Values: "true" (default) or "false"
-    "globaltoc_includehidden": "true",
-    # HTML navbar class (Default: "navbar") to attach to <div> element.
-    # For black navbar, do "navbar navbar-inverse"
-    # 'navbar_class': "navbar navbar-inverse",
-    "navbar_class": "navbar",
-    # Fix navigation bar to top of page?
-    # Values: "true" (default) or "false"
-    "navbar_fixed_top": "true",
-    # Location of link to source.
-    # Options are "nav" (default), "footer" or anything else to exclude.
-    # 'source_link_position': "nav",
-    "source_link_position": False,
-    # Bootswatch (http://bootswatch.com/) theme.
-    #
-    # Options are nothing (default) or the name of a valid theme
-    # such as "cosmo" or "sandstone".
-    #
-    # The set of valid themes depend on the version of Bootstrap
-    # that's used (the next config option).
-    #
-    # Currently, the supported themes are:
-    # - Bootstrap 2: https://bootswatch.com/2
-    # - Bootstrap 3: https://bootswatch.com/3
-    "bootswatch_theme": "flatly",
-    # Choose Bootstrap version.
-    # Values: "3" (default) or "2" (in quotes)
-    "bootstrap_version": "4",
 }
+
+# Sidebar configuration using glob patterns
+html_sidebars = {
+    "**": ["sidebar-nav-bs"],
+}
+
+# Configure navigation links in the navbar
+html_context = {
+    "default_mode": "light",
+}
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = []
+html_static_path = ["_static"]
+html_css_files = ["css/custom.css"]
 
 # -- Options for HTMLHelp output ---------------------------------------
 

@@ -39,14 +39,14 @@ def process_list_to_tensor(lst):
 
     The list is converted to a tensor and transposed to get the proper shape.
 
-    Note:
-        If `lst` is a tensor, nothing is done to it other than convert it to `tf.float64`.
+    Notes:
+        If ``lst`` is a tensor, nothing is done to it other than convert it to ``tf.float64``.
 
-    Arguments:
+    Args:
         lst (list): List to convert.
 
-    Return:
-        ~`tf.Tensor`
+    Returns:
+        ``~tf.Tensor``
     """
     if isinstance(lst, list):
         lst = tnp.transpose(tnp.asarray(lst, dtype=tnp.float64))
@@ -59,13 +59,13 @@ def pdk(a, b, c):
 
     Based on Eq. (9.17) in CERN 68-15 (1968).
 
-    Arguments:
-        a (~`tf.Tensor`): :math:`M_{i+1}` in Eq. (9.17).
-        b (~`tf.Tensor`): :math:`M_{i}` in Eq. (9.17).
-        c (~`tf.Tensor`): :math:`m_{i+1}` in Eq. (9.17).
+    Args:
+        a (``~tf.Tensor``): :math:`M_{i+1}` in Eq. (9.17).
+        b (``~tf.Tensor``): :math:`M_{i}` in Eq. (9.17).
+        c (``~tf.Tensor``): :math:`m_{i+1}` in Eq. (9.17).
 
-    Return:
-        ~`tf.Tensor`
+    Returns:
+        ``~tf.Tensor``
     """
     x = (a - b - c) * (a + b + c) * (a - b + c) * (a + b - c)
     return tnp.sqrt(x) / (tnp.asarray(2.0, dtype=tnp.float64) * a)
@@ -75,25 +75,25 @@ class GenParticle:
     """Representation of a particle.
 
     Instances of this class can be combined with each other to build decay chains,
-    which can then be used to generate phase space events through the `generate`
-    or `generate_tensor` method.
+    which can then be used to generate phase space events through the ``generate``
+    or ``generate_tensor`` method.
 
-    A `GenParticle` must have
-        + a `name`, which is ensured not to clash with any others in
+    A ``GenParticle`` must have
+        - a ``name``, which is ensured not to clash with any others in
             the decay chain.
-        + a `mass`, which can be either a number or a function to generate it according to
-            a certain distribution. The returned ~`tf.Tensor` needs to have shape (nevents,).
+        - a ``mass``, which can be either a number or a function to generate it according to
+            a certain distribution. The returned ``~tf.Tensor`` needs to have shape ``(nevents,)``.
             In this case, the particle is not considered as having a
-            fixed mass and the `has_fixed_mass` method will return False.
+            fixed mass and the ``has_fixed_mass`` method will return False.
 
     It may also have:
 
-        + Children, ie, decay products, which are also `GenParticle` instances.
+        - Children, ie, decay products, which are also ``GenParticle`` instances.
 
 
-    Arguments:
+    Args:
         name (str): Name of the particle.
-        mass (float, array-like, callable): Mass of the particle. If it's a float, it get
+        mass (float, array-like, callable): Mass of the particle. If it's a float, it gets
             converted to array-like.
     """
 
@@ -152,22 +152,22 @@ class GenParticle:
         """Get the particle mass.
 
         If the particle is resonant, the mass function will be called with the
-        `min_mass`, `max_mass`, `n_events` and optionally a `seed` parameter.
+        ``min_mass``, ``max_mass``, ``n_events`` and optionally a ``seed`` parameter.
 
-        Arguments:
+        Args:
             min_mass (tensor): Lower mass range. Defaults to None, which
                 is only valid in the case of fixed mass.
             max_mass (tensor): Upper mass range. Defaults to None, which
                 is only valid in the case of fixed mass.
             n_events (): Number of events to produce. Has to be specified if the particle is resonant.
-            seed (`SeedLike`): The seed can be a number or a `tf.random.Generator` that are used
+            seed (``SeedLike``): The seed can be a number or a ``tf.random.Generator`` that are used
                 as a seed to create a random number generator inside the function or directly as
                 the random number generator instance, respectively.
 
-        Return:
-            ~`tf.Tensor`: Mass of the particles, either a scalar or shape (nevents,)
+        Returns:
+            ``~tf.Tensor``: Mass of the particles, either a scalar or shape ``(nevents,)``
 
-        Raise:
+        Raises:
             ValueError: If the mass is requested and has not been set.
         """
         if self.has_fixed_mass:
@@ -191,17 +191,17 @@ class GenParticle:
     def set_children(self, *children):
         """Assign children.
 
-        Arguments:
+        Args:
             children (GenParticle): Two or more children to assign to the current particle.
 
-        Return:
+        Returns:
             self
 
-        Raise:
+        Raises:
             ValueError: If there is an inconsistency in the parent/children relationship, ie,
             if children were already set, if their parent was or if less than two children were given.
             KeyError: If there is a particle name clash.
-            RuntimeError: If `generate` was already called before.
+            RuntimeError: If ``generate`` was already called before.
         """
         # self._set_cache_validity(False)
         if self._generate_called:
@@ -236,20 +236,20 @@ class GenParticle:
     def _preprocess(momentum, n_events):
         """Preprocess momentum input and determine number of events to generate.
 
-        Both `momentum` and `n_events` are converted to tensors if they
+        Both ``momentum`` and ``n_events`` are converted to tensors if they
         are not already.
 
-        Arguments:
-            `momentum`: Momentum vector, of shape (4, x), where x is optional.
-            `n_events`: Number of events to generate. If `None`, the number of events
-            to generate is calculated from the shape of `momentum`.
+        Args:
+            momentum: Momentum vector, of shape ``(4, x)``, where x is optional.
+            n_events: Number of events to generate. If ``None``, the number of events
+            to generate is calculated from the shape of ``momentum``.
 
-        Return:
-            tuple: Processed `momentum` and `n_events`.
+        Returns:
+            tuple: Processed ``momentum`` and ``n_events``.
 
-        Raise:
+        Raises:
             tf.errors.InvalidArgumentError: If the number of events deduced from the
-            shape of `momentum` is inconsistent with `n_events`.
+            shape of ``momentum`` is inconsistent with ``n_events``.
         """
         momentum = process_list_to_tensor(momentum)
 
@@ -298,19 +298,20 @@ class GenParticle:
         return w_max
 
     def _generate(self, momentum, n_events, rng):
-        """Generate a n-body decay according to the Raubold and Lynch method.
+        """Generate an n-body decay according to the Raubold and Lynch method.
 
         The number and mass of the children particles are taken from self.children.
 
-        Note:
+        Notes:
             This method generates the same results as the GENBOD routine.
 
-        Arguments:
+        Args:
             momentum (tensor): Momentum of the parent particle. All generated particles
                 will be boosted to that momentum.
             n_events (int): Number of events to generate.
+            rng: Random number generator.
 
-        Return:
+        Returns:
             tuple: Result of the generation (per-event weights, maximum weights, output particles
                 and their output masses).
         """
@@ -503,32 +504,32 @@ class GenParticle:
     ):
         """Recursively generate normalized n-body phase space as tensorflow tensors.
 
-        Events are generated in the rest frame of the particle, unless `boost_to` is given.
+        Events are generated in the rest frame of the particle, unless ``boost_to`` is given.
 
-        Note:
+        Notes:
             In this method, the event weights are returned normalized to their maximum.
 
-        Arguments:
+        Args:
             n_events (int): Number of events to generate.
-            boost_to (tensor, optional): Momentum vector of shape (x, 4), where x is optional, to where
+            boost_to (tensor, optional): Momentum vector of shape ``(x, 4)``, where x is optional, to where
                 the resulting events will be boosted. If not specified, events are generated
                 in the rest frame of the particle.
             recalculate_max_weights (bool, optional): Recalculate the maximum weight of the event
                 using all the particles of the tree? This is necessary for the top particle of a decay,
                 otherwise the maximum weight calculation is going to be wrong (particles from subdecays
                 would not be taken into account). Defaults to False.
-            seed (`SeedLike`): The seed can be a number or a `tf.random.Generator` that are used
+            rng (``SeedLike``): The seed can be a number or a ``tf.random.Generator`` that are used
                 as a seed to create a random number generator inside the function or directly as
                 the random number generator instance, respectively.
 
-        Return:
+        Returns:
             tuple: Result of the generation (per-event weights, maximum weights, output particles
                 and their output masses).
 
-        Raise:
+        Raises:
             tf.errors.InvalidArgumentError: If the decay is kinematically forbidden.
-            ValueError: If `n_events` and the size of `boost_to` don't match.
-            See `GenParticle.generate_unnormalized`.
+            ValueError: If ``n_events`` and the size of ``boost_to`` don't match.
+            See ``GenParticle.generate_unnormalized``.
         """
         if boost_to is not None:
             momentum = boost_to
@@ -635,41 +636,41 @@ class GenParticle:
     ) -> tuple[tf.Tensor, dict[str, tf.Tensor]]:
         """Generate normalized n-body phase space as tensorflow tensors.
 
-        Any TensorFlow tensor can always be converted to a numpy array with the method `numpy()`.
+        Any TensorFlow tensor can always be converted to a numpy array with the method ``numpy()``.
 
-        Events are generated in the rest frame of the particle, unless `boost_to` is given.
+        Events are generated in the rest frame of the particle, unless ``boost_to`` is given.
 
-        Note:
+        Notes:
             In this method, the event weights are returned normalized to their maximum.
 
-        Arguments:
+        Args:
             n_events (int): Number of events to generate.
-            boost_to (optional): Momentum vector of shape (x, 4), where x is optional, to where
+            boost_to (optional): Momentum vector of shape ``(x, 4)``, where x is optional, to where
                 the resulting events will be boosted in the (px, py, pz, E) format.
-                Can also be a `vector` momentum Lorentz vector.
+                Can also be a ``vector`` momentum Lorentz vector.
                 If not specified, events are generated in the rest frame of the particle.
             normalize_weights (bool, optional): Normalize the event weight to its max?
-            seed (`SeedLike`): The seed can be a number or a `tf.random.Generator` that are used
+            seed (``SeedLike``): The seed can be a number or a ``tf.random.Generator`` that are used
                 as a seed to create a random number generator inside the function or directly as
                 the random number generator instance, respectively.
-            as_vectors (bool, optional): If True, the output momenta are returned as `vector` objects.
+            as_vectors (bool, optional): If True, the output momenta are returned as ``vector`` objects.
 
-        Return:
-            tuple: Result of the generation, which varies with the value of `normalize_weights`:
+        Returns:
+            tuple: Result of the generation, which varies with the value of ``normalize_weights``:
 
-                + If True, the tuple elements are the normalized event weights as a tensor of shape
-                  (n_events, ), and the momenta generated particles as a dictionary of tensors of shape
-                  (4, n_events) with particle names as keys.
+                - If True, the tuple elements are the normalized event weights as a tensor of shape
+                  ``(n_events,)``, and the momenta generated particles as a dictionary of tensors of shape
+                  ``(4, n_events)`` with particle names as keys.
 
-                + If False, the tuple weights are the unnormalized event weights as a tensor of shape
-                  (n_events, ), the maximum per-event weights as a tensor of shape (n_events, ) and the
-                  momenta generated particles as a dictionary of tensors of shape (4, n_events) with particle
+                - If False, the tuple weights are the unnormalized event weights as a tensor of shape
+                  ``(n_events,)``, the maximum per-event weights as a tensor of shape ``(n_events,)`` and the
+                  momenta generated particles as a dictionary of tensors of shape ``(4, n_events)`` with particle
                   names as keys.
 
-        Raise:
+        Raises:
             tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
-            ValueError: If `n_events` and the size of `boost_to` don't match.
-            See `GenParticle.generate_unnormalized`.
+            ValueError: If ``n_events`` and the size of ``boost_to`` don't match.
+            See ``GenParticle.generate_unnormalized``.
         """
         rng = get_rng(seed)
         if boost_to is not None:
@@ -723,35 +724,35 @@ class GenParticle:
     ):
         """Generate normalized n-body phase space as numpy arrays.
 
-        Events are generated in the rest frame of the particle, unless `boost_to` is given.
+        Events are generated in the rest frame of the particle, unless ``boost_to`` is given.
 
-        Note:
+        Notes:
             In this method, the event weights are returned normalized to their maximum.
 
-        Arguments:
+        Args:
             n_events (int): Number of events to generate.
-            boost_to (optional): Momentum vector of shape (x, 4), where x is optional, to where
+            boost_to (optional): Momentum vector of shape ``(x, 4)``, where x is optional, to where
                 the resulting events will be boosted. If not specified, events are generated
                 in the rest frame of the particle.
             normalize_weights (bool, optional): Normalize the event weight to its max
 
 
-        Return:
-            tuple: Result of the generation, which varies with the value of `normalize_weights`:
+        Returns:
+            tuple: Result of the generation, which varies with the value of ``normalize_weights``:
 
-                + If True, the tuple elements are the normalized event weights as an array of shape
-                  (n_events, ), and the momenta generated particles as a dictionary of arrays of shape
-                  (4, n_events) with particle names as keys.
+                - If True, the tuple elements are the normalized event weights as an array of shape
+                  ``(n_events,)``, and the momenta generated particles as a dictionary of arrays of shape
+                  ``(4, n_events)`` with particle names as keys.
 
-                + If False, the tuple weights are the unnormalized event weights as an array of shape
-                  (n_events, ), the maximum per-event weights as an array of shape (n_events, ) and the
-                  momenta generated particles as a dictionary of arrays of shape (4, n_events) with particle
+                - If False, the tuple weights are the unnormalized event weights as an array of shape
+                  ``(n_events,)``, the maximum per-event weights as an array of shape ``(n_events,)`` and the
+                  momenta generated particles as a dictionary of arrays of shape ``(4, n_events)`` with particle
                   names as keys.
 
-        Raise:
+        Raises:
             tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
-            ValueError: If `n_events` and the size of `boost_to` don't match.
-            See `GenParticle.generate_unnormalized`.
+            ValueError: If ``n_events`` and the size of ``boost_to`` don't match.
+            See ``GenParticle.generate_unnormalized``.
         """
 
         # Run generation
@@ -778,21 +779,21 @@ def nbody_decay(mass_top: float, masses: list, top_name: str = "", names: list =
     """Shortcut to build an n-body decay of a GenParticle.
 
     If the particle names are not given, the top particle is called 'top' and the
-    children 'p_{i}', where i corresponds to their position in the `masses` sequence.
+    children 'p_{i}', where i corresponds to their position in the ``masses`` sequence.
 
-    Arguments:
+    Args:
         mass_top (tensor, list): Mass of the top particle. Can be a list of 4-vectors.
         masses (list): Masses of the child particles.
-        name_top (str, optional): Name of the top particle. If not given, the top particle is
+        top_name (str, optional): Name of the top particle. If not given, the top particle is
             named top.
         names (list, optional): Names of the child particles. If not given, they are build as
-            'p_{i}', where i is given by their ordering in the `masses` list.
+            'p_{i}', where i is given by their ordering in the ``masses`` list.
 
-    Return:
-        `GenParticle`: Particle decay.
+    Returns:
+        ``GenParticle``: Particle decay.
 
-    Raise:
-        ValueError: If the length of `masses` and `names` doesn't match.
+    Raises:
+        ValueError: If the length of ``masses`` and ``names`` doesn't match.
     """
     if not top_name:
         top_name = "top"
@@ -814,14 +815,14 @@ def generate_decay(*args, **kwargs):
 
 
 def to_vectors(particles: dict[str, tf.Tensor]) -> dict[str, vector.Momentum]:
-    """Convert a dictionary of particles to a dictionary of `vector.Momentum` instances.
+    """Convert a dictionary of particles to a dictionary of ``vector.Momentum`` instances.
 
-    Arguments:
+    Args:
         particles (dict): Dictionary of particles, with the keys being the particle names and the
             values being the momenta.
 
-    Return:
-        dict: Dictionary of `vector.Momentum` instances with numpy arrays
+    Returns:
+        dict: Dictionary of ``vector.Momentum`` instances with numpy arrays
     """
     try:
         import vector

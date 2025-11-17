@@ -16,7 +16,7 @@ class GenMultiDecay:
     DEFAULT_MASS_FUNC = "relbw"
 
     def __init__(self, gen_particles: list[tuple[float, GenParticle]]):
-        """A `GenParticle`-type container that can handle multiple decays.
+        """A ``GenParticle``-type container that can handle multiple decays.
 
         Args:
             gen_particles: All the GenParticles and their corresponding probabilities.
@@ -32,7 +32,7 @@ class GenMultiDecay:
         tolerance: float = None,
         particle_model_map: dict[str, str] = None,
     ):
-        """Create a `GenMultiDecay` instance from a dict in the `DecayLanguage` package format.
+        """Create a ``GenMultiDecay`` instance from a dict in the ``DecayLanguage`` package format.
 
         Args:
             dec_dict: The input dict from which the GenMultiDecay object will be created from.
@@ -44,7 +44,7 @@ class GenMultiDecay:
                 See the Example below or the tutorial for how to use this parameter.
             tolerance: Minimum mass width of the particle to use a mass function instead of
                 assuming the mass to be constant. If None, the default value, defined by the class variable
-                MASS_WIDTH_TOLERANCE, will be used. This value can be customized if desired.
+                ``MASS_WIDTH_TOLERANCE``, will be used. This value can be customized if desired.
             particle_model_map: A dict where the key is a particle name and the value is a mass function name.
                 If a particle is specified in the particle_model_map, then all appearances of this particle
                 in dec_dict will get the same mass function. This way, one doesn't have to manually add the
@@ -56,83 +56,83 @@ class GenMultiDecay:
             The created GenMultiDecay object.
 
         Examples:
-            DecayLanguage is usually used to create a dict that can be understood by GenMultiDecay.
+            **Basic Usage**
 
-            >>> from decaylanguage import DecFileParser
-            >>> from phasespace.fromdecay import GenMultiDecay
+            DecayLanguage is usually used to create a dict that can be understood by GenMultiDecay:
 
-            Parse a .dec file to create a DecayLanguage dict describing a D*+ particle
-            that can decay in 2 different ways: D*+ -> D0(->K- pi+) pi+ or D*+ -> D+ gamma.
+            .. code-block:: python
 
-            >>> parser = DecFileParser('example_decays.dec')
-            >>> parser.parse()
-            >>> dst_chain = parser.build_decay_chains("D*+")
-            >>> dst_chain
-            {'D*+': [{'bf': 0.984,
-                'fs': [{'D0': [{'bf': 1.0,
-                        'fs': ['K-', 'pi+']}]},
-                    'pi+']},
-                {'bf': 0.016,
-                 'fs': ['D+', 'gamma']}]}
+                from decaylanguage import DecFileParser
+                from phasespace.fromdecay import GenMultiDecay
+
+                # Parse a .dec file to create a DecayLanguage dict describing a D*+ particle
+                # that can decay in 2 different ways: D*+ -> D0(->K- pi+) pi+ or D*+ -> D+ gamma
+                parser = DecFileParser('example_decays.dec')
+                parser.parse()
+                dst_chain = parser.build_decay_chains("D*+")
+                # dst_chain will be:
+                # {'D*+': [{'bf': 0.984,
+                #     'fs': [{'D0': [{'bf': 1.0,
+                #             'fs': ['K-', 'pi+']}]},
+                #         'pi+']},
+                #     {'bf': 0.016,
+                #      'fs': ['D+', 'gamma']}]}
+
+            **Using particle_model_map**
 
             If the D0 particle should have a mass distribution of a gaussian when it decays, one can pass
-            the `particle_model_map` parameter to `from_dict`:
+            the ``particle_model_map`` parameter to ``from_dict``:
 
-            >>> dst_gen = GenMultiDecay.from_dict(dst_chain, particle_model_map={"D0": "gauss"})
+            .. code-block:: python
+
+                dst_gen = GenMultiDecay.from_dict(dst_chain, particle_model_map={"D0": "gauss"})
 
             This will then set the mass function of D0 to a gaussian for all its decays.
 
+            **Using the zfit parameter**
+
             If more custom control is required, e.g., if D0 can decay in multiple ways and one of the decays
-            should have a specific mass function, a `zfit` parameter can be added to its decay dict:
+            should have a specific mass function, a ``zfit`` parameter can be added to its decay dict:
 
-            >>> dst_chain["D*+"][0]["fs"][0]["D0"][0]["zfit"] = "gauss"
-            >>> dst_chain
-            {'D*+': [{'bf': 0.984,
-                'fs': [{'D0': [{'bf': 1.0,
-                        'fs': ['K-', 'pi+'],
-                        'zfit': 'gauss'}]},
-                    'pi+']},
-                {'bf': 0.016,
-                'fs': ['D+', 'gamma']}]}
+            .. code-block:: python
 
-            This dict can then be passed to `GenMultiDecay.from_dict`:
-
-            >>> dst_gen = GenMultiDecay.from_dict(dst_chain)
+                dst_chain["D*+"][0]["fs"][0]["D0"][0]["zfit"] = "gauss"
+                dst_gen = GenMultiDecay.from_dict(dst_chain)
 
             This will now make the D0 particle have a gaussian mass function, only when it decays into
             K- and pi+. In this case, there are no other ways that D0 can decay, so using
-            `particle_model_map` is a cleaner and easier option.
+            ``particle_model_map`` is a cleaner and easier option.
+
+            **Custom Mass Functions**
 
             If the decay of the D0 particle should be modelled by a mass distribution that does not
             come with the package, a custom distribution can be created:
 
-            >>> def custom_gauss(mass, width):
-            ...     particle_mass = tf.cast(mass, tf.float64)
-            ...     particle_width = tf.cast(width, tf.float64)
-            ...     def mass_func(min_mass, max_mass, n_events):
-            ...         min_mass = tf.cast(min_mass, tf.float64)
-            ...         max_mass = tf.cast(max_mass, tf.float64)
-            ...         # Use a zfit PDF
-            ...         pdf = zfit.pdf.Gauss(mu=particle_mass, sigma=particle_width, obs="")
-            ...         iterator = tf.stack([min_mass, max_mass], axis=-1)
-            ...         return tf.vectorized_map(
-            ...             lambda lim: pdf.sample(1, limits=(lim[0], lim[1])), iterator
-            ...         )
-            ...     return mass_func
+            .. code-block:: python
 
-            Once again change the distribution in the `dst_chain` dict. Here, it is changed to "custom_gauss"
-            but any name can be used.
+                def custom_gauss(mass, width):
+                    particle_mass = tf.cast(mass, tf.float64)
+                    particle_width = tf.cast(width, tf.float64)
+                    def mass_func(min_mass, max_mass, n_events):
+                        min_mass = tf.cast(min_mass, tf.float64)
+                        max_mass = tf.cast(max_mass, tf.float64)
+                        # Use a zfit PDF
+                        pdf = zfit.pdf.Gauss(mu=particle_mass, sigma=particle_width, obs="")
+                        iterator = tf.stack([min_mass, max_mass], axis=-1)
+                        return tf.vectorized_map(
+                            lambda lim: pdf.sample(1, limits=(lim[0], lim[1])), iterator
+                        )
+                    return mass_func
 
-            >>> dst_chain["D*+"][0]["fs"][0]["D0"][0]["zfit"] = "custom_gauss"
+                # Change the distribution in the dst_chain dict
+                dst_chain["D*+"][0]["fs"][0]["D0"][0]["zfit"] = "custom_gauss"
 
-            One can then pass the `custom_gauss` function and its name (in this case "custom_gauss") as a
-            dict to `from_dict` as the mass_converter parameter:
-
-            >>> dst_gen = GenMultiDecay.from_dict(dst_chain, mass_converter={"custom_gauss": custom_gauss})
+                # Pass the custom_gauss function to from_dict
+                dst_gen = GenMultiDecay.from_dict(dst_chain, mass_converter={"custom_gauss": custom_gauss})
 
         Notes:
             For a more in-depth tutorial, see the tutorial on GenMultiDecay in the
-            `documentation <https://phasespace.readthedocs.io/en/stable/GenMultiDecay_Tutorial.html>`_.
+            `documentation <https://phasespace.readthedocs.io/en/stable/GenMultiDecay_Tutorial.html>`__.
         """
         if tolerance is None:
             tolerance = cls.MASS_WIDTH_TOLERANCE
@@ -164,13 +164,13 @@ class GenMultiDecay:
             n_events: Total number of events combined, for all the decays.
             normalize_weights: Normalize weights according to all events generated.
                 This also changes the return values. See the phasespace documentation for more details.
-            kwargs: Additional parameters passed to all calls of GenParticle.generate
+            kwargs: Additional parameters passed to all calls of ``GenParticle.generate``
 
         Returns:
-            The arguments returned by GenParticle.generate are returned. See the phasespace documentation for
+            The arguments returned by ``GenParticle.generate`` are returned. See the phasespace documentation for
             details. However, instead of being 2 or 3 tensors, it is 2 or 3 lists of tensors,
             each entry in the lists corresponding to the return arguments from the corresponding GenParticle
-            instances in self.gen_particles. Note that when normalize_weights is True,
+            instances in ``self.gen_particles``. Note that when ``normalize_weights`` is True,
             the weights are normalized to the maximum of all returned events.
         """
         # Input to tf.random.categorical must be 2D
@@ -205,7 +205,7 @@ def _unique_name(name: str, preexisting_particles: set[str]) -> str:
         preexisting_particles: Names that the particle cannot have as name.
 
     Returns:
-        name: Will be `name` if `name` is not in preexisting_particles or of the format "name [i]" where i
+        name: Will be ``name`` if ``name`` is not in preexisting_particles or of the format "name [i]" where i
             begins at 0 and increases until the name is not preexisting_particles.
     """
     if name not in preexisting_particles:
@@ -231,13 +231,15 @@ def _get_particle_mass(
 
     Args:
         name: Name of the particle. Name must be recognizable by the particle package.
-        mass_converter: See _recursively_traverse
+        mass_converter: See ``_recursively_traverse``
         mass_func: See the name of the mass function, e.g., 'rel-bw'. Must be a valid key for mass_converter.
-        tolerance: See _recursively_traverse
+        tolerance: See ``_recursively_traverse``
 
     Returns:
         A function if the mass has a width smaller than tolerance. Otherwise, return a constant mass.
-    TODO try to cache results for this function in the future for speedup.
+
+    Notes:
+        TODO try to cache results for this function in the future for speedup.
     """
     particle = Particle.from_evtgen_name(name)
 
@@ -259,10 +261,10 @@ def _recursively_traverse(
     Args:
         decaychain: Decay chain with the format from DecayLanguage
         mass_converter: Maps from mass function names to the actual callable mass function.
-        particle_model_map: See GenMultiDecay.from_dict.
+        particle_model_map: See ``GenMultiDecay.from_dict``.
         preexisting_particles: Names of all particles that have already been created.
         tolerance: Minimum mass width for a particle to set a non-constant mass to a particle.
-        If None, set to default value, given by GenMultiDecay.MASS_WIDTH_TOLERANCE
+        If None, set to default value, given by ``GenMultiDecay.MASS_WIDTH_TOLERANCE``
 
     Returns:
         The generated GenParticle instances, one for each possible way of the decay.

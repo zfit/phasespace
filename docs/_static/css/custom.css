@@ -1,0 +1,299 @@
+/* Custom CSS for PhaseSpace Documentation
+ * Mimicking Bootstrap Flatly theme colors:
+ * Primary: #2c3e50 (dark blue-gray)
+ * Accent: #18bc9c (turquoise/teal)
+ * Light gray: #ecf0f1
+ * Medium gray: #95a5a6
+ * Dark gray: #7b8a8b
+ */
+
+/* Light mode colors (default) */
+html[data-theme="light"] {
+    /* Primary brand colors */
+    --pst-color-primary: #18bc9c;
+    --pst-color-secondary: #2c3e50;
+
+    /* Links */
+    --pst-color-link: #18bc9c;
+    --pst-color-link-hover: #15a589;
+
+    /* Accent colors */
+    --pst-color-accent: #18bc9c;
+    --pst-color-success: #18bc9c;
+    --pst-color-info: #3498db;
+    --pst-color-warning: #f39c12;
+    --pst-color-danger: #e74c3c;
+
+    /* Text colors */
+    --pst-color-text-base: #2c3e50;
+    --pst-color-text-muted: #7b8a8b;
+    --pst-color-heading: #2c3e50;
+
+    /* Background colors - proper contrast */
+    --pst-color-background: #ffffff;
+    --pst-color-on-background: #2c3e50;
+    --pst-color-surface: #f8f9fa;
+    --pst-color-on-surface: #2c3e50;
+
+    /* Sidebar colors */
+    --pst-color-sidebar-bg: #f8f9fa;
+    --pst-color-sidebar-text: #2c3e50;
+    --pst-color-sidebar-link: #2c3e50;
+    --pst-color-sidebar-link-hover: #18bc9c;
+
+    /* Header/Navbar colors */
+    --pst-color-navbar-bg: #2c3e50;
+    --pst-color-navbar-text: #ffffff;
+
+    /* Border colors */
+    --pst-color-border: #dee2e6;
+
+    /* Target/highlight */
+    --pst-color-target: #fff3cd;
+}
+
+/* Dark mode colors */
+html[data-theme="dark"] {
+    /* Primary brand colors */
+    --pst-color-primary: #18bc9c;
+    --pst-color-secondary: #3d5466;
+
+    /* Links */
+    --pst-color-link: #1fd4ad;
+    --pst-color-link-hover: #18bc9c;
+
+    /* Accent colors */
+    --pst-color-accent: #1fd4ad;
+    --pst-color-success: #1fd4ad;
+    --pst-color-info: #5dade2;
+    --pst-color-warning: #f5b041;
+    --pst-color-danger: #ec7063;
+
+    /* Text colors */
+    --pst-color-text-base: #ecf0f1;
+    --pst-color-text-muted: #95a5a6;
+    --pst-color-heading: #ecf0f1;
+
+    /* Background colors - proper contrast */
+    --pst-color-background: #1e1e1e;
+    --pst-color-on-background: #ecf0f1;
+    --pst-color-surface: #2c3e50;
+    --pst-color-on-surface: #ecf0f1;
+
+    /* Sidebar colors */
+    --pst-color-sidebar-bg: #2c3e50;
+    --pst-color-sidebar-text: #ecf0f1;
+    --pst-color-sidebar-link: #ecf0f1;
+    --pst-color-sidebar-link-hover: #1fd4ad;
+
+    /* Header/Navbar colors */
+    --pst-color-navbar-bg: #2c3e50;
+    --pst-color-navbar-text: #ecf0f1;
+
+    /* Border colors */
+    --pst-color-border: #495057;
+
+    /* Target/highlight */
+    --pst-color-target: #856404;
+}
+
+/* Ensure navbar uses proper colors */
+.bd-header,
+.bd-header-announcement {
+    background-color: var(--pst-color-secondary) !important;
+}
+
+.bd-header .navbar-nav .nav-link,
+.bd-header .navbar-brand,
+.bd-header a {
+    color: #ffffff !important;
+}
+
+.bd-header .navbar-nav .nav-link:hover,
+.bd-header .navbar-nav .nav-link:focus,
+.bd-header a:hover {
+    color: var(--pst-color-primary) !important;
+}
+
+.bd-header .navbar-nav .nav-link.active {
+    color: var(--pst-color-primary) !important;
+    font-weight: 600;
+}
+
+/* Primary sidebar styling */
+.bd-sidebar-primary {
+    background-color: var(--pst-color-sidebar-bg);
+}
+
+.bd-sidebar-primary .nav-link {
+    color: var(--pst-color-sidebar-link);
+}
+
+.bd-sidebar-primary .nav-link:hover {
+    color: var(--pst-color-sidebar-link-hover);
+    background-color: transparent;
+}
+
+.bd-sidebar-primary .nav-link.active {
+    color: var(--pst-color-primary);
+    border-left: 3px solid var(--pst-color-primary);
+}
+
+/* Secondary sidebar (TOC) styling */
+.bd-sidebar-secondary {
+    background-color: transparent;
+}
+
+.bd-sidebar-secondary .page-toc {
+    color: var(--pst-color-text-base);
+}
+
+.bd-sidebar-secondary .page-toc .nav-link {
+    color: var(--pst-color-text-base);
+}
+
+.bd-sidebar-secondary .page-toc .nav-link:hover {
+    color: var(--pst-color-link);
+}
+
+.bd-sidebar-secondary .page-toc .nav-link.active {
+    color: var(--pst-color-primary);
+    border-left: 2px solid var(--pst-color-primary);
+}
+
+/* Ensure TOC heading is visible */
+.bd-sidebar-secondary .onthispage {
+    color: var(--pst-color-text-base);
+    font-weight: 600;
+}
+
+/* Main content area */
+.bd-main .bd-content {
+    background-color: var(--pst-color-background);
+    color: var(--pst-color-on-background);
+}
+
+/* Article content */
+.bd-article {
+    color: var(--pst-color-text-base);
+}
+
+.bd-article h1,
+.bd-article h2,
+.bd-article h3,
+.bd-article h4,
+.bd-article h5,
+.bd-article h6 {
+    color: var(--pst-color-secondary);
+}
+
+/* Links in content */
+.bd-article a:not(.btn) {
+    color: var(--pst-color-link);
+}
+
+.bd-article a:not(.btn):hover {
+    color: var(--pst-color-link-hover);
+    text-decoration: underline;
+}
+
+/* Buttons with primary color */
+.btn-primary,
+.btn.btn-primary {
+    background-color: var(--pst-color-primary) !important;
+    border-color: var(--pst-color-primary) !important;
+    color: #ffffff !important;
+}
+
+.btn-primary:hover,
+.btn.btn-primary:hover {
+    background-color: #15a589 !important;
+    border-color: #15a589 !important;
+}
+
+/* Search button styling */
+.search-button__button {
+    background-color: transparent !important;
+    color: #ffffff !important;
+}
+
+.search-button__button:hover {
+    color: var(--pst-color-primary) !important;
+}
+
+/* Theme switcher button */
+button.theme-switch-button {
+    color: #ffffff !important;
+}
+
+button.theme-switch-button:hover {
+    color: var(--pst-color-primary) !important;
+}
+
+/* Footer styling */
+footer.bd-footer {
+    background-color: var(--pst-color-surface);
+    color: var(--pst-color-on-surface);
+    border-top: 1px solid var(--pst-color-border);
+}
+
+footer.bd-footer a {
+    color: var(--pst-color-link);
+}
+
+/* Code blocks */
+code {
+    color: #e74c3c;
+    background-color: var(--pst-color-surface);
+}
+
+html[data-theme="dark"] code {
+    color: #ec7063;
+}
+
+/* Admonitions */
+.admonition {
+    border-left: 4px solid;
+}
+
+.admonition.note {
+    border-left-color: var(--pst-color-info);
+}
+
+.admonition.warning {
+    border-left-color: var(--pst-color-warning);
+}
+
+.admonition.important,
+.admonition.danger {
+    border-left-color: var(--pst-color-danger);
+}
+
+.admonition.tip,
+.admonition.hint {
+    border-left-color: var(--pst-color-success);
+}
+
+/* Tables */
+table.docutils {
+    border-color: var(--pst-color-border);
+}
+
+table.docutils th {
+    background-color: var(--pst-color-surface);
+    color: var(--pst-color-on-surface);
+    border-color: var(--pst-color-border);
+}
+
+table.docutils td {
+    border-color: var(--pst-color-border);
+}
+
+/* Ensure proper text color in all contexts */
+body {
+    color: var(--pst-color-text-base);
+}
+
+p, li, td, th, dd, dt {
+    color: var(--pst-color-text-base);
+}
