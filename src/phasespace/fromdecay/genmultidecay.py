@@ -47,7 +47,7 @@ class GenMultiDecay:
                 MASS_WIDTH_TOLERANCE, will be used. This value can be customized if desired.
             particle_model_map: A dict where the key is a particle name and the value is a mass function name.
                 If a particle is specified in the particle_model_map, then all appearances of this particle
-                in dec_dict will get the same mass function. This way, one does not have to manually add the
+                in dec_dict will get the same mass function. This way, one doesn't have to manually add the
                 zfit parameter to every place where this particle appears in dec_dict. If the zfit parameter
                 is specified for a particle which is also included in particle_model_map, the zfit parameter
                 mass function name will be prioritized.
@@ -57,6 +57,7 @@ class GenMultiDecay:
 
         Examples:
             DecayLanguage is usually used to create a dict that can be understood by GenMultiDecay.
+
             >>> from decaylanguage import DecFileParser
             >>> from phasespace.fromdecay import GenMultiDecay
 
@@ -74,13 +75,16 @@ class GenMultiDecay:
                 {'bf': 0.016,
                  'fs': ['D+', 'gamma']}]}
 
-            If the D0 particle should have a mass distribution of a gaussian when it decays, one can pass the
-            `particle_model_map` parameter to `from_dict`:
+            If the D0 particle should have a mass distribution of a gaussian when it decays, one can pass
+            the `particle_model_map` parameter to `from_dict`:
+
             >>> dst_gen = GenMultiDecay.from_dict(dst_chain, particle_model_map={"D0": "gauss"})
+
             This will then set the mass function of D0 to a gaussian for all its decays.
 
             If more custom control is required, e.g., if D0 can decay in multiple ways and one of the decays
             should have a specific mass function, a `zfit` parameter can be added to its decay dict:
+
             >>> dst_chain["D*+"][0]["fs"][0]["D0"][0]["zfit"] = "gauss"
             >>> dst_chain
             {'D*+': [{'bf': 0.984,
@@ -90,34 +94,40 @@ class GenMultiDecay:
                     'pi+']},
                 {'bf': 0.016,
                 'fs': ['D+', 'gamma']}]}
+
             This dict can then be passed to `GenMultiDecay.from_dict`:
+
             >>> dst_gen = GenMultiDecay.from_dict(dst_chain)
-            This will now convert make the D0 particle have a gaussian mass function, only when it decays into
-            K- and pi+. In this case, there are no other ways that D0 can decay, so using `particle_model_map`
-            is a cleaner and easier option.
+
+            This will now make the D0 particle have a gaussian mass function, only when it decays into
+            K- and pi+. In this case, there are no other ways that D0 can decay, so using
+            `particle_model_map` is a cleaner and easier option.
 
             If the decay of the D0 particle should be modelled by a mass distribution that does not
             come with the package, a custom distribution can be created:
+
             >>> def custom_gauss(mass, width):
-            >>>     particle_mass = tf.cast(mass, tf.float64)
-            >>>     particle_width = tf.cast(width, tf.float64)
-            >>>     def mass_func(min_mass, max_mass, n_events):
-            >>>         min_mass = tf.cast(min_mass, tf.float64)
-            >>>         max_mass = tf.cast(max_mass, tf.float64)
-            >>>         # Use a zfit PDF
-            >>>         pdf = zfit.pdf.Gauss(mu=particle_mass, sigma=particle_width, obs="")
-            >>>         iterator = tf.stack([min_mass, max_mass], axis=-1)
-            >>>         return tf.vectorized_map(
-            >>>             lambda lim: pdf.sample(1, limits=(lim[0], lim[1])), iterator
-            >>>         )
-            >>>     return mass_func
+            ...     particle_mass = tf.cast(mass, tf.float64)
+            ...     particle_width = tf.cast(width, tf.float64)
+            ...     def mass_func(min_mass, max_mass, n_events):
+            ...         min_mass = tf.cast(min_mass, tf.float64)
+            ...         max_mass = tf.cast(max_mass, tf.float64)
+            ...         # Use a zfit PDF
+            ...         pdf = zfit.pdf.Gauss(mu=particle_mass, sigma=particle_width, obs="")
+            ...         iterator = tf.stack([min_mass, max_mass], axis=-1)
+            ...         return tf.vectorized_map(
+            ...             lambda lim: pdf.sample(1, limits=(lim[0], lim[1])), iterator
+            ...         )
+            ...     return mass_func
 
             Once again change the distribution in the `dst_chain` dict. Here, it is changed to "custom_gauss"
             but any name can be used.
+
             >>> dst_chain["D*+"][0]["fs"][0]["D0"][0]["zfit"] = "custom_gauss"
 
             One can then pass the `custom_gauss` function and its name (in this case "custom_gauss") as a
-            `dict`to `from_dict` as the mass_converter parameter:
+            dict to `from_dict` as the mass_converter parameter:
+
             >>> dst_gen = GenMultiDecay.from_dict(dst_chain, mass_converter={"custom_gauss": custom_gauss})
 
         Notes:
