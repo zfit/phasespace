@@ -2,19 +2,17 @@
 
 As the random number generation is not a trivial thing, this module handles it uniformly.
 
-It mimicks the TensorFlows API on random generators and relies (currently) in global states on the TF states.
+It mimics the TensorFlows API on random generators and relies (currently) in global states on the TF states.
 Especially on the global random number generator which will be used to get new generators.
 """
 
-from typing import Optional, Union
-
 import tensorflow as tf
 
-SeedLike = Optional[Union[int, tf.random.Generator]]
+SeedLike = int | tf.random.Generator | None
 
 
 def get_rng(seed: SeedLike = None) -> tf.random.Generator:
-    """Get or create a random number generators of type `tf.random.Generator`.
+    """Get or create random number generator of type `tf.random.Generator`.
 
     This can be used to either retrieve random number generators deterministically from them
     - global random number generator from TensorFlow,

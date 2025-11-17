@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9"]
+        python-version: ["3.10"]
     steps:
       - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.python-version }}
@@ -59,7 +59,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest ]
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.10", "3.13"]
         eager: [0, 1]
 #        include:  # todo: activate when we can install graphviz on these platforms
 #          - os: macos-latest

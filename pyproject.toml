@@ -17,18 +17,18 @@ classifiers = [
     "Operating System :: Unix",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Physics",
 ]
 keywords = ["TensorFlow", "phasespace", "HEP"]
 urls = { Homepage = "https://github.com/zfit/phasespace" }
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
-    "tensorflow>=2.16.0",
-    "tensorflow_probability>=0.22.0",
+    "tensorflow>=2.19.0",
+    "tensorflow_probability>=0.25.0",
 ]
 dynamic = ["version"]
 
@@ -38,8 +38,8 @@ content-type = "text/x-rst"
 
 [project.optional-dependencies]
 tf = [
-    "tensorflow >=2.16.0", # TODO(2.0): make this the only requirement, add versions, remove from install_requires
-    "tensorflow_probability >=0.22.0",
+    "tensorflow >=2.19.0", # TODO(2.0): make this the only requirement, add versions, remove from install_requires
+    "tensorflow_probability >=0.25.0",
 ]
 tensorflow = ["phasespace[tf]"]
 fromdecay = [

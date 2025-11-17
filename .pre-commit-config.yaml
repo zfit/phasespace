@@ -23,16 +23,15 @@ repos:
       - id: fix-byte-order-marker
       - id: check-ast
 
-  # Requires a fix: https://github.com/PyCQA/docformatter/issues/293
-  #  - repo: https://github.com/PyCQA/docformatter
-  #    rev: v1.7.6
-  #    hooks:
-  #      - id: docformatter
-  #        args:
-  #          - -r
-  #          - --in-place
-  #          - --wrap-descriptions=110
-  #          - --wrap-summaries=110
+  - repo: https://github.com/PyCQA/docformatter
+    rev: v1.7.6
+    hooks:
+      - id: docformatter
+        args:
+          - -r
+          - --in-place
+          - --wrap-descriptions=110
+          - --wrap-summaries=110
 
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0 # Use the ref you want to point at
@@ -51,7 +50,7 @@ repos:
     rev: v3.20.0
     hooks:
       - id: pyupgrade
-        args: [ --py39-plus ]
+        args: [ --py310-plus ]
 
   - repo: https://github.com/mgedmin/check-manifest
     rev: "0.50"
