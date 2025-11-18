@@ -18,7 +18,32 @@
 # absolute, like shown here.
 #
 
-import phasespace
+import os
+import warnings
+
+# Suppress TensorFlow and zfit warnings during documentation build
+os.environ["ZFIT_DISABLE_TF_WARNINGS"] = "1"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+
+# Suppress all Python warnings during documentation build
+warnings.filterwarnings("ignore")
+
+# Suppress TensorFlow C++ logging to stderr
+import logging  # noqa: E402
+
+logging.getLogger("tensorflow").setLevel(logging.ERROR)
+
+# Try to suppress absl logging
+try:
+    from absl import logging as absl_logging
+
+    absl_logging.set_verbosity(absl_logging.ERROR)
+    absl_logging.set_stderrthreshold(absl_logging.ERROR)
+except ImportError:
+    pass
+
+import phasespace  # noqa: E402
 
 # -- General configuration ---------------------------------------------
 
@@ -101,6 +126,11 @@ language = "en"
 # This patterns also effect to html_static_path and html_extra_path
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
+# Suppress specific warnings
+suppress_warnings = [
+    "misc.highlighting_failure",  # Suppress syntax highlighting warnings
+]
+
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
 
@@ -169,8 +199,7 @@ html_context = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
-html_css_files = ["css/custom.css"]
+html_static_path = []
 
 # -- Options for HTMLHelp output ---------------------------------------
 
