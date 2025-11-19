@@ -1,3 +1,4 @@
+import os
 import sys
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -6,6 +7,12 @@ from os.path import abspath, basename, dirname, exists
 import wget
 
 SCRIPT_DIR = dirname(abspath(__file__))
+
+
+def _is_silent():
+    """Check if silent mode is enabled via PHASESPACE_SILENT environment variable."""
+    return os.environ.get("PHASESPACE_SILENT", "0") in ("1", "true", "True", "TRUE")
+
 
 FILE_URLS = [
     (
@@ -55,6 +62,10 @@ class DownloadProgressTracker:
 
     def _display_progress(self):
         """Display overall progress across all downloads."""
+        # Skip progress display in silent mode
+        if _is_silent():
+            return
+
         # Calculate totals
         total_downloaded = sum(self.current_bytes.values())
         total_size = sum(self.total_bytes.values())
@@ -123,9 +134,10 @@ def download_all_parallel(max_workers=None):
     if max_workers is None:
         max_workers = min(len(FILE_URLS), 20)
 
-    print(
-        f"Downloading {len(FILE_URLS)} files with {max_workers} parallel workers...\n"
-    )
+    if not _is_silent():
+        print(
+            f"Downloading {len(FILE_URLS)} files with {max_workers} parallel workers...\n"
+        )
 
     # Create progress tracker
     progress_tracker = DownloadProgressTracker(len(FILE_URLS))

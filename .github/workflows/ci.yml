@@ -43,7 +43,7 @@ jobs:
           uv pip install -e .[dev] --system
           uv pip install coverage --system
       - name: Download test data
-        run: python data/download_test_files.py > /dev/null
+        run: PHASESPACE_SILENT=1 python data/download_test_files.py
       - name: Run pytest-cov
         run: PYTHONPATH=src coverage run -m pytest --basetemp={envtmpdir}
       - name: Create XML report
@@ -84,7 +84,7 @@ jobs:
           uv pip install -e .[dev] --system
           uv pip install pytest-xdist --system
       - name: Download test data
-        run: python data/download_test_files.py > /dev/null
+        run: PHASESPACE_SILENT=1 python data/download_test_files.py
       - name: Test with pytest, eager=${{ matrix.eager }}
         run: |
           PHASESPACE_EAGER=${{ matrix.eager }} pytest -n auto --basetemp={envtmpdir} tests
