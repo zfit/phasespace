@@ -6,7 +6,6 @@ __all__ = [
     "default_rng",
 ]
 
-from typing import Optional
 
 from numpy.random import PCG64, BitGenerator, Generator, default_rng
 

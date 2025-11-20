@@ -91,9 +91,8 @@ def create_ref_histos(n_pions):
 
 
 def run_test(n_particles, test_prefix):
-    from phasespace.backend import tnp
-
     from phasespace import phasespace
+    from phasespace.backend import tnp
 
     first_run_n_events = 100
     main_run_n_events = 100000

@@ -133,9 +133,8 @@ def test_boost(backend_name, backend_context):
     """Test boosting generated events."""
     backend_context(backend_name)
 
-    from phasespace.backend import tnp
-
     import phasespace
+    from phasespace.backend import tnp
 
     n_events = 100
     decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, KAON_MASS])

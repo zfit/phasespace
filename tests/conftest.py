@@ -40,9 +40,8 @@ def backend_context():
         importlib.reload(phasespace.backend)
         # Also reload phasespace modules that use the backend
         import phasespace.kinematics
-        import phasespace.random
-
         import phasespace.phasespace
+        import phasespace.random
 
         importlib.reload(phasespace.random)
         importlib.reload(phasespace.kinematics)
