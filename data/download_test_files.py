@@ -2,6 +2,7 @@ import os
 import sys
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from os import makedirs
 from os.path import abspath, basename, dirname, exists
 
 import wget
@@ -133,6 +134,10 @@ def download_all_parallel(max_workers=None):
     """
     if max_workers is None:
         max_workers = min(len(FILE_URLS), 20)
+
+    # Ensure output directory exists
+    output_dir = f"{SCRIPT_DIR}/large"
+    makedirs(output_dir, exist_ok=True)
 
     if not _is_silent():
         print(

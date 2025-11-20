@@ -24,65 +24,46 @@ on:
 
 
 jobs:
-  setup:
+  download-data:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [ "3.10" ]
-    outputs:
-      cache-key: ${{ steps.cache-key.outputs.key }}
     steps:
       - uses: actions/checkout@v5
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Generate cache key
-        id: cache-key
-        run: |
-          KEY="test-refs-${{ hashFiles('data/download_test_files.py') }}"
-          echo "key=$KEY" >> $GITHUB_OUTPUT
-
-      - name: Cache reference files
-        id: cache-refs
-        uses: actions/cache@v4
-        with:
-          path: tests/reference_files
-          key: ${{ steps.cache-key.outputs.key }}
-
-      - name: Cache reference files
-        id: cache-refs
+      - name: Cache test data
+        id: cache-data
         uses: actions/cache@v4
         with:
           path: data/large
-          key: test-refs-${{ hashFiles('data/download_test_files.py') }}
-          restore-keys: test-refs-
+          key: test-data-${{ hashFiles('data/download_test_files.py') }}
+      - name: Set up Python
+        if: steps.cache-data.outputs.cache-hit != 'true'
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+      - name: Install wget
+        if: steps.cache-data.outputs.cache-hit != 'true'
+        run: pip install wget
+      - name: Download test data
+        if: steps.cache-data.outputs.cache-hit != 'true'
+        run: PHASESPACE_SILENT=1 python data/download_test_files.py
 
-      - name: Download reference files
-        if: steps.cache-refs.outputs.cache-hit != 'true'
-        run: |
-          - name: Download test data
-            run: PHASESPACE_SILENT=1 python data/download_test_files.py
   codecov:
-    needs: setup
+    needs: download-data
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.10" ]
+        python-version: ["3.10"]
     steps:
       - uses: actions/checkout@v5
+      - name: Restore test data cache
+        uses: actions/cache@v4
+        with:
+          path: data/large
+          key: test-data-${{ hashFiles('data/download_test_files.py') }}
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Restore reference files
-        uses: actions/cache/restore@v4
-        with:
-          path: data/large
-          key: ${{ needs.setup.outputs.cache-key }}
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip uv
@@ -98,24 +79,29 @@ jobs:
           file: ./coverage.xml
 
   pytest:
-    needs: setup
+    needs: download-data
     runs-on: ${{ matrix.os }}
     name: tests ${{ matrix.os }}, ${{ matrix.python-version }}, eager=${{ matrix.eager }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
-        python-version: [ "3.10", "3.13" ]
-        eager: [ 0, 1 ]
-    #        include:  # todo: activate when we can install graphviz on these platforms
-    #          - os: macos-latest
-    #            python-version: "3.9"
-    #          - os: windows-latest
-    #            python-version: "3.9"
-    #          - os: macos-14  # Apple silicon runner
-    #            python-version: '3.12'
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.10", "3.13"]
+        eager: [0, 1]
+        include:
+          - os: macos-14  # Apple silicon runner
+            python-version: '3.12'
+            eager: 0
+          - os: macos-14
+            python-version: '3.12'
+            eager: 1
     steps:
       - uses: actions/checkout@v5
+      - name: Restore test data cache
+        uses: actions/cache@v4
+        with:
+          path: data/large
+          key: test-data-${{ hashFiles('data/download_test_files.py') }}
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
         with:
@@ -123,19 +109,24 @@ jobs:
       - name: Get number of CPU cores
         uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
-      - name: Restore reference files
-        uses: actions/cache/restore@v4
-        with:
-          path: data/large
-          key: ${{ needs.setup.outputs.cache-key }}
+      - name: Install graphviz (Ubuntu)
+        if: runner.os == 'Linux'
+        run: sudo apt install graphviz -y
+      - name: Install graphviz (macOS)
+        if: runner.os == 'macOS'
+        run: brew install graphviz
+      - name: Install graphviz (Windows)
+        if: runner.os == 'Windows'
+        run: choco install graphviz -y
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip uv
-          sudo apt install graphviz -y
-          uv pip install -e .[dev] pytest-xdist --system
+          uv pip install -e .[dev] --system
+          uv pip install pytest-xdist --system
       - name: Test with pytest, eager=${{ matrix.eager }}
         run: |
           PHASESPACE_EAGER=${{ matrix.eager }} pytest -n auto --basetemp={envtmpdir} tests
           cd docs
           PHASESPACE_EAGER=${{ matrix.eager }} pytest --dist loadscope --nbval-lax --ignore=.ipynb_checkpoints -n${{ steps.cpu-cores.outputs.count }}
           cd ..
+        shell: bash
