@@ -26,19 +26,14 @@ on:
 jobs:
   download-data:
     runs-on: ubuntu-latest
-    outputs:
-      cache-key: ${{ steps.cache-key.outputs.key }}
     steps:
       - uses: actions/checkout@v5
-      - name: Compute cache key
-        id: cache-key
-        run: echo "key=test-data-${{ hashFiles('data/download_test_files.py') }}" >> $GITHUB_OUTPUT
       - name: Cache test data
         id: cache-data
         uses: actions/cache@v4
         with:
           path: data/large
-          key: ${{ steps.cache-key.outputs.key }}
+          key: test-data-${{ hashFiles('data/download_test_files.py') }}
       - name: Set up Python
         if: steps.cache-data.outputs.cache-hit != 'true'
         uses: actions/setup-python@v6
@@ -50,6 +45,12 @@ jobs:
       - name: Download test data
         if: steps.cache-data.outputs.cache-hit != 'true'
         run: PHASESPACE_SILENT=1 python data/download_test_files.py
+      - name: Upload test data artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-data
+          path: data/large
+          retention-days: 1
 
   codecov:
     needs: download-data
@@ -60,11 +61,11 @@ jobs:
         python-version: ["3.10"]
     steps:
       - uses: actions/checkout@v5
-      - name: Restore test data cache
-        uses: actions/cache@v4
+      - name: Download test data
+        uses: actions/download-artifact@v4
         with:
+          name: test-data
           path: data/large
-          key: ${{ needs.download-data.outputs.cache-key }}
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
         with:
@@ -78,7 +79,7 @@ jobs:
           sudo apt install graphviz -y
           uv pip install -e .[dev] coverage --system
       - name: Run pytest-cov
-        run: PYTHONPATH=src coverage run -m pytest --basetemp={envtmpdir}
+        run: PYTHONPATH=src coverage run -m pytest
       - name: Create XML report
         run: coverage xml
       - uses: codecov/codecov-action@v5.5.1
@@ -104,11 +105,11 @@ jobs:
             eager: 0
     steps:
       - uses: actions/checkout@v5
-      - name: Restore test data cache
-        uses: actions/cache@v4
+      - name: Download test data
+        uses: actions/download-artifact@v4
         with:
+          name: test-data
           path: data/large
-          key: ${{ needs.download-data.outputs.cache-key }}
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
         with:
@@ -133,7 +134,7 @@ jobs:
         run: uv pip install -e .[dev] pytest-xdist --system
       - name: Test with pytest, eager=${{ matrix.eager }}
         run: |
-          PHASESPACE_EAGER=${{ matrix.eager }} pytest -n auto --basetemp={envtmpdir} tests
+          PHASESPACE_EAGER=${{ matrix.eager }} pytest -n auto tests
           cd docs
           PHASESPACE_EAGER=${{ matrix.eager }} pytest --dist loadscope --nbval-lax --ignore=.ipynb_checkpoints -n${{ steps.cpu-cores.outputs.count }}
           cd ..
