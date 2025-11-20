@@ -105,7 +105,7 @@ def download_file(filename, url, progress_tracker):
     Returns:
         tuple: (filename, success: bool, message: str)
     """
-    output_file = f"{SCRIPT_DIR}/{filename}"
+    output_file = f"{SCRIPT_DIR}/large/{filename}"
 
     if exists(output_file):
         progress_tracker.mark_complete(filename)

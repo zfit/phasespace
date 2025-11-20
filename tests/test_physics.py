@@ -202,7 +202,7 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix, use_vector):
     decay = decays.b0_to_kstar_gamma(kstar_width=kstar_width)
     norm_weights, particles = decay.generate(n_events=n_events, boost_to=booster)
     rapidsim_parts = rapidsim_getter(
-        os.path.join(BASE_PATH, "data", input_file),
+        os.path.join(BASE_PATH, "data", "large", input_file),
         "B0_0",
         ("Kst0_0", "gamma_0", "Kp_0", "pim_0"),
     )
@@ -313,7 +313,7 @@ def run_k1_gamma(input_file, k1_width, kstar_width, b_at_rest, suffix):
     gamma = decays.bp_to_k1_kstar_pi_gamma(k1_width=k1_width, kstar_width=kstar_width)
     norm_weights, particles = gamma.generate(n_events=n_events, boost_to=booster)
     rapidsim_parts = rapidsim_getter(
-        os.path.join(BASE_PATH, "data", input_file),
+        os.path.join(BASE_PATH, "data", "large", input_file),
         "Bp_0",
         ("K1_1270_p_0", "Kst0_0", "gamma_0", "Kp_0", "pim_0", "pip_0"),
     )
