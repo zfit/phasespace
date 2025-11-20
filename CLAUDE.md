@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-PhaseSpace is a TensorFlow-based Python package for n-body phase space generation in High Energy Physics (HEP). It implements the Raubold and Lynch method (GENBOD function from CERNLIB) for generating particle decay events. The package uses TensorFlow 2.x in eager mode as its computational backend.
+PhaseSpace is a Python package for n-body phase space generation in High Energy Physics (HEP). It implements the Raubold and Lynch method (GENBOD function from CERNLIB) for generating particle decay events. The package supports two computational backends: NumPy (default) and TensorFlow.
 
 ## Environment Setup
 
@@ -90,10 +90,11 @@ The project uses:
 
 - **`src/phasespace/kinematics.py`**: Kinematic calculations and transformations
 
-- **`src/phasespace/backend.py`**: TensorFlow function decorators
-  - `function`: Standard TF function wrapper
-  - `function_jit`: JIT-compiled functions with shape relaxation
-  - `function_jit_fixedshape`: JIT-compiled functions without shape relaxation
+- **`src/phasespace/backend/`**: Backend abstraction package
+  - `__init__.py`: Backend selection and initialization
+  - `_tf_random.py`: TensorFlow random number generation
+  - `_np_random.py`: NumPy random number generation
+  - Exports: `tnp`, `function`, `function_jit`, `Tensor`, `Variable`, `set_backend`, `get_backend`
 
 - **`src/phasespace/random.py`**: Random number generation utilities
 
@@ -157,22 +158,53 @@ Test files in `tests/helpers/` contain reference implementations.
 
 5. **Correctness First**: Never compromise correctness for performance or convenience. If modifications require trade-offs with correctness, always ask first.
 
+## Backend Selection
+
+The package supports two backends: NumPy (default) and TensorFlow.
+
+### Setting the Backend
+
+Via environment variable:
+```bash
+export PHASESPACE_BACKEND=numpy      # Default
+export PHASESPACE_BACKEND=tensorflow
+```
+
+Or programmatically:
+```python
+from phasespace.backend import set_backend
+set_backend("tensorflow")  # Switch to TensorFlow
+```
+
+### Testing Different Backends
+
+```bash
+# Test with NumPy (default)
+pytest tests/test_backends.py
+
+# Test with TensorFlow
+PHASESPACE_BACKEND=tensorflow pytest tests/test_backends.py
+```
+
 ## Dependencies
 
 Core requirements:
 - Python ≥ 3.10
-- TensorFlow ≥ 2.19.0
-- TensorFlow Probability ≥ 0.25.0
+- NumPy (always required)
 
-Optional dependencies:
+Optional backend dependencies:
+- `tensorflow`: TensorFlow ≥ 2.19.0, TensorFlow Probability ≥ 0.25.0
+
+Other optional dependencies:
 - `fromdecay`: particle, zfit, zfit-physics, decaylanguage
 - `vector`: vector ≥ 1.0.0
 
 ## CI/CD
 
 GitHub Actions runs:
-- Tests on Ubuntu with Python 3.10, 3.11, 3.12, and 3.13
-- Both eager modes (0 and 1)
+- Tests on Ubuntu, macOS, and Windows with Python 3.10, 3.11, 3.12, and 3.13
+- TensorFlow eager modes (0 and 1)
+- NumPy backend tests
 - Parallel test execution with `pytest-xdist`
 - Coverage reporting to Codecov
 - Documentation notebook validation

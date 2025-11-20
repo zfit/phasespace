@@ -23,8 +23,8 @@ PhaseSpace
 .. image:: https://badge.fury.io/py/phasespace.svg
    :target: https://badge.fury.io/py/phasespace
 
-Python implementation of the Raubold and Lynch method for `n`-body events using
-TensorFlow as a backend.
+Python implementation of the Raubold and Lynch method for `n`-body events with
+support for multiple computational backends (NumPy, TensorFlow).
 
 The code is based on the GENBOD function (W515 from CERNLIB), documented in [1]
 and tries to follow it as closely as possible.
@@ -94,6 +94,57 @@ To install the necessary dependencies to be used with
 .. code-block:: console
 
     $ pip install "phasespace[fromdecay]"
+
+For TensorFlow backend support:
+
+.. code-block:: console
+
+    $ pip install "phasespace[tf]"
+
+
+Backend Selection
+=================
+
+Phasespace supports two computational backends: **NumPy** (default) and **TensorFlow**.
+
+Setting the Backend
+-------------------
+
+You can set the backend using an environment variable:
+
+.. code-block:: bash
+
+    # Use NumPy (default)
+    export PHASESPACE_BACKEND=numpy
+
+    # Use TensorFlow
+    export PHASESPACE_BACKEND=tensorflow
+
+Or programmatically using the ``set_backend`` function:
+
+.. code-block:: python
+
+    from phasespace.backend import set_backend
+
+    # Switch to TensorFlow backend
+    set_backend("tensorflow")
+
+    # Now use phasespace with TensorFlow
+    import phasespace
+    weights, particles = phasespace.nbody_decay(5279, [139, 493]).generate(n_events=1000)
+
+You can also check the current backend:
+
+.. code-block:: python
+
+    from phasespace.backend import get_backend
+    print(get_backend())  # BackendType.NUMPY
+
+Backend Comparison
+------------------
+
+- **NumPy**: Default backend. Pure Python/NumPy, no compilation overhead. Good for small to medium samples.
+- **TensorFlow**: GPU acceleration, graph compilation for repeated generation. Best for large samples or when using with other TF code.
 
 
 How to use

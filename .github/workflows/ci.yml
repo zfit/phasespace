@@ -132,11 +132,11 @@ jobs:
         run: choco install graphviz -y
       - name: Install dependencies
         run: uv pip install -e .[dev] pytest-xdist --system
-      - name: Test with pytest, eager=${{ matrix.eager }}
+      - name: Test with pytest (TensorFlow backend), eager=${{ matrix.eager }}
         run: |
-          PHASESPACE_EAGER=${{ matrix.eager }} pytest -n auto tests
+          PHASESPACE_BACKEND=tensorflow PHASESPACE_EAGER=${{ matrix.eager }} pytest -n auto tests
           cd docs
-          PHASESPACE_EAGER=${{ matrix.eager }} pytest --dist loadscope --nbval-lax --ignore=.ipynb_checkpoints -n${{ steps.cpu-cores.outputs.count }}
+          PHASESPACE_BACKEND=tensorflow PHASESPACE_EAGER=${{ matrix.eager }} pytest --dist loadscope --nbval-lax --ignore=.ipynb_checkpoints -n${{ steps.cpu-cores.outputs.count }}
           cd ..
         shell: bash
       - name: Test with pytest (NumPy backend)

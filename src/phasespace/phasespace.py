@@ -15,14 +15,12 @@ from __future__ import annotations
 
 import functools
 import inspect
-import warnings
 from collections.abc import Callable
 from math import pi
 from typing import TYPE_CHECKING, NoReturn
 
 import numpy as np
 import tensorflow as tf
-
 from phasespace.backend import tnp
 
 from . import kinematics as kin
@@ -298,13 +296,13 @@ class GenParticle:
     @staticmethod
     @function_jit_fixedshape
     def _get_w_max(available_mass, masses):
-        emmax = available_mass + tnp.take(masses, indices=[0], axis=1)
+        emmax = available_mass + masses[:, 0:1]
         emmin = tnp.zeros_like(emmax, dtype=tnp.float64)
         w_max = tnp.ones_like(emmax, dtype=tnp.float64)
         for i in range(1, masses.shape[1]):
-            emmin += tnp.take(masses, [i - 1], axis=1)
-            emmax += tnp.take(masses, [i], axis=1)
-            w_max *= pdk(emmax, emmin, tnp.take(masses, [i], axis=1))
+            emmin += masses[:, i - 1 : i]
+            emmax += masses[:, i : i + 1]
+            w_max *= pdk(emmax, emmin, masses[:, i : i + 1])
         return w_max
 
     def _generate(self, momentum, n_events, rng):
@@ -342,13 +340,16 @@ class GenParticle:
                     output_mass += recurse_stable(child)
             return output_mass
 
-        mass_from_stable = tnp.broadcast_to(
-            tnp.sum(
-                [child.get_mass() for child in self.children if child.has_fixed_mass],
-                axis=0,
-            ),
-            (n_events, 1),
-        )
+        fixed_masses = [
+            child.get_mass() for child in self.children if child.has_fixed_mass
+        ]
+        if fixed_masses:
+            mass_from_stable = tnp.broadcast_to(
+                tnp.sum(tnp.stack(fixed_masses), axis=0),
+                (n_events, 1),
+            )
+        else:
+            mass_from_stable = tnp.zeros((n_events, 1), dtype=tnp.float64)
         max_mass = top_mass - mass_from_stable
         masses = []
         for child in self.children:
@@ -390,8 +391,8 @@ class GenParticle:
         inv_masses = []
         # TODO(Mayou36): rewrite with cumsum?
         for i in range(n_particles):
-            sum_ += tnp.take(masses, [i], axis=1)
-            inv_masses.append(tnp.take(random, [i], axis=1) * available_mass + sum_)
+            sum_ += masses[:, i : i + 1]
+            inv_masses.append(random[:, i : i + 1] * available_mass + sum_)
         generated_particles, weights = self._generate_part2(
             inv_masses, masses, n_events, n_particles, rng=rng
         )
@@ -416,10 +417,10 @@ class GenParticle:
                 pdk(
                     inv_masses[i + 1],
                     inv_masses[i],
-                    tnp.take(masses, [i + 1], axis=1),
+                    masses[:, i + 1 : i + 2],
                 )
             )
-        weights = tnp.prod(pds, axis=0)
+        weights = tnp.prod(tnp.stack(pds), axis=0)
         zero_component = tnp.zeros_like(pds[0], dtype=tnp.float64)
         generated_particles = [
             tnp.concatenate(
@@ -427,9 +428,7 @@ class GenParticle:
                     zero_component,
                     pds[0],
                     zero_component,
-                    tnp.sqrt(
-                        tnp.square(pds[0]) + tnp.square(tnp.take(masses, [0], axis=1))
-                    ),
+                    tnp.sqrt(tnp.square(pds[0]) + tnp.square(masses[:, 0:1])),
                 ],
                 axis=1,
             )
@@ -444,7 +443,7 @@ class GenParticle:
                         zero_component,
                         tnp.sqrt(
                             tnp.square(pds[part_num - 1])
-                            + tnp.square(tnp.take(masses, [part_num], axis=1))
+                            + tnp.square(masses[:, part_num : part_num + 1])
                         ),
                     ],
                     axis=1,
@@ -559,7 +558,7 @@ class GenParticle:
             for child_num, child in enumerate(self.children)
         }
         output_masses = {
-            child.name: tnp.take(children_masses, [child_num], axis=1)
+            child.name: children_masses[:, child_num : child_num + 1]
             for child_num, child in enumerate(self.children)
         }
         for child_num, child in enumerate(self.children):

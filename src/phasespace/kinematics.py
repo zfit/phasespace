@@ -33,7 +33,7 @@ def spatial_component(vector):
     Returns:
         Spatial components (3-vector) of the input Lorentz vector.
     """
-    return tnp.take(vector, indices=[0, 1, 2], axis=-1)
+    return vector[..., :3]
 
 
 @function_jit
@@ -46,7 +46,7 @@ def time_component(vector):
     Returns:
         Time component of the input Lorentz vector.
     """
-    return tnp.take(vector, indices=[3], axis=-1)
+    return vector[..., 3:4]
 
 
 @function
@@ -59,7 +59,7 @@ def x_component(vector):
     Returns:
         X component of the input vector.
     """
-    return tnp.take(vector, indices=[0], axis=-1)
+    return vector[..., 0:1]
 
 
 @function_jit
@@ -72,7 +72,7 @@ def y_component(vector):
     Returns:
         Y component of the input vector.
     """
-    return tnp.take(vector, indices=[1], axis=-1)
+    return vector[..., 1:2]
 
 
 @function_jit
@@ -85,7 +85,7 @@ def z_component(vector):
     Returns:
         Z component of the input vector.
     """
-    return tnp.take(vector, indices=[2], axis=-1)
+    return vector[..., 2:3]
 
 
 @function_jit

@@ -1,13 +1,18 @@
 """Backend abstraction for phasespace.
 
-This module provides backend-agnostic function decorators and utilities for different
-computational backends (TensorFlow, NumPy).
+This module provides backend-agnostic function decorators and utilities for different computational backends
+(TensorFlow, NumPy).
 """
 
+from __future__ import annotations
+
 import os
+import warnings
 from enum import Enum, auto
+from typing import Literal
 
 __all__ = [
+    "BACKEND",
     "Tensor",
     "Variable",
     "assert_equal",
@@ -15,8 +20,10 @@ __all__ = [
     "function",
     "function_jit",
     "function_jit_fixedshape",
+    "get_backend",
     "get_shape",
     "random",
+    "set_backend",
     "tnp",
 ]
 
@@ -24,99 +31,184 @@ __all__ = [
 class BackendType(Enum):
     TENSORFLOW = auto()
     NUMPY = auto()
-    JAX = auto()
 
     @staticmethod
-    def get_backend(backend: str) -> "BackendType":
+    def from_string(backend: str) -> BackendType:
+        """Convert string to BackendType enum.
+
+        Args:
+            backend: Backend name string.
+
+        Returns:
+            Corresponding BackendType enum value.
+
+        Raises:
+            NotImplementedError: If backend is not recognized.
+        """
         backend_formatted = backend.lower().strip()
         if backend_formatted in {"", "np", "numpy"}:
             return BackendType.NUMPY
-        elif backend_formatted in {"tf", "tensorflow"}:
+        if backend_formatted in {"tf", "tensorflow"}:
             return BackendType.TENSORFLOW
-        elif backend_formatted in {
-            "jax",
-        }:
-            return BackendType.JAX
         raise NotImplementedError(f'No backend implemented for "{backend}"')
 
 
-BACKEND = BackendType.get_backend(os.environ.get("PHASESPACE_BACKEND", ""))
+# Module-level variables that will be set by _initialize_backend
+BACKEND: BackendType = None  # type: ignore[assignment]
+tnp = None
+random = None
+function = None
+function_jit = None
+function_jit_fixedshape = None
+Tensor = None
+Variable = None
+get_shape = None
+assert_equal = None
+assert_greater_equal = None
 
-if BACKEND == BackendType.TENSORFLOW:
+_initialized = False
+
+
+def _initialize_tensorflow() -> None:
+    """Initialize TensorFlow backend."""
+    global tnp, random, function, function_jit, function_jit_fixedshape
+    global Tensor, Variable, get_shape, assert_equal, assert_greater_equal
+
     import tensorflow as tf
-    import tensorflow.experimental.numpy as tnp
+    import tensorflow.experimental.numpy as _tnp
 
-    from . import _tf_random as random
+    from . import _tf_random
 
-    #: Whether to enable shape relaxation for JIT-compiled functions
+    tnp = _tnp
+    random = _tf_random
+
     RELAX_SHAPES = True
 
-    #: Standard TensorFlow function wrapper without JIT compilation
     function = tf.function(autograph=False, jit_compile=False)
-
-    #: JIT-compiled TensorFlow function with shape relaxation enabled
     function_jit = tf.function(
         autograph=False, reduce_retracing=RELAX_SHAPES, jit_compile=True
     )
-
-    #: JIT-compiled TensorFlow function without shape relaxation
     function_jit_fixedshape = tf.function(
         autograph=False, reduce_retracing=False, jit_compile=True
     )
 
-    # Type aliases for backend abstraction
     Tensor = tf.Tensor
     Variable = tf.Variable
-
-    # Get shape dynamically (for graph mode compatibility)
     get_shape = tf.shape
     assert_equal = tf.assert_equal
     assert_greater_equal = tf.debugging.assert_greater_equal
 
-    # Set eager mode based on environment variable
     is_eager = bool(os.environ.get("PHASESPACE_EAGER"))
     tf.config.run_functions_eagerly(is_eager)
 
-elif BACKEND == BackendType.NUMPY:
-    import numpy as tnp
 
-    from . import _np_random as random
+def _initialize_numpy() -> None:
+    """Initialize NumPy backend."""
+    global tnp, random, function, function_jit, function_jit_fixedshape
+    global Tensor, Variable, get_shape, assert_equal, assert_greater_equal
+
+    import numpy as _np
+
+    from . import _np_random
+
+    tnp = _np
+    random = _np_random
 
     function = lambda x: x  # noqa: E731
     function_jit = lambda x: x  # noqa: E731
     function_jit_fixedshape = lambda x: x  # noqa: E731
 
-    Tensor = tnp.ndarray
-    Variable = tnp.ndarray
-    get_shape = tnp.shape
+    Tensor = _np.ndarray
+    Variable = _np.ndarray
+    get_shape = _np.shape
 
-    def assert_equal(x, y, message: str, name: str = "") -> None:
-        return tnp.testing.assert_equal(x, y, err_msg=message)
-
-    def assert_greater_equal(x, y, message: str, name: str = "") -> None:
-        return tnp.testing.assert_array_less(-x, -y, err_msg=message)
-
-elif BACKEND == BackendType.JAX:
-    import jax.numpy as jnp
-
-    tnp = jnp
-    import numpy as _np
-
-    from . import _jax_random as random
-
-    # TODO: jax cannot handle arbitrary shapes and has no Variables. No JIT available ATM
-    function = lambda x: x
-    function_jit = lambda x: x
-    function_jit_fixedshape = lambda x: x
-
-    Tensor = jnp.ndarray
-    Variable = jnp.ndarray
-    get_shape = jnp.shape  # get shape dynamically
-
-    def assert_equal(x, y, message: str, name: str = "") -> None:
+    def _assert_equal(x, y, message: str, name: str = "") -> None:
         return _np.testing.assert_equal(x, y, err_msg=message)
 
-    def assert_greater_equal(x, y, message: str, name: str = "") -> None:
+    def _assert_greater_equal(x, y, message: str, name: str = "") -> None:
         return _np.testing.assert_array_less(-x, -y, err_msg=message)
 
-    is_eager = True  # TODO: add jit and make this switchable
+    assert_equal = _assert_equal
+    assert_greater_equal = _assert_greater_equal
+
+
+def _initialize_backend(backend_type: BackendType) -> None:
+    """Initialize the specified backend.
+
+    Args:
+        backend_type: The backend to initialize.
+    """
+    global BACKEND, _initialized
+
+    if backend_type == BackendType.TENSORFLOW:
+        _initialize_tensorflow()
+    elif backend_type == BackendType.NUMPY:
+        _initialize_numpy()
+    else:
+        raise NotImplementedError(f"Backend {backend_type} not implemented")
+
+    BACKEND = backend_type
+    _initialized = True
+
+
+def get_backend() -> BackendType:
+    """Get the current backend.
+
+    Returns:
+        The current BackendType enum value.
+
+    Example:
+        >>> from phasespace.backend import get_backend
+        >>> get_backend()
+        <BackendType.NUMPY: 2>
+    """
+    return BACKEND
+
+
+def set_backend(
+    backend: Literal["tensorflow", "tf", "numpy", "np"] | BackendType,
+) -> None:
+    """Set the computational backend.
+
+    This function allows switching backends at runtime. Note that switching
+    backends after generating events may cause issues with cached graphs
+    in TensorFlow.
+
+    Args:
+        backend: Backend to use. Can be a string ("tensorflow", "tf", "numpy",
+            "np") or a BackendType enum value.
+
+    Raises:
+        NotImplementedError: If the backend is not recognized.
+
+    Example:
+        >>> from phasespace.backend import set_backend, get_backend
+        >>> set_backend("tensorflow")
+        >>> get_backend()
+        <BackendType.TENSORFLOW: 1>
+    """
+    global _initialized
+
+    if isinstance(backend, str):
+        backend_type = BackendType.from_string(backend)
+    else:
+        backend_type = backend
+
+    if _initialized and BACKEND == backend_type:
+        return  # Already using this backend
+
+    if _initialized:
+        warnings.warn(
+            f"Switching backend from {BACKEND.name} to {backend_type.name}. "
+            "This may cause issues with cached TensorFlow graphs. "
+            "It's recommended to set the backend before importing phasespace modules.",
+            UserWarning,
+            stacklevel=2,
+        )
+
+    _initialize_backend(backend_type)
+
+
+# Initialize backend on module import based on environment variable
+_initial_backend = BackendType.from_string(os.environ.get("PHASESPACE_BACKEND", ""))
+_initialize_backend(_initial_backend)
