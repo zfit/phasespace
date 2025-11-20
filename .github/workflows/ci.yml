@@ -24,7 +24,36 @@ on:
 
 
 jobs:
+  download-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Cache test data
+        id: cache-data
+        uses: actions/cache@v4
+        with:
+          path: data/large
+          key: test-data-${{ hashFiles('data/download_test_files.py') }}
+      - name: Set up Python
+        if: steps.cache-data.outputs.cache-hit != 'true'
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+      - name: Install wget
+        if: steps.cache-data.outputs.cache-hit != 'true'
+        run: pip install wget
+      - name: Download test data
+        if: steps.cache-data.outputs.cache-hit != 'true'
+        run: PHASESPACE_SILENT=1 python data/download_test_files.py
+      - name: Upload test data artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-data
+          path: data/large
+          retention-days: 1
+
   codecov:
+    needs: download-data
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -32,20 +61,25 @@ jobs:
         python-version: ["3.10"]
     steps:
       - uses: actions/checkout@v5
+      - name: Download test data
+        uses: actions/download-artifact@v4
+        with:
+          name: test-data
+          path: data/large
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip uv
           sudo apt install graphviz -y
-          uv pip install -e .[dev] --system
-          uv pip install coverage --system
-      - name: Download test data
-        run: python data/download_test_files.py > /dev/null
+          uv pip install -e .[dev] coverage --system
       - name: Run pytest-cov
-        run: PYTHONPATH=src coverage run -m pytest --basetemp={envtmpdir}
+        run: PYTHONPATH=src coverage run -m pytest
       - name: Create XML report
         run: coverage xml
       - uses: codecov/codecov-action@v5.5.1
@@ -53,41 +87,55 @@ jobs:
           file: ./coverage.xml
 
   pytest:
+    needs: download-data
     runs-on: ${{ matrix.os }}
     name: tests ${{ matrix.os }}, ${{ matrix.python-version }}, eager=${{ matrix.eager }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ubuntu-latest]
         python-version: ["3.10", "3.13"]
         eager: [0, 1]
-#        include:  # todo: activate when we can install graphviz on these platforms
-#          - os: macos-latest
-#            python-version: "3.9"
-#          - os: windows-latest
-#            python-version: "3.9"
-#          - os: macos-14  # Apple silicon runner
-#            python-version: '3.12'
+        include:
+          - os: macos-latest  # Apple silicon runner
+            python-version: '3.13'
+            eager: 0
+          - os: windows-latest
+            python-version: '3.13'
+            eager: 0
     steps:
       - uses: actions/checkout@v5
+      - name: Download test data
+        uses: actions/download-artifact@v4
+        with:
+          name: test-data
+          path: data/large
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
       - name: Get number of CPU cores
         uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
+      - name: Install graphviz (Ubuntu)
+        if: runner.os == 'Linux'
+        run: sudo apt install graphviz -y
+      - name: Install graphviz (macOS)
+        if: runner.os == 'macOS'
+        run: brew install graphviz
+      - name: Install graphviz (Windows)
+        if: runner.os == 'Windows'
+        run: choco install graphviz -y
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip uv
-          sudo apt install graphviz -y
-          uv pip install -e .[dev] --system
-          uv pip install pytest-xdist --system
-      - name: Download test data
-        run: python data/download_test_files.py > /dev/null
+        run: uv pip install -e .[dev] pytest-xdist --system
       - name: Test with pytest, eager=${{ matrix.eager }}
         run: |
-          PHASESPACE_EAGER=${{ matrix.eager }} pytest -n auto --basetemp={envtmpdir} tests
+          PHASESPACE_EAGER=${{ matrix.eager }} pytest -n auto tests
           cd docs
           PHASESPACE_EAGER=${{ matrix.eager }} pytest --dist loadscope --nbval-lax --ignore=.ipynb_checkpoints -n${{ steps.cpu-cores.outputs.count }}
           cd ..
+        shell: bash
