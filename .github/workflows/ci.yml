@@ -66,6 +66,7 @@ jobs:
           - name: Download test data
             run: PHASESPACE_SILENT=1 python data/download_test_files.py
   codecov:
+    needs: setup
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -88,8 +89,6 @@ jobs:
           sudo apt install graphviz -y
           uv pip install -e .[dev] --system
           uv pip install coverage --system
-      - name: Download test data
-        run: PHASESPACE_SILENT=1 python data/download_test_files.py
       - name: Run pytest-cov
         run: PYTHONPATH=src coverage run -m pytest --basetemp={envtmpdir}
       - name: Create XML report
@@ -99,6 +98,7 @@ jobs:
           file: ./coverage.xml
 
   pytest:
+    needs: setup
     runs-on: ${{ matrix.os }}
     name: tests ${{ matrix.os }}, ${{ matrix.python-version }}, eager=${{ matrix.eager }}
     strategy:
@@ -123,12 +123,16 @@ jobs:
       - name: Get number of CPU cores
         uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
+      - name: Restore reference files
+        uses: actions/cache/restore@v4
+        with:
+          path: data/large
+          key: ${{ needs.setup.outputs.cache-key }}
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip uv
           sudo apt install graphviz -y
-          uv pip install -e .[dev] --system
-          uv pip install pytest-xdist --system
+          uv pip install -e .[dev] pytest-xdist --system
       - name: Test with pytest, eager=${{ matrix.eager }}
         run: |
           PHASESPACE_EAGER=${{ matrix.eager }} pytest -n auto --basetemp={envtmpdir} tests
