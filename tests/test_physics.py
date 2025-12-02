@@ -23,22 +23,32 @@ import os
 import sys
 
 import matplotlib.pyplot as plt
-import tensorflow as tf
 import uproot
-from phasespace import phasespace
 
 sys.path.append(os.path.dirname(__file__))
+
+
+def _check_backend_available(backend_name):
+    """Check if a backend is available."""
+    if backend_name == "tensorflow":
+        try:
+            import tensorflow  # noqa: F401
+
+            return True
+        except ImportError:
+            return False
+    elif backend_name == "numpy":
+        return True
+    return False
+
+
+AVAILABLE_BACKENDS = [b for b in ["numpy", "tensorflow"] if _check_backend_available(b)]
 
 from .helpers import decays, rapidsim  # noqa: E402
 from .helpers.plotting import make_norm_histo  # noqa: E402
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PLOT_DIR = os.path.join(BASE_PATH, "tests", "plots")
-
-
-def setup_method():
-    phasespace.GenParticle._sess.close()
-    tf.compat.v1.reset_default_graph()
 
 
 def create_ref_histos(n_pions):
@@ -81,9 +91,12 @@ def create_ref_histos(n_pions):
 
 
 def run_test(n_particles, test_prefix):
+    from phasespace import phasespace
+    from phasespace.backend import tnp
+
     first_run_n_events = 100
     main_run_n_events = 100000
-    n_events = tf.Variable(initial_value=first_run_n_events, dtype=tf.int64)
+    n_events = tnp.asarray(first_run_n_events, dtype=tnp.int64)
 
     decay = phasespace.nbody_decay(decays.B0_MASS, [decays.PION_MASS] * n_particles)
     generate = decay.generate(n_events)
@@ -91,20 +104,21 @@ def run_test(n_particles, test_prefix):
     assert len(weights1) == first_run_n_events
 
     # change n_events and run again
-    n_events.assign(main_run_n_events)
+    n_events = tnp.asarray(main_run_n_events, dtype=tnp.int64)
     weights, particles = decay.generate(n_events)
     parts = np.concatenate(
-        [particles[f"p_{part_num}"] for part_num in range(n_particles)], axis=1
+        [np.asarray(particles[f"p_{part_num}"]) for part_num in range(n_particles)],
+        axis=1,
     )
     histos = [
         make_norm_histo(
             parts[:, coord],
             range_=(-3000 if coord % 4 != 3 else 0, 3000),
-            weights=weights,
+            weights=np.asarray(weights),
         )
         for coord in range(parts.shape[1])
     ]
-    weight_histos = make_norm_histo(weights, range_=(0, 1 + 1e-8))
+    weight_histos = make_norm_histo(np.asarray(weights), range_=(0, 1 + 1e-8))
     ref_histos, ref_weights = create_ref_histos(n_particles)
     p_values = np.array(
         [
@@ -162,26 +176,33 @@ def run_test(n_particles, test_prefix):
     assert np.all(p_values > 0.05)
 
 
+@pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
 @pytest.mark.flaky(3)  # Stats are limited
-def test_two_body():
+def test_two_body(backend_name, backend_context):
     """Test B->pipi decay."""
-    run_test(2, "two_body")
+    backend_context(backend_name)
+    run_test(2, f"two_body_{backend_name}")
 
 
+@pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
 @pytest.mark.flaky(3)  # Stats are limited
-def test_three_body():
+def test_three_body(backend_name, backend_context):
     """Test B -> pi pi pi decay."""
-    run_test(3, "three_body")
+    backend_context(backend_name)
+    run_test(3, f"three_body_{backend_name}")
 
 
+@pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
 @pytest.mark.flaky(3)  # Stats are limited
-def test_four_body():
+def test_four_body(backend_name, backend_context):
     """Test B -> pi pi pi pi decay."""
-    run_test(4, "four_body")
+    backend_context(backend_name)
+    run_test(4, f"four_body_{backend_name}")
 
 
 def run_kstargamma(input_file, kstar_width, b_at_rest, suffix, use_vector):
     """Run B0->K*gamma test."""
+
     n_events = 1000000
     if b_at_rest:
         booster = None
@@ -219,7 +240,9 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix, use_vector):
             range_ = (-3000 if coord % 4 != 3 else 0, 3000)
             ref_histo = make_norm_histo(ref_part[:, coord], range_=range_)
             tf_histo = make_norm_histo(
-                particles[tf_part][:, coord], range_=range_, weights=norm_weights
+                np.asarray(particles[tf_part][:, coord]),
+                range_=range_,
+                weights=np.asarray(norm_weights),
             )
             plt.hist(
                 x if coord % 4 != 3 else e,
@@ -248,7 +271,7 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix, use_vector):
             p_values[(tf_part, coord_name)] = ks_2samp(tf_histo, ref_histo)[1]
     plt.hist(
         np.linspace(0, 1, 100),
-        weights=make_norm_histo(norm_weights, range_=(0, 1)),
+        weights=make_norm_histo(np.asarray(norm_weights), range_=(0, 1)),
         bins=100,
     )
     plt.savefig(os.path.join(PLOT_DIR, f"B0_Kstar_gamma_Kstar{suffix}_weights.png"))
@@ -256,41 +279,49 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix, use_vector):
     return np.array(list(p_values.values()))
 
 
+@pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
 @pytest.mark.parametrize("vector", [False, True])
 @pytest.mark.flaky(3)  # Stats are limited
-def test_kstargamma_kstarnonresonant_at_rest(vector):
+def test_kstargamma_kstarnonresonant_at_rest(backend_name, backend_context, vector):
     """Test B0 -> K* gamma physics with fixed mass for K*."""
+    backend_context(backend_name)
     p_values = run_kstargamma(
         "B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root",
         0,
         True,
-        "NonResonant",
+        f"NonResonant_{backend_name}",
         use_vector=vector,
     )
     assert np.all(p_values > 0.05)
 
 
+@pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
 @pytest.mark.parametrize("vector", [False, True], ids=["no_vector", "vector"])
 @pytest.mark.flaky(3)  # Stats are limited
-def test_kstargamma_kstarnonresonant_lhc(vector):
+def test_kstargamma_kstarnonresonant_lhc(backend_name, backend_context, vector):
     """Test B0 -> K* gamma physics with fixed mass for K* with LHC kinematics."""
+    backend_context(backend_name)
     p_values = run_kstargamma(
         "B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root",
         0,
         False,
-        "NonResonant_LHC",
+        f"NonResonant_LHC_{backend_name}",
         use_vector=vector,
     )
     assert np.all(p_values > 0.05)
 
 
-def test_kstargamma_resonant_at_rest():
+@pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
+def test_kstargamma_resonant_at_rest(backend_name, backend_context):
     """Test B0 -> K* gamma physics with Gaussian mass for K*.
 
     Since we don't have BW and we model the resonances with Gaussians, we can't really perform the Kolmogorov
     test wrt to RapidSim, so plots are generated and can be inspected by the user. However, small differences
     are expected in the tails of the energy distributions of the kaon and the pion.
     """
+    if backend_name != "tensorflow":
+        pytest.skip("Test requires TensorFlow for resonance mass functions")
+    backend_context(backend_name)
     run_kstargamma(
         "B2KstGamma_RapidSim_7TeV_Tree.root",
         decays.KSTARZ_WIDTH,
@@ -339,7 +370,9 @@ def run_k1_gamma(input_file, k1_width, kstar_width, b_at_rest, suffix):
             range_ = (-3000 if coord % 4 != 3 else 0, 3000)
             ref_histo = make_norm_histo(ref_part[:, coord], range_=range_)
             tf_histo = make_norm_histo(
-                particles[tf_part][:, coord], range_=range_, weights=norm_weights
+                np.asarray(particles[tf_part][:, coord]),
+                range_=range_,
+                weights=np.asarray(norm_weights),
             )
             plt.hist(
                 x if coord % 4 != 3 else e,
@@ -368,7 +401,7 @@ def run_k1_gamma(input_file, k1_width, kstar_width, b_at_rest, suffix):
             p_values[(tf_part, coord_name)] = ks_2samp(tf_histo, ref_histo)[1]
     plt.hist(
         np.linspace(0, 1, 100),
-        weights=make_norm_histo(norm_weights, range_=(0, 1)),
+        weights=make_norm_histo(np.asarray(norm_weights), range_=(0, 1)),
         bins=100,
     )
     plt.savefig(os.path.join(PLOT_DIR, f"Bp_K1_gamma_K1Kstar{suffix}_weights.png"))
@@ -376,38 +409,46 @@ def run_k1_gamma(input_file, k1_width, kstar_width, b_at_rest, suffix):
     return np.array(list(p_values.values()))
 
 
+@pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
 @pytest.mark.flaky(3)  # Stats are limited
-def test_k1gamma_kstarnonresonant_at_rest():
+def test_k1gamma_kstarnonresonant_at_rest(backend_name, backend_context):
     """Test B0 -> K1 (->K*pi) gamma physics with fixed-mass resonances."""
+    backend_context(backend_name)
     p_values = run_k1_gamma(
         "B2K1Gamma_RapidSim_7TeV_K1KstarNonResonant_Tree.root",
         0,
         0,
         True,
-        "NonResonant",
+        f"NonResonant_{backend_name}",
     )
     assert np.all(p_values > 0.05)
 
 
+@pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
 @pytest.mark.flaky(3)  # Stats are limited
-def test_k1gamma_kstarnonresonant_lhc():
+def test_k1gamma_kstarnonresonant_lhc(backend_name, backend_context):
     """Test B0 -> K1 (->K*pi) gamma physics with fixed-mass resonances with LHC kinematics."""
+    backend_context(backend_name)
     p_values = run_k1_gamma(
         "B2K1Gamma_RapidSim_7TeV_K1KstarNonResonant_Tree.root",
         0,
         0,
         False,
-        "NonResonant_LHC",
+        f"NonResonant_LHC_{backend_name}",
     )
     assert np.all(p_values > 0.05)
 
 
-def test_k1gamma_resonant_at_rest():
+@pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
+def test_k1gamma_resonant_at_rest(backend_name, backend_context):
     """Test B0 -> K1 (->K*pi) gamma physics.
 
     Since we don't have BW and we model the resonances with Gaussians, we can't really perform the Kolmogorov
     test wrt to RapidSim, so plots are generated and can be inspected by the user.
     """
+    if backend_name != "tensorflow":
+        pytest.skip("Test requires TensorFlow for resonance mass functions")
+    backend_context(backend_name)
     run_k1_gamma(
         "B2K1Gamma_RapidSim_7TeV_Tree.root",
         decays.K1_WIDTH,
