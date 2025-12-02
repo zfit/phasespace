@@ -46,7 +46,7 @@ jobs:
         if: steps.cache-data.outputs.cache-hit != 'true'
         run: PHASESPACE_SILENT=1 python data/download_test_files.py
       - name: Upload test data artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: test-data
           path: data/large
