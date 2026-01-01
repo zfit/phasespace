@@ -82,7 +82,7 @@ jobs:
         run: PYTHONPATH=src coverage run -m pytest
       - name: Create XML report
         run: coverage xml
-      - uses: codecov/codecov-action@v5.5.1
+      - uses: codecov/codecov-action@v5.5.2
         with:
           file: ./coverage.xml
 
