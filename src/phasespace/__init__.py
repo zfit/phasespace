@@ -11,23 +11,18 @@ __author__ = """Albert Puig Navarro"""
 __email__ = "apuignav@gmail.com"
 __maintainer__ = "zfit"
 
-__credits__ = ["Jonas Eschle <Jonas.Eschle@cern.ch>"]
+__credits__ = [
+    "Jonas Eschle <Jonas.Eschle@cern.ch>",
+]
 
-__all__ = ["nbody_decay", "GenParticle", "random", "to_vectors", "numpy"]
+__all__ = [
+    "GenParticle",
+    "nbody_decay",
+    "random",
+    "to_vectors",
+]
 
-import tensorflow.experimental.numpy as numpy
-
+# Import backend to set eager mode
+from . import backend as _backend  # noqa: F401
 from . import random
 from .phasespace import GenParticle, nbody_decay, to_vectors
-
-
-def _set_eager_mode():
-    import os
-
-    import tensorflow as tf
-
-    is_eager = bool(os.environ.get("PHASESPACE_EAGER"))
-    tf.config.run_functions_eagerly(is_eager)
-
-
-_set_eager_mode()
