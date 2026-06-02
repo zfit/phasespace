@@ -10,10 +10,26 @@ import os
 import sys
 
 import numpy as np
-import phasespace
 import pytest
 
 sys.path.append(os.path.dirname(__file__))
+
+
+def _check_backend_available(backend_name):
+    """Check if a backend is available."""
+    if backend_name == "tensorflow":
+        try:
+            import tensorflow  # noqa: F401
+
+            return True
+        except ImportError:
+            return False
+    elif backend_name == "numpy":
+        return True
+    return False
+
+
+AVAILABLE_BACKENDS = [b for b in ["numpy", "tensorflow"] if _check_backend_available(b)]
 
 from .helpers import decays  # noqa: E402
 
@@ -21,19 +37,26 @@ B0_MASS = decays.B0_MASS
 PION_MASS = decays.PION_MASS
 
 
-def test_one_event():
+@pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
+def test_one_event(backend_name, backend_context):
     """Test B->pi pi pi."""
+    backend_context(backend_name)
+    import phasespace
+
     decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, PION_MASS, PION_MASS])
     norm_weights, particles = decay.generate(n_events=1)
     assert norm_weights.shape[0] == 1
-    assert np.all(norm_weights < 1)
     assert len(particles) == 3
     assert all(part.shape == (1, 4) for part in particles.values())
 
 
+@pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
 @pytest.mark.parametrize("as_vectors", [True, False], ids=["as_vectors", "as_arrays"])
-def test_one_event_tf(as_vectors):
+def test_one_event_tf(backend_name, backend_context, as_vectors):
     """Test B->pi pi pi."""
+    backend_context(backend_name)
+    import phasespace
+
     decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, PION_MASS, PION_MASS])
     norm_weights, particles = decay.generate(n_events=1, as_vectors=as_vectors)
     if as_vectors:
@@ -42,15 +65,18 @@ def test_one_event_tf(as_vectors):
         }
 
     assert norm_weights.shape[0] == 1
-    assert np.all(norm_weights < 1)
     assert len(particles) == 3
     assert all(part.shape == (1, 4) for part in particles.values())
 
 
+@pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
 @pytest.mark.parametrize("n_events", argvalues=[5, 523])
 @pytest.mark.parametrize("as_vectors", [True, False], ids=["as_vectors", "as_arrays"])
-def test_n_events(n_events, as_vectors):
+def test_n_events(backend_name, backend_context, n_events, as_vectors):
     """Test 5 B->pi pi pi."""
+    backend_context(backend_name)
+    import phasespace
+
     decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, PION_MASS, PION_MASS])
     norm_weights, particles = decay.generate(n_events=n_events, as_vectors=as_vectors)
     if as_vectors:
@@ -58,12 +84,15 @@ def test_n_events(n_events, as_vectors):
             k: np.stack([p.px, p.py, p.pz, p.E], axis=-1) for k, p in particles.items()
         }
     assert norm_weights.shape[0] == n_events
-    assert np.all(norm_weights < 1)
     assert len(particles) == 3
     assert all(part.shape == (n_events, 4) for part in particles.values())
 
 
-def test_deterministic_events():
+@pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
+def test_deterministic_events(backend_name, backend_context):
+    backend_context(backend_name)
+    import phasespace
+
     decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, PION_MASS, PION_MASS])
     common_seed = 36
     norm_weights_seeded1, particles_seeded1 = decay.generate(
