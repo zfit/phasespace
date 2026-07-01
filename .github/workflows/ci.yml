@@ -27,7 +27,7 @@ jobs:
   download-data:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Cache test data
         id: cache-data
         uses: actions/cache@v5
@@ -60,7 +60,7 @@ jobs:
       matrix:
         python-version: ["3.10"]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Download test data
         uses: actions/download-artifact@v8
         with:
@@ -104,7 +104,7 @@ jobs:
             python-version: '3.13'
             eager: 0
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Download test data
         uses: actions/download-artifact@v8
         with:
