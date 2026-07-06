@@ -185,7 +185,7 @@ class GenParticle:
 
     @property
     def has_fixed_mass(self):
-        """bool: Is the mass a callable function?"""
+        """Bool: Is the mass a callable function?"""
         return not callable(self._mass)
 
     def set_children(self, *children):
@@ -222,12 +222,12 @@ class GenParticle:
 
     @property
     def has_children(self):
-        """bool: Does the particle have children?"""
+        """Bool: Does the particle have children?"""
         return bool(self.children)
 
     @property
     def has_grandchildren(self):
-        """bool: Does the particle have grandchildren?"""
+        """Bool: Does the particle have grandchildren?"""
         if not self.children:
             return False
         return any(child.has_children for child in self.children)
@@ -754,7 +754,6 @@ class GenParticle:
             ValueError: If ``n_events`` and the size of ``boost_to`` don't match.
             See ``GenParticle.generate_unnormalized``.
         """
-
         # Run generation
         raise RuntimeError(
             "This function is removed. Use `generate` which does not return a Tensor as well."
