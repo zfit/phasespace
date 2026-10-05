@@ -11,11 +11,12 @@ import sys
 
 import numpy as np
 import pytest
+
 from phasespace import GenParticle
 
 sys.path.append(os.path.dirname(__file__))
 
-from .helpers import decays  # noqa: E402
+from .helpers import decays
 
 
 def test_name_clashes():
