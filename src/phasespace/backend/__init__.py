@@ -16,6 +16,7 @@ __all__ = [
     "BackendType",
     "Tensor",
     "Variable",
+    "as_event_count",
     "assert_equal",
     "assert_greater_equal",
     "function",
@@ -139,6 +140,14 @@ def _decorate(func=None, *, jit=False, fixed_shape=False, static_argnames=()):
 function = _decorate
 function_jit = functools.partial(_decorate, jit=True)
 function_jit_fixedshape = functools.partial(_decorate, jit=True, fixed_shape=True)
+
+
+def as_event_count(n_events):
+    if BACKEND != BackendType.TENSORFLOW:
+        return int(n_events)
+    if isinstance(n_events, Variable):
+        return n_events
+    return tnp.asarray(n_events, dtype=tnp.int64)
 
 
 def get_shape(array):

@@ -25,6 +25,7 @@ from phasespace.backend import tnp
 from . import backend
 from . import kinematics as kin
 from .backend import (
+    as_event_count,
     assert_equal,
     assert_greater_equal,
     function,
@@ -281,11 +282,7 @@ class GenParticle:
                     n_events = tnp.asarray(n_events, dtype=tnp.int64)
             else:
                 n_events = tnp.asarray(1, dtype=tnp.int64)
-        n_events = (
-            tnp.asarray(n_events, dtype=tnp.int64)
-            if backend.get_backend() == backend.BackendType.TENSORFLOW
-            else int(n_events)
-        )
+        n_events = as_event_count(n_events)
         # Now preparation of tensors
         if len(momentum.shape) == 1:
             momentum = tnp.expand_dims(momentum, axis=0)
@@ -713,11 +710,7 @@ class GenParticle:
             )
             if n_events is not None and boost_to.shape[0] not in (n_events, 1):
                 raise ValueError(message)
-        if backend.get_backend() == backend.BackendType.TENSORFLOW:
-            if not isinstance(n_events, backend.Variable):
-                n_events = tnp.asarray(n_events, dtype=tnp.int64)
-        else:
-            n_events = int(n_events)
+        n_events = as_event_count(n_events)
         weights, weights_max, parts, _ = self._recursive_generate(
             n_events=n_events,
             boost_to=boost_to,
