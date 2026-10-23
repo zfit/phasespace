@@ -113,11 +113,11 @@ tests/plots
 /data/backup/B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root
 /data/backup/B2KstGamma_RapidSim_7TeV_Tree.root
 /src/phasespace/_version.py
-/.agents
-/.claude
+.agents/
+.claude/
 /.editorconfig
 /.idea
-/.vscode
+.vscode/
 AGENTS.md
 CLAUDE.md
 /data
