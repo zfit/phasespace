@@ -142,3 +142,6 @@ jobs:
       - name: Test with pytest (NumPy backend)
         run: PHASESPACE_BACKEND=numpy pytest -n auto tests
         shell: bash
+      - name: Test with pytest (JAX backend)
+        run: PHASESPACE_BACKEND=jax pytest -n auto tests
+        shell: bash

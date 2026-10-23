@@ -4,6 +4,7 @@ __all__ = [
     "Generator",
     "from_seed",
     "default_rng",
+    "uniform",
 ]
 
 
@@ -19,3 +20,7 @@ def from_seed(
         alg = PCG64
     bit_generator = alg(seed)
     return Generator(bit_generator)
+
+
+def uniform(rng, shape, minval, maxval, dtype):
+    return rng.uniform(low=minval, high=maxval, size=shape).astype(dtype)

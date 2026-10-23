@@ -4,23 +4,7 @@
 import numpy as np
 import pytest
 
-
-def _check_backend_available(backend_name):
-    """Check if a backend is available."""
-    if backend_name == "tensorflow":
-        try:
-            import tensorflow  # noqa: F401
-
-            return True
-        except ImportError:
-            return False
-    elif backend_name == "numpy":
-        return True  # Always available
-    return False
-
-
-# Create list of available backends for parametrization
-AVAILABLE_BACKENDS = [b for b in ["numpy", "tensorflow"] if _check_backend_available(b)]
+from .helpers import AVAILABLE_BACKENDS
 
 # Test constants
 B0_MASS = 5279.58
@@ -209,18 +193,6 @@ def test_set_backend_function(backend_name, backend_context):
 class TestBackendSwitching:
     """Test backend switching functionality."""
 
-    def test_switch_warning(self, backend_context):
-        """Test that switching backends emits a warning."""
-        if len(AVAILABLE_BACKENDS) < 2:
-            pytest.skip("Need at least 2 backends to test switching")
-
-        backend_context(AVAILABLE_BACKENDS[0])
-
-        from phasespace.backend import set_backend
-
-        with pytest.warns(UserWarning, match="Switching backend"):
-            set_backend(AVAILABLE_BACKENDS[1])
-
     def test_same_backend_no_warning(self, backend_context):
         """Test that setting same backend doesn't warn."""
         import warnings
@@ -234,3 +206,116 @@ class TestBackendSwitching:
         with warnings.catch_warnings():
             warnings.simplefilter("error")
             set_backend(current)  # Should not raise any warning
+
+
+@pytest.mark.parametrize("first_backend", AVAILABLE_BACKENDS)
+@pytest.mark.parametrize("second_backend", AVAILABLE_BACKENDS)
+def test_switch_existing_decay(first_backend, second_backend, backend_context):
+    import phasespace
+    from phasespace.backend import tnp
+    from phasespace.kinematics import mass
+
+    backend_context(first_backend)
+    decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, KAON_MASS, PION_MASS])
+    first_weights, first_parts = decay.generate(20, seed=42)
+    backend_context(second_backend)
+    weights, parts = decay.generate(20, seed=42)
+    assert isinstance(weights, phasespace.backend.Tensor)
+    assert all(isinstance(p, phasespace.backend.Tensor) for p in parts.values())
+    assert isinstance(tnp.asarray([1.0]), phasespace.backend.Tensor)
+    np.testing.assert_allclose(mass(parts["p_0"]), PION_MASS, rtol=1e-8)
+    backend_context(first_backend)
+    restored_weights, restored_parts = decay.generate(20, seed=42)
+    np.testing.assert_allclose(restored_weights, first_weights, rtol=1e-12)
+    for name in first_parts:
+        np.testing.assert_allclose(restored_parts[name], first_parts[name], rtol=1e-12)
+
+
+@pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
+def test_seed_stream_advances(backend_name, backend_context):
+    import phasespace
+
+    backend_context(backend_name)
+    decay = phasespace.nbody_decay(B0_MASS, [PION_MASS] * 3)
+    rng = phasespace.random.get_rng(42)
+    first, _ = decay.generate(20, seed=rng)
+    second, _ = decay.generate(20, seed=rng)
+    assert not np.array_equal(first, second)
+
+
+@pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
+def test_resonance_seed(backend_name, backend_context):
+    import phasespace
+
+    backend_context(backend_name)
+
+    def resonance_mass(min_mass, max_mass, n_events, seed):
+        uniform = phasespace.random.generate_uniform(seed, shape=(n_events,))
+        return min_mass + (max_mass - min_mass) * uniform
+
+    resonance = phasespace.GenParticle("resonance", resonance_mass).set_children(
+        phasespace.GenParticle("a", PION_MASS), phasespace.GenParticle("b", KAON_MASS)
+    )
+    decay = phasespace.GenParticle("parent", B0_MASS).set_children(
+        resonance, phasespace.GenParticle("c", PION_MASS)
+    )
+    first_weights, first_parts = decay.generate(20, seed=42)
+    weights, parts = decay.generate(20, seed=42)
+    np.testing.assert_allclose(weights, first_weights)
+    for name in parts:
+        np.testing.assert_allclose(parts[name], first_parts[name])
+    assert np.all(np.isfinite(weights))
+
+
+@pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
+def test_forbidden_decay(backend_name, backend_context):
+    import phasespace
+    import tensorflow as tf
+
+    backend_context(backend_name)
+    decay = phasespace.nbody_decay(1.0, [1.0, 1.0])
+    with pytest.raises(
+        (AssertionError, tf.errors.InvalidArgumentError), match="Forbidden decay"
+    ):
+        decay.generate(10, seed=42)
+
+
+@pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
+def test_invalid_backend_preserves_selection(backend_name, backend_context):
+    import phasespace
+
+    backend_context(backend_name)
+    with pytest.raises(NotImplementedError):
+        phasespace.set_backend("unknown")
+    assert phasespace.get_backend().name.lower() == backend_name
+    weights, _ = phasespace.nbody_decay(B0_MASS, [PION_MASS] * 3).generate(10, seed=42)
+    assert isinstance(weights, phasespace.backend.Tensor)
+
+
+@pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
+def test_foreign_random_generator(backend_name, backend_context):
+    import phasespace
+
+    backend_context("numpy" if backend_name != "numpy" else "tensorflow")
+    rng = phasespace.random.get_rng(42)
+    backend_context(backend_name)
+    with pytest.raises(ValueError, match="does not belong to the current backend"):
+        phasespace.random.get_rng(rng)
+
+
+def test_tensorflow_variable_after_switch(backend_context):
+    import phasespace
+    import tensorflow as tf
+
+    backend_context("tensorflow")
+    parent_mass = tf.Variable(B0_MASS, dtype=tf.float64)
+    decay = phasespace.nbody_decay(parent_mass, [PION_MASS] * 3)
+    decay.generate(10, seed=42)
+    backend_context("numpy")
+    decay.generate(10, seed=42)
+    backend_context("tensorflow")
+    parent_mass.assign(B0_MASS + 100)
+    _, parts = decay.generate(10, seed=42)
+    np.testing.assert_allclose(
+        sum(np.asarray(p) for p in parts.values())[:, 3], B0_MASS + 100
+    )

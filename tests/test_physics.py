@@ -28,23 +28,7 @@ import uproot
 sys.path.append(os.path.dirname(__file__))
 
 
-def _check_backend_available(backend_name):
-    """Check if a backend is available."""
-    if backend_name == "tensorflow":
-        try:
-            import tensorflow  # noqa: F401
-
-            return True
-        except ImportError:
-            return False
-    elif backend_name == "numpy":
-        return True
-    return False
-
-
-AVAILABLE_BACKENDS = [b for b in ["numpy", "tensorflow"] if _check_backend_available(b)]
-
-from .helpers import decays, rapidsim  # noqa: E402
+from .helpers import AVAILABLE_BACKENDS, decays, rapidsim  # noqa: E402
 from .helpers.plotting import make_norm_histo  # noqa: E402
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))

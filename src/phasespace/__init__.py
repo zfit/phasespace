@@ -1,4 +1,4 @@
-"""Top-level package for TensorFlow PhaseSpace."""
+"""Phase space generation with TensorFlow, NumPy, and JAX."""
 
 from importlib.metadata import PackageNotFoundError, version
 
@@ -17,12 +17,13 @@ __credits__ = [
 
 __all__ = [
     "GenParticle",
+    "get_backend",
+    "set_backend",
     "nbody_decay",
     "random",
     "to_vectors",
 ]
 
-# Import backend to set eager mode
-from . import backend as _backend  # noqa: F401
 from . import random
+from .backend import get_backend, set_backend
 from .phasespace import GenParticle, nbody_decay, to_vectors

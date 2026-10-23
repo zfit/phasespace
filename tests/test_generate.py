@@ -15,23 +15,7 @@ import pytest
 sys.path.append(os.path.dirname(__file__))
 
 
-def _check_backend_available(backend_name):
-    """Check if a backend is available."""
-    if backend_name == "tensorflow":
-        try:
-            import tensorflow  # noqa: F401
-
-            return True
-        except ImportError:
-            return False
-    elif backend_name == "numpy":
-        return True
-    return False
-
-
-AVAILABLE_BACKENDS = [b for b in ["numpy", "tensorflow"] if _check_backend_available(b)]
-
-from .helpers import decays  # noqa: E402
+from .helpers import AVAILABLE_BACKENDS, decays  # noqa: E402
 
 B0_MASS = decays.B0_MASS
 PION_MASS = decays.PION_MASS

@@ -20,13 +20,11 @@ from math import pi
 from typing import TYPE_CHECKING, NoReturn
 
 import numpy as np
-import tensorflow as tf
 from phasespace.backend import tnp
 
+from . import backend
 from . import kinematics as kin
 from .backend import (
-    Tensor,
-    Variable,
     assert_equal,
     assert_greater_equal,
     function,
@@ -48,13 +46,13 @@ def process_list_to_tensor(lst):
     The list is converted to a tensor and transposed to get the proper shape.
 
     Notes:
-        If ``lst`` is a tensor, nothing is done to it other than convert it to ``tf.float64``.
+        Arrays are converted to the current backend's double-precision dtype.
 
     Args:
         lst (list): List to convert.
 
     Returns:
-        ``~tf.Tensor``
+        Array for the selected backend.
     """
     if isinstance(lst, list):
         lst = tnp.transpose(tnp.asarray(lst, dtype=tnp.float64))
@@ -90,7 +88,7 @@ class GenParticle:
         - a ``name``, which is ensured not to clash with any others in
             the decay chain.
         - a ``mass``, which can be either a number or a function to generate it according to
-            a certain distribution. The returned ``~tf.Tensor`` needs to have shape ``(nevents,)``.
+            a certain distribution. The returned array needs to have shape ``(nevents,)``.
             In this case, the particle is not considered as having a
             fixed mass and the ``has_fixed_mass`` method will return False.
 
@@ -118,7 +116,7 @@ class GenParticle:
                 return tnp.atleast_1d(
                     tnp.asarray(mass(*args, **kwargs), dtype=tnp.float64)
                 )
-        elif not isinstance(mass, Variable):
+        elif not isinstance(mass, backend.Variable):
             mass_preprocessed = tnp.atleast_1d(tnp.asarray(mass, dtype=tnp.float64))
         else:
             mass_preprocessed = mass
@@ -152,11 +150,11 @@ class GenParticle:
     @function
     def get_mass(
         self,
-        min_mass: Tensor = None,
-        max_mass: Tensor = None,
-        n_events: Tensor | Variable = None,
+        min_mass: backend.Tensor = None,
+        max_mass: backend.Tensor = None,
+        n_events: backend.Tensor | backend.Variable = None,
         seed: SeedLike = None,
-    ) -> Tensor:
+    ) -> backend.Tensor:
         """Get the particle mass.
 
         If the particle is resonant, the mass function will be called with the
@@ -168,18 +166,16 @@ class GenParticle:
             max_mass (tensor): Upper mass range. Defaults to None, which
                 is only valid in the case of fixed mass.
             n_events (): Number of events to produce. Has to be specified if the particle is resonant.
-            seed (``SeedLike``): The seed can be a number or a ``tf.random.Generator`` that are used
-                as a seed to create a random number generator inside the function or directly as
-                the random number generator instance, respectively.
+            seed (``SeedLike``): Integer seed or a random generator for the selected backend.
 
         Returns:
-            ``~tf.Tensor``: Mass of the particles, either a scalar or shape ``(nevents,)``
+            Array for the selected backend, with fixed masses shaped ``(1,)`` and sampled masses shaped ``(nevents,)``.
 
         Raises:
             ValueError: If the mass is requested and has not been set.
         """
         if self.has_fixed_mass:
-            mass = self._mass
+            mass = tnp.atleast_1d(tnp.asarray(self._mass, dtype=tnp.float64))
         else:
             seed = get_rng(seed)
             min_mass = tnp.reshape(min_mass, (n_events,))
@@ -287,7 +283,11 @@ class GenParticle:
                     n_events = tnp.asarray(n_events, dtype=tnp.int64)
             else:
                 n_events = tnp.asarray(1, dtype=tnp.int64)
-        n_events = tnp.asarray(n_events, dtype=tnp.int64)
+        n_events = (
+            tnp.asarray(n_events, dtype=tnp.int64)
+            if backend.get_backend() == backend.BackendType.TENSORFLOW
+            else int(n_events)
+        )
         # Now preparation of tensors
         if len(momentum.shape) == 1:
             momentum = tnp.expand_dims(momentum, axis=0)
@@ -393,8 +393,15 @@ class GenParticle:
         for i in range(n_particles):
             sum_ += masses[:, i : i + 1]
             inv_masses.append(random[:, i : i + 1] * available_mass + sum_)
+        angles = [
+            (
+                generate_uniform(rng, shape=(n_events, 1)),
+                generate_uniform(rng, shape=(n_events, 1)),
+            )
+            for _ in range(n_particles - 1)
+        ]
         generated_particles, weights = self._generate_part2(
-            inv_masses, masses, n_events, n_particles, rng=rng
+            inv_masses, masses, n_particles, angles
         )
         # Final boost of all particles
         generated_particles = [
@@ -408,8 +415,8 @@ class GenParticle:
         )
 
     @staticmethod
-    @function
-    def _generate_part2(inv_masses, masses, n_events, n_particles, rng):
+    @function_jit_fixedshape(static_argnames=("n_particles",))
+    def _generate_part2(inv_masses, masses, n_particles, angles):
         pds = []
         # Calculate weights of the events
         for i in range(n_particles - 1):
@@ -450,14 +457,15 @@ class GenParticle:
                 )
             )
 
-            cos_z = tnp.asarray(2.0, dtype=tnp.float64) * generate_uniform(
-                rng, shape=(n_events, 1)
-            ) - tnp.asarray(1.0, dtype=tnp.float64)
+            uniform_z, uniform_y = angles[part_num - 1]
+            cos_z = tnp.asarray(2.0, dtype=tnp.float64) * uniform_z - tnp.asarray(
+                1.0, dtype=tnp.float64
+            )
             sin_z = tnp.sqrt(tnp.asarray(1.0, dtype=tnp.float64) - cos_z * cos_z)
             ang_y = (
                 tnp.asarray(2.0, dtype=tnp.float64)
                 * tnp.asarray(pi, dtype=tnp.float64)
-                * generate_uniform(rng, shape=(n_events, 1))
+                * uniform_y
             )
             cos_y = tnp.cos(ang_y)
             sin_y = tnp.sin(ang_y)
@@ -511,7 +519,7 @@ class GenParticle:
         recalculate_max_weights=False,
         rng: SeedLike = None,
     ):
-        """Recursively generate normalized n-body phase space as tensorflow tensors.
+        """Recursively generate normalized n-body phase space with the selected backend.
 
         Events are generated in the rest frame of the particle, unless ``boost_to`` is given.
 
@@ -636,16 +644,16 @@ class GenParticle:
 
     def generate(
         self,
-        n_events: int | Tensor | Variable,
-        boost_to: Tensor | vector.Momentum | None = None,
+        n_events: int | backend.Tensor | backend.Variable,
+        boost_to: backend.Tensor | vector.Momentum | None = None,
         normalize_weights: bool = True,
         seed: SeedLike = None,
         *,
         as_vectors: bool | None = None,
-    ) -> tuple[Tensor, dict[str, Tensor]]:
-        """Generate normalized n-body phase space as tensorflow tensors.
+    ) -> tuple[backend.Tensor, dict[str, backend.Tensor]]:
+        """Generate normalized n-body phase space with the selected backend.
 
-        Any TensorFlow tensor can always be converted to a numpy array with the method ``numpy()``.
+        Use ``numpy.asarray`` to convert returned arrays to NumPy.
 
         Events are generated in the rest frame of the particle, unless ``boost_to`` is given.
 
@@ -659,9 +667,7 @@ class GenParticle:
                 Can also be a ``vector`` momentum Lorentz vector.
                 If not specified, events are generated in the rest frame of the particle.
             normalize_weights (bool, optional): Normalize the event weight to its max?
-            seed (``SeedLike``): The seed can be a number or a ``tf.random.Generator`` that are used
-                as a seed to create a random number generator inside the function or directly as
-                the random number generator instance, respectively.
+            seed (``SeedLike``): Integer seed or a random generator for the selected backend.
             as_vectors (bool, optional): If True, the output momenta are returned as ``vector`` objects.
 
         Returns:
@@ -710,8 +716,11 @@ class GenParticle:
             if n_events is not None:
                 if boost_to.shape[0] not in (n_events, 1):
                     raise ValueError(message)
-        if not isinstance(n_events, Variable):
-            n_events = tnp.asarray(n_events, dtype=tnp.int64)
+        if backend.get_backend() == backend.BackendType.TENSORFLOW:
+            if not isinstance(n_events, backend.Variable):
+                n_events = tnp.asarray(n_events, dtype=tnp.int64)
+        else:
+            n_events = int(n_events)
         weights, weights_max, parts, _ = self._recursive_generate(
             n_events=n_events,
             boost_to=boost_to,
@@ -823,7 +832,7 @@ def generate_decay(*args, **kwargs):
     )
 
 
-def to_vectors(particles: dict[str, tf.Tensor]) -> dict[str, vector.Momentum]:
+def to_vectors(particles: dict[str, backend.Tensor]) -> dict[str, vector.Momentum]:
     """Convert a dictionary of particles to a dictionary of ``vector.Momentum`` instances.
 
     Args:
