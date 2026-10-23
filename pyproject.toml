@@ -37,7 +37,7 @@ file = "README.rst"
 content-type = "text/x-rst"
 
 [project.optional-dependencies]
-jax = ["jax>=0.4.26"]
+jax = ["jax>=0.4.18"]
 tf = [
     "tensorflow >=2.19.0", # TODO(2.0): make this the only requirement, add versions, remove from install_requires
     "tensorflow_probability >=0.25.0",
