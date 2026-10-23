@@ -259,7 +259,8 @@ class GenParticle:
         if len(momentum.shape) not in (1, 2):
             raise ValueError(f"Bad shape for momentum -> {list(momentum.shape)}")
         # Check compatibility of inputs
-        if len(momentum.shape) == 2 and n_events is not None:
+        # A single momentum row is broadcast to n_events
+        if len(momentum.shape) == 2 and n_events is not None and momentum.shape[0] != 1:
             momentum_shape = momentum.shape[0]
             if momentum_shape is None:
                 momentum_shape = get_shape(momentum)[0]
