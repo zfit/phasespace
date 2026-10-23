@@ -120,7 +120,7 @@ def download_file(filename, url, progress_tracker):
         wget.download(url=url, bar=progress_callback, out=output_file)
         progress_tracker.mark_complete(filename)
         return filename, True, "Downloaded successfully"
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         progress_tracker.mark_complete(filename)
         return filename, False, f"Failed: {e!s}"
 
@@ -161,7 +161,7 @@ def download_all_parallel(max_workers=None):
             try:
                 result = future.result()
                 results.append(result)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 results.append((filename, False, f"Exception: {e!s}"))
 
     # Print summary

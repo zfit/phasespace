@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # =============================================================================
 # @file   test_generate.py
 # @author Albert Puig (albert.puig@cern.ch)

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # =============================================================================
 # @file   plotting.py
 # @author Albert Puig (albert.puig@cern.ch)

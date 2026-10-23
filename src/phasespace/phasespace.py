@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # =============================================================================
 # @file   phasespace.py
 # @author Albert Puig (albert.puig@cern.ch)
@@ -680,7 +679,7 @@ class GenParticle:
                     isinstance(boost_to, vector.Momentum)
                     and isinstance(boost_to, vector.Lorentz)
                 ):
-                    raise ValueError("boost_to has to be a momentum Lorentz vector.")
+                    raise ValueError("boost_to has to be a momentum Lorentz vector.")  # noqa: TRY004
                 try:
                     boost_to = boost_to.to_pxpypzenergy()
                 except Exception as error:

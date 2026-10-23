@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # =============================================================================
 # @file   bench_phasespace.py
 # @author Albert Puig (albert.puig@cern.ch)
