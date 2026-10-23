@@ -1,4 +1,4 @@
-"""Top-level package for TensorFlow PhaseSpace."""
+"""Phase space generation with TensorFlow, NumPy, and JAX."""
 
 from importlib.metadata import PackageNotFoundError, version
 
@@ -13,21 +13,15 @@ __maintainer__ = "zfit"
 
 __credits__ = ["Jonas Eschle <Jonas.Eschle@cern.ch>"]
 
-__all__ = ["GenParticle", "nbody_decay", "numpy", "random", "to_vectors"]
-
-from tensorflow.experimental import numpy
+__all__ = [
+    "GenParticle",
+    "get_backend",
+    "nbody_decay",
+    "random",
+    "set_backend",
+    "to_vectors",
+]
 
 from . import random
+from .backend import get_backend, set_backend
 from .phasespace import GenParticle, nbody_decay, to_vectors
-
-
-def _set_eager_mode():
-    import os
-
-    import tensorflow as tf
-
-    is_eager = bool(os.environ.get("PHASESPACE_EAGER"))
-    tf.config.run_functions_eagerly(is_eager)
-
-
-_set_eager_mode()

@@ -1,40 +1,38 @@
-"""Random number generation.
+"""Random number generation for the selected computational backend."""
 
-As the random number generation is not a trivial thing, this module handles it uniformly.
+from __future__ import annotations
 
-It mimics the TensorFlows API on random generators and relies (currently) in global states on the TF states.
-Especially on the global random number generator which will be used to get new generators.
-"""
+from typing import Protocol
 
-import tensorflow as tf
-
-SeedLike = int | tf.random.Generator | None
+from . import backend
 
 
-def get_rng(seed: SeedLike = None) -> tf.random.Generator:
-    """Get or create random number generator of type `tf.random.Generator`.
+class RandomGenerator(Protocol):
+    def uniform(self, *args, **kwargs): ...
 
-    This can be used to either retrieve random number generators deterministically from them
-    - global random number generator from TensorFlow,
-    - from a random number generator generated from the seed or
-    - from the random number generator passed.
 
-    Both when using either the global generator or a random number generator is passed, they advance
-    by exactly one step as `split` is called on them.
+SeedLike = int | RandomGenerator | None
 
-    Args:
-        seed: This can be
-          - `None` to get the global random number generator
-          - a numerical seed to create a random number generator
-          - a `tf.random.Generator`.
 
-    Returns:
-        A list of `tf.random.Generator`
+def get_rng(seed: SeedLike = None) -> RandomGenerator:
+    """Return a generator for the current backend.
+
+    An integer starts a reproducible stream. ``None`` uses the backend's default generator. Passing a
+    generator reuses and advances that stream. Generators belong to one backend and cannot be reused after
+    switching to another.
     """
     if seed is None:
-        rng = tf.random.get_global_generator()
-    elif not isinstance(seed, tf.random.Generator):  # it's a seed, not an rng
-        rng = tf.random.Generator.from_seed(seed=seed)
-    else:
-        rng = seed
-    return rng
+        return backend.random.default_rng()
+    if isinstance(seed, backend.random.Generator):
+        return seed
+    if hasattr(seed, "uniform"):
+        raise ValueError("The random generator does not belong to the current backend")
+    return backend.random.from_seed(seed)
+
+
+def generate_uniform(
+    rng: RandomGenerator, shape: tuple[int, ...], minval=0, maxval=1, dtype=None
+):
+    if dtype is None:
+        dtype = backend.tnp.float64
+    return backend.random.uniform(rng, shape, minval, maxval, dtype)
