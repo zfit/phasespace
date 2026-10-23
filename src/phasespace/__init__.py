@@ -11,9 +11,7 @@ __author__ = """Albert Puig Navarro"""
 __email__ = "apuignav@gmail.com"
 __maintainer__ = "zfit"
 
-__credits__ = [
-    "Jonas Eschle <Jonas.Eschle@cern.ch>",
-]
+__credits__ = ["Jonas Eschle <Jonas.Eschle@cern.ch>"]
 
 __all__ = [
     "GenParticle",

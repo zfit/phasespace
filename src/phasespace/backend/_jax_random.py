@@ -1,9 +1,9 @@
-"""Stateful generator facade over JAX's explicit random keys.
-
-Key advancement stays outside JIT-compiled kernels to avoid capturing random state during tracing.
-"""
-
-from __future__ import annotations
+__all__ = [
+    "Generator",
+    "default_rng",
+    "from_seed",
+    "uniform",
+]
 
 import secrets
 from numbers import Integral
@@ -11,10 +11,13 @@ from numbers import Integral
 import jax
 import jax.numpy as jnp
 
-__all__ = ["Generator", "default_rng", "from_seed", "uniform"]
-
 
 class Generator:
+    """Stateful generator facade over JAX's explicit random keys.
+
+    Key advancement stays outside JIT-compiled kernels to avoid capturing random state during tracing.
+    """
+
     def __init__(self, seed=None):
         if seed is None:
             seed = secrets.randbits(32)

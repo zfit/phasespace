@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 __all__ = [
     "Generator",
     "default_rng",
@@ -7,15 +5,11 @@ __all__ = [
     "uniform",
 ]
 
-
 from numpy.random import PCG64, BitGenerator, Generator, default_rng
 
 
-def from_seed(
-    seed,
-    alg: type[BitGenerator] | None = None,
-) -> Generator:
-    """Function that mimicks `tf.random.Generator.from_seed`."""
+def from_seed(seed, alg: type[BitGenerator] | None = None) -> Generator:
+    """Function that mimics `tf.random.Generator.from_seed`."""
     if alg is None:
         alg = PCG64
     bit_generator = alg(seed)

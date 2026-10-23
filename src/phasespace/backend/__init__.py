@@ -2,22 +2,12 @@
 
 from __future__ import annotations
 
-import functools
-import inspect
-import os
-from enum import Enum, auto
-from types import SimpleNamespace
-from typing import Literal
-
-import numpy as np
-
 __all__ = [
     "BACKEND",
     "BackendType",
     "Tensor",
     "Variable",
     "as_event_count",
-    "assert_equal",
     "assert_greater_equal",
     "function",
     "function_jit",
@@ -28,6 +18,15 @@ __all__ = [
     "set_backend",
     "tnp",
 ]
+
+import functools
+import inspect
+import os
+from enum import Enum, auto
+from types import SimpleNamespace
+from typing import Literal
+
+import numpy as np
 
 
 class BackendType(Enum):
@@ -79,7 +78,6 @@ def _initialize_backend(backend_type):
             Tensor=tf.Tensor,
             Variable=tf.Variable,
             shape=tf.shape,
-            assert_equal=tf.assert_equal,
             assert_greater_equal=tf.debugging.assert_greater_equal,
         )
     if backend_type == BackendType.NUMPY:
@@ -154,12 +152,6 @@ def get_shape(array):
     if BACKEND == BackendType.TENSORFLOW:
         return _implementation.shape(array)
     return np.shape(array)
-
-
-def assert_equal(x, y, message="", name=None):
-    if BACKEND == BackendType.TENSORFLOW:
-        return _implementation.assert_equal(x, y, message=message, name=name)
-    np.testing.assert_equal(np.asarray(x), np.asarray(y), err_msg=message)
 
 
 def assert_greater_equal(x, y, message="", name=None):
