@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # =============================================================================
 # @file   test_nbody_decay.py
 # @author Albert Puig (albert.puig@cern.ch)
@@ -7,6 +6,7 @@
 """Test n-body decay generator."""
 
 import pytest
+
 from phasespace import nbody_decay
 
 from .helpers import decays

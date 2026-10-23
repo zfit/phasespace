@@ -1,7 +1,8 @@
 import numpy as np
-import phasespace as phsp
 import pytest
 import tensorflow as tf
+
+import phasespace as phsp
 
 
 @pytest.mark.parametrize(

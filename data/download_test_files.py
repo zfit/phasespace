@@ -18,19 +18,19 @@ def _is_silent():
 FILE_URLS = [
     (
         "B2K1Gamma_RapidSim_7TeV_K1KstarNonResonant_Tree.root",
-        "https://cernbox.cern.ch/remote.php/dav/public-files/8mN10X8U7VGfaRc/B2K1Gamma_RapidSim_7TeV_K1KstarNonResonant_Tree.root",  # noqa: E501
+        "https://cernbox.cern.ch/remote.php/dav/public-files/8mN10X8U7VGfaRc/B2K1Gamma_RapidSim_7TeV_K1KstarNonResonant_Tree.root",
     ),
     (
         "B2K1Gamma_RapidSim_7TeV_Tree.root",
-        "https://cernbox.cern.ch/remote.php/dav/public-files/pr3aM8n2hPT4Pag/B2K1Gamma_RapidSim_7TeV_Tree.root",  # noqa: E501
+        "https://cernbox.cern.ch/remote.php/dav/public-files/pr3aM8n2hPT4Pag/B2K1Gamma_RapidSim_7TeV_Tree.root",
     ),
     (
         "B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root",
-        "https://cernbox.cern.ch/remote.php/dav/public-files/QuP2cHeISTTSLVv/B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root",  # noqa: E501
+        "https://cernbox.cern.ch/remote.php/dav/public-files/QuP2cHeISTTSLVv/B2KstGamma_RapidSim_7TeV_KstarNonResonant_Tree.root",
     ),
     (
         "B2KstGamma_RapidSim_7TeV_Tree.root",
-        "https://cernbox.cern.ch/remote.php/dav/public-files/EH5yrCpGko7P7Mc/B2KstGamma_RapidSim_7TeV_Tree.root",  # noqa: E501
+        "https://cernbox.cern.ch/remote.php/dav/public-files/EH5yrCpGko7P7Mc/B2KstGamma_RapidSim_7TeV_Tree.root",
     ),
 ]
 
@@ -120,7 +120,7 @@ def download_file(filename, url, progress_tracker):
         wget.download(url=url, bar=progress_callback, out=output_file)
         progress_tracker.mark_complete(filename)
         return filename, True, "Downloaded successfully"
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         progress_tracker.mark_complete(filename)
         return filename, False, f"Failed: {e!s}"
 
@@ -161,7 +161,7 @@ def download_all_parallel(max_workers=None):
             try:
                 result = future.result()
                 results.append(result)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 results.append((filename, False, f"Exception: {e!s}"))
 
     # Print summary

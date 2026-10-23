@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # =============================================================================
 # @file   kinematics.py
 # @author Albert Puig (albert.puig@cern.ch)
@@ -7,6 +6,7 @@
 """Basic kinematics."""
 
 import tensorflow.experimental.numpy as tnp
+
 from phasespace.backend import function, function_jit
 
 

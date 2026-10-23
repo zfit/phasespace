@@ -127,6 +127,3 @@ filterwarnings = ["ignore:.*the imp module is deprecated in favour of importlib.
 norecursedirs = ["tests/helpers"]
 
 
-[tool.isort]
-profile = "black"
-src_paths = ["phasespace", "tests"]

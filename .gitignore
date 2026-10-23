@@ -82,11 +82,13 @@ celerybeat-schedule
 
 # dotenv
 .env
+.envrc
 
 # virtualenv
 .venv
 venv/
 ENV/
+uv.lock
 
 # Spyder project settings
 .spyderproject

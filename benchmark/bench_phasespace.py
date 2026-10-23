@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # =============================================================================
 # @file   bench_phasespace.py
 # @author Albert Puig (albert.puig@cern.ch)
@@ -11,6 +10,7 @@ import sys
 from timeit import default_timer
 
 import tensorflow as tf
+
 from phasespace import phasespace
 
 sys.path.append(os.path.dirname(__file__))

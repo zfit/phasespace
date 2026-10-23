@@ -13,9 +13,9 @@ __maintainer__ = "zfit"
 
 __credits__ = ["Jonas Eschle <Jonas.Eschle@cern.ch>"]
 
-__all__ = ["nbody_decay", "GenParticle", "random", "to_vectors", "numpy"]
+__all__ = ["GenParticle", "nbody_decay", "numpy", "random", "to_vectors"]
 
-import tensorflow.experimental.numpy as numpy
+from tensorflow.experimental import numpy
 
 from . import random
 from .phasespace import GenParticle, nbody_decay, to_vectors

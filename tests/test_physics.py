@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # =============================================================================
 # @file   test_physics.py
 # @author Albert Puig (albert.puig@cern.ch)
@@ -25,12 +24,13 @@ import sys
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import uproot
+
 from phasespace import phasespace
 
 sys.path.append(os.path.dirname(__file__))
 
-from .helpers import decays, rapidsim  # noqa: E402
-from .helpers.plotting import make_norm_histo  # noqa: E402
+from .helpers import decays, rapidsim
+from .helpers.plotting import make_norm_histo
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PLOT_DIR = os.path.join(BASE_PATH, "tests", "plots")
@@ -191,12 +191,12 @@ def run_kstargamma(input_file, kstar_width, b_at_rest, suffix, use_vector):
         booster = booster.transpose()
         if use_vector:
             booster = vector.array(
-                dict(
-                    px=booster[:, 0],
-                    py=booster[:, 1],
-                    pz=booster[:, 2],
-                    e=booster[:, 3],
-                )
+                {
+                    "px": booster[:, 0],
+                    "py": booster[:, 1],
+                    "pz": booster[:, 2],
+                    "e": booster[:, 3],
+                }
             )
         rapidsim_getter = rapidsim.get_tree
     decay = decays.b0_to_kstar_gamma(kstar_width=kstar_width)

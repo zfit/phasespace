@@ -6,6 +6,7 @@ from collections.abc import Callable
 import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
 from particle import Particle
+
 from phasespace import GenParticle
 
 from .mass_functions import DEFAULT_CONVERTER
@@ -28,9 +29,9 @@ class GenMultiDecay:
     def from_dict(
         cls,
         dec_dict: dict,
-        mass_converter: dict[str, Callable] = None,
-        tolerance: float = None,
-        particle_model_map: dict[str, str] = None,
+        mass_converter: dict[str, Callable] | None = None,
+        tolerance: float | None = None,
+        particle_model_map: dict[str, str] | None = None,
     ):
         """Create a ``GenMultiDecay`` instance from a dict in the ``DecayLanguage`` package format.
 
@@ -215,7 +216,7 @@ def _unique_name(name: str, preexisting_particles: set[str]) -> str:
     name += " [0]"
     i = 1
     while name in preexisting_particles:
-        name = name[: name.rfind("[")] + f"[{str(i)}]"
+        name = name[: name.rfind("[")] + f"[{i!s}]"
         i += 1
     preexisting_particles.add(name)
     return name
@@ -254,7 +255,7 @@ def _recursively_traverse(
     mass_converter: dict[str, Callable],
     particle_model_map: dict[str, str],
     tolerance: float,
-    preexisting_particles: set[str] = None,
+    preexisting_particles: set[str] | None = None,
 ) -> list[tuple[float, GenParticle]]:
     """Create all possible GenParticles by recursively traversing a dict from DecayLanguage, see Examples.
 

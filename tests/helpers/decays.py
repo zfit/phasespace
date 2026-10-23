@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # =============================================================================
 # @file   decays.py
 # @author Albert Puig (albert.puig@cern.ch)
@@ -8,6 +7,7 @@
 
 import tensorflow as tf
 import tensorflow_probability as tfp
+
 from phasespace import GenParticle
 
 # Use RapidSim values (https://github.com/gcowan/RapidSim/blob/master/config/particles.dat)

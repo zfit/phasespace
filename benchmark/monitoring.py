@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # =============================================================================
 # @file   monitoring.py
 # @author Albert Puig (albert.puig@cern.ch)
