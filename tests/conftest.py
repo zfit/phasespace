@@ -3,8 +3,9 @@
 import os
 import sys
 
-import phasespace
 import pytest
+
+import phasespace
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "helpers"))
 

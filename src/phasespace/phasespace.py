@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # =============================================================================
 # @file   phasespace.py
 # @author Albert Puig (albert.puig@cern.ch)
@@ -20,6 +19,7 @@ from math import pi
 from typing import TYPE_CHECKING, NoReturn
 
 import numpy as np
+
 from phasespace.backend import tnp
 
 from . import backend
@@ -103,9 +103,7 @@ class GenParticle:
             converted to array-like.
     """
 
-    def __init__(
-        self, name: str, mass: Callable | int | float | np.typing.ArrayLike
-    ) -> None:  # noqa
+    def __init__(self, name: str, mass: Callable | float | np.typing.ArrayLike) -> None:
         self.name = name
         self.children = []
         self._mass_val = mass
@@ -189,7 +187,7 @@ class GenParticle:
 
     @property
     def has_fixed_mass(self):
-        """bool: Is the mass a callable function?"""
+        """Bool: Is the mass a callable function?"""
         return not callable(self._mass)
 
     def set_children(self, *children):
@@ -226,12 +224,12 @@ class GenParticle:
 
     @property
     def has_children(self):
-        """bool: Does the particle have children?"""
+        """Bool: Does the particle have children?"""
         return bool(self.children)
 
     @property
     def has_grandchildren(self):
-        """bool: Does the particle have grandchildren?"""
+        """Bool: Does the particle have grandchildren?"""
         if not self.children:
             return False
         return any(child.has_children for child in self.children)
@@ -261,19 +259,18 @@ class GenParticle:
         if len(momentum.shape) not in (1, 2):
             raise ValueError(f"Bad shape for momentum -> {list(momentum.shape)}")
         # Check compatibility of inputs
-        if len(momentum.shape) == 2:
-            if n_events is not None:
-                momentum_shape = momentum.shape[0]
-                if momentum_shape is None:
-                    momentum_shape = get_shape(momentum)[0]
-                    momentum_shape = tnp.asarray(momentum_shape, tnp.int64)
-                else:
-                    momentum_shape = tnp.asarray(momentum_shape, dtype=tnp.int64)
-                assert_equal(
-                    n_events,
-                    momentum_shape,
-                    message="Conflicting inputs -> momentum_shape and n_events",
-                )
+        if len(momentum.shape) == 2 and n_events is not None:
+            momentum_shape = momentum.shape[0]
+            if momentum_shape is None:
+                momentum_shape = get_shape(momentum)[0]
+                momentum_shape = tnp.asarray(momentum_shape, tnp.int64)
+            else:
+                momentum_shape = tnp.asarray(momentum_shape, dtype=tnp.int64)
+            assert_equal(
+                n_events,
+                momentum_shape,
+                message="Conflicting inputs -> momentum_shape and n_events",
+            )
 
         if n_events is None:
             if len(momentum.shape) == 2:
@@ -698,7 +695,7 @@ class GenParticle:
                     isinstance(boost_to, vector.Momentum)
                     and isinstance(boost_to, vector.Lorentz)
                 ):
-                    raise ValueError("boost_to has to be a momentum Lorentz vector.")
+                    raise ValueError("boost_to has to be a momentum Lorentz vector.")  # noqa: TRY004
                 try:
                     boost_to = boost_to.to_pxpypzenergy()
                 except Exception as error:
@@ -713,9 +710,8 @@ class GenParticle:
                 f"The number of events requested ({n_events}) doesn't match the boost_to input size "
                 f"of {boost_to.shape}"
             )
-            if n_events is not None:
-                if boost_to.shape[0] not in (n_events, 1):
-                    raise ValueError(message)
+            if n_events is not None and boost_to.shape[0] not in (n_events, 1):
+                raise ValueError(message)
         if backend.get_backend() == backend.BackendType.TENSORFLOW:
             if not isinstance(n_events, backend.Variable):
                 n_events = tnp.asarray(n_events, dtype=tnp.int64)
@@ -772,7 +768,6 @@ class GenParticle:
             ValueError: If ``n_events`` and the size of ``boost_to`` don't match.
             See ``GenParticle.generate_unnormalized``.
         """
-
         # Run generation
         raise RuntimeError(
             "This function is removed. Use `generate` which does not return a Tensor as well."
@@ -793,7 +788,9 @@ class Particle:
         )
 
 
-def nbody_decay(mass_top: float, masses: list, top_name: str = "", names: list = None):
+def nbody_decay(
+    mass_top: float, masses: list, top_name: str = "", names: list | None = None
+):
     """Shortcut to build an n-body decay of a GenParticle.
 
     If the particle names are not given, the top particle is called 'top' and the
@@ -849,7 +846,7 @@ def to_vectors(particles: dict[str, backend.Tensor]) -> dict[str, vector.Momentu
     newparticles = {}
     for name, particle in particles.items():
         px, py, pz, e = np.moveaxis(particle, -1, 0)  # numpy "unstack"
-        newparticles[name] = vector.array(dict(px=px, py=py, pz=pz, energy=e))
+        newparticles[name] = vector.array({"px": px, "py": py, "pz": pz, "energy": e})
     return newparticles
 
 

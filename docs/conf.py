@@ -30,7 +30,7 @@ os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 warnings.filterwarnings("ignore")
 
 # Suppress TensorFlow C++ logging to stderr
-import logging  # noqa: E402
+import logging
 
 logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
@@ -43,7 +43,7 @@ try:
 except ImportError:
     pass
 
-import phasespace  # noqa: E402
+import phasespace
 
 # -- General configuration ---------------------------------------------
 

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # =============================================================================
 # @file   test_generate.py
 # @author Albert Puig (albert.puig@cern.ch)
@@ -12,10 +11,11 @@ import sys
 import numpy as np
 import pytest
 
+import phasespace
+
 sys.path.append(os.path.dirname(__file__))
 
-
-from .helpers import AVAILABLE_BACKENDS, decays  # noqa: E402
+from .helpers import AVAILABLE_BACKENDS, decays
 
 B0_MASS = decays.B0_MASS
 PION_MASS = decays.PION_MASS
@@ -25,7 +25,6 @@ PION_MASS = decays.PION_MASS
 def test_one_event(backend_name, backend_context):
     """Test B->pi pi pi."""
     backend_context(backend_name)
-    import phasespace
 
     decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, PION_MASS, PION_MASS])
     norm_weights, particles = decay.generate(n_events=1)
@@ -39,7 +38,6 @@ def test_one_event(backend_name, backend_context):
 def test_one_event_tf(backend_name, backend_context, as_vectors):
     """Test B->pi pi pi."""
     backend_context(backend_name)
-    import phasespace
 
     decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, PION_MASS, PION_MASS])
     norm_weights, particles = decay.generate(n_events=1, as_vectors=as_vectors)
@@ -59,7 +57,6 @@ def test_one_event_tf(backend_name, backend_context, as_vectors):
 def test_n_events(backend_name, backend_context, n_events, as_vectors):
     """Test 5 B->pi pi pi."""
     backend_context(backend_name)
-    import phasespace
 
     decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, PION_MASS, PION_MASS])
     norm_weights, particles = decay.generate(n_events=n_events, as_vectors=as_vectors)
@@ -75,7 +72,6 @@ def test_n_events(backend_name, backend_context, n_events, as_vectors):
 @pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
 def test_deterministic_events(backend_name, backend_context):
     backend_context(backend_name)
-    import phasespace
 
     decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, PION_MASS, PION_MASS])
     common_seed = 36

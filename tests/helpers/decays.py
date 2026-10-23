@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # =============================================================================
 # @file   decays.py
 # @author Albert Puig (albert.puig@cern.ch)
@@ -10,6 +9,7 @@ try:
     import tensorflow_probability as tfp
 except ImportError:
     pass
+
 from phasespace import GenParticle
 from phasespace.backend import tnp
 

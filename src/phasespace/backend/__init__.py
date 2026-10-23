@@ -169,10 +169,9 @@ def set_backend(
 ) -> None:
     """Select the backend for subsequent calls, including existing decay objects.
 
-    TensorFlow is the default. JAX requires the optional ``jax`` extra and uses
-    double precision. Backend selection is process-wide; switch outside compiled
-    user functions and do not switch while another thread is generating events.
-    Existing arrays and random generators retain their original backend.
+    TensorFlow is the default. JAX requires the optional ``jax`` extra and uses double precision. Backend
+    selection is process-wide; switch outside compiled user functions and do not switch while another thread
+    is generating events. Existing arrays and random generators retain their original backend.
     """
     global BACKEND, Tensor, Variable, _implementation, _generation
     backend_type = (

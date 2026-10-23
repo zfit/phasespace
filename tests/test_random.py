@@ -1,6 +1,7 @@
 import numpy as np
-import phasespace as phsp
 import pytest
+
+import phasespace as phsp
 
 from .helpers import tf_only
 

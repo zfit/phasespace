@@ -17,9 +17,9 @@ SeedLike = int | RandomGenerator | None
 def get_rng(seed: SeedLike = None) -> RandomGenerator:
     """Return a generator for the current backend.
 
-    An integer starts a reproducible stream. ``None`` uses the backend's default
-    generator. Passing a generator reuses and advances that stream. Generators
-    belong to one backend and cannot be reused after switching to another.
+    An integer starts a reproducible stream. ``None`` uses the backend's default generator. Passing a
+    generator reuses and advances that stream. Generators belong to one backend and cannot be reused after
+    switching to another.
     """
     if seed is None:
         return backend.random.default_rng()

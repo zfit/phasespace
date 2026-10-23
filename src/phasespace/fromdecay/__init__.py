@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import sys
 
-from .genmultidecay import GenMultiDecay  # noqa: F401
+from .genmultidecay import GenMultiDecay
 
 try:
     import zfit  # noqa: F401

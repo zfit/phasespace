@@ -18,9 +18,9 @@ __credits__ = [
 __all__ = [
     "GenParticle",
     "get_backend",
-    "set_backend",
     "nbody_decay",
     "random",
+    "set_backend",
     "to_vectors",
 ]
 

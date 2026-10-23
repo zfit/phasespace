@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Test core generation functionality across all backends."""
 
 import numpy as np
@@ -269,8 +268,9 @@ def test_resonance_seed(backend_name, backend_context):
 
 @pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
 def test_forbidden_decay(backend_name, backend_context):
-    import phasespace
     import tensorflow as tf
+
+    import phasespace
 
     backend_context(backend_name)
     decay = phasespace.nbody_decay(1.0, [1.0, 1.0])
@@ -304,8 +304,9 @@ def test_foreign_random_generator(backend_name, backend_context):
 
 
 def test_tensorflow_variable_after_switch(backend_context):
-    import phasespace
     import tensorflow as tf
+
+    import phasespace
 
     backend_context("tensorflow")
     parent_mass = tf.Variable(B0_MASS, dtype=tf.float64)

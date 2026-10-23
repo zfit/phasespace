@@ -2,8 +2,8 @@ from __future__ import annotations
 
 __all__ = [
     "Generator",
-    "from_seed",
     "default_rng",
+    "from_seed",
     "uniform",
 ]
 

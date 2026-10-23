@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # =============================================================================
 # @file   test_chain.py
 # @author Albert Puig (albert.puig@cern.ch)
@@ -13,8 +12,7 @@ import pytest
 
 sys.path.append(os.path.dirname(__file__))
 
-
-from .helpers import AVAILABLE_BACKENDS, decays  # noqa: E402
+from .helpers import AVAILABLE_BACKENDS, decays
 
 
 @pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
