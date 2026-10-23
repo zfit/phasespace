@@ -134,7 +134,7 @@ def lorentz_boost(vector, boostvector):
 
     def boost_fn():
         gamma = 1.0 / tnp.sqrt(1.0 - b2)
-        gamma2 = (gamma - 1.0) / b2
+        gamma2 = gamma * gamma / (gamma + 1.0)
         ve = time_component(vector)
         vp = spatial_component(vector)
         bp = tnp.expand_dims(scalar_product(vp, boost), axis=-1)

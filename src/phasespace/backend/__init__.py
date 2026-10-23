@@ -126,7 +126,9 @@ def _initialize_numpy() -> None:
         return _np.testing.assert_equal(x, y, err_msg=message)
 
     def _assert_greater_equal(x, y, message: str, name: str = "") -> None:
-        return _np.testing.assert_array_less(-x, -y, err_msg=message)
+        return _np.testing.assert_equal(
+            _np.asarray(x) >= _np.asarray(y), True, err_msg=message
+        )
 
     assert_equal = _assert_equal
     assert_greater_equal = _assert_greater_equal

@@ -358,7 +358,7 @@ class GenParticle:
             else:
                 # Recurse that particle to know the minimum mass we need to generate
                 min_mass = tnp.broadcast_to(recurse_stable(child), (n_events, 1))
-                mass = child.get_mass(min_mass, max_mass, n_events)
+                mass = child.get_mass(min_mass, max_mass, n_events, seed=rng)
                 mass = tnp.reshape(mass, (n_events, 1))
                 max_mass -= mass
                 masses.append(mass)
