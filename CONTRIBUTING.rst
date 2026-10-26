@@ -68,7 +68,7 @@ Ready to contribute? Here's how to set up `phasespace` for local development.
 
     $ mkvirtualenv phasespace
     $ cd phasespace/
-    $ pip install -e .[dev]
+    $ pip install -e .[all] --group dev
 
 4. Create a branch for local development::
 

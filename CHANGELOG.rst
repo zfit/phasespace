@@ -20,6 +20,7 @@ Bug fixes and small changes
 
 Requirement changes
 -------------------
+- Developer dependencies are now defined as dependency groups (``test``, ``doc``, ``dev``) instead of the ``test``, ``doc`` and ``dev`` extras. Install them with ``pip install -e .[all] --group dev`` (pip 25.1 or newer) or ``uv sync --extra all``.
 
 
 Thanks

@@ -77,7 +77,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt install graphviz -y
-          uv pip install -e .[dev] coverage --system
+          uv pip install -e .[all] --group dev --system
       - name: Run pytest-cov
         run: PYTHONPATH=src coverage run -m pytest
       - name: Create XML report
@@ -131,7 +131,7 @@ jobs:
         if: runner.os == 'Windows'
         run: choco install graphviz -y
       - name: Install dependencies
-        run: uv pip install -e .[dev] pytest-xdist --system
+        run: uv pip install -e .[all] --group dev --system
       - name: Test with pytest (TensorFlow backend), eager=${{ matrix.eager }}
         env:
           PHASESPACE_BACKEND: tensorflow
