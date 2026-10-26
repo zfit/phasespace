@@ -189,6 +189,22 @@ If the names are not given, `top` and `p_{i}` are assigned. For example, to gene
 In this example, ``decay`` is simply a ``GenParticle`` with the corresponding children.
 
 
+Choosing a backend
+------------------
+
+Events are generated with TensorFlow by default, but NumPy and JAX can be selected with :func:`phasespace.set_backend`. Decay objects that already exist, such as ``decay`` above, can be reused after switching, and the returned arrays are of the selected backend's type:
+
+.. jupyter-execute::
+
+    phasespace.set_backend("numpy")
+    weights, particles = decay.generate(n_events=N_EVENTS, seed=42)
+    print(phasespace.get_backend(), type(weights))
+
+    phasespace.set_backend("tensorflow")
+
+The selection is process-wide and can also be made through the ``PHASESPACE_BACKEND`` environment variable. The Backend Selection section on the :doc:`front page <index>` describes how random generators, compilation and custom mass functions behave on each backend.
+
+
 Eager execution
 ---------------
 
