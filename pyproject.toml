@@ -25,9 +25,7 @@ classifiers = [
 keywords = ["phasespace", "HEP"]
 urls = { Homepage = "https://github.com/zfit/phasespace" }
 requires-python = ">=3.10"
-dependencies = [
-    "numpy",
-]
+dependencies = ["numpy"]
 dynamic = ["version"]
 
 [project.readme]
@@ -125,5 +123,3 @@ addopts = """
 --ignore=setup.py"""
 filterwarnings = ["ignore:.*the imp module is deprecated in favour of importlib.*:DeprecationWarning"]
 norecursedirs = ["tests/helpers"]
-
-
