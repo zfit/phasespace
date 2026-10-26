@@ -38,12 +38,12 @@ class BackendType(Enum):
     @staticmethod
     def from_string(backend: str) -> BackendType:
         backend = backend.lower().strip()
-        if backend in {"", "tf", "tensorflow"}:
-            return BackendType.TENSORFLOW
-        if backend in {"np", "numpy"}:
+        if backend in {"", "np", "numpy"}:
             return BackendType.NUMPY
         if backend == "jax":
             return BackendType.JAX
+        if backend in {"tf", "tensorflow"}:
+            return BackendType.TENSORFLOW
         raise NotImplementedError(f'No backend implemented for "{backend}"')
 
 
@@ -178,9 +178,10 @@ def set_backend(
 ) -> None:
     """Select the backend for subsequent calls, including existing decay objects.
 
-    TensorFlow is the default. JAX requires the optional ``jax`` extra and uses double precision. Backend
-    selection is process-wide; switch outside compiled user functions and do not switch while another thread
-    is generating events. Existing arrays and random generators retain their original backend.
+    NumPy is the default. TensorFlow and JAX require the optional ``tf`` and ``jax`` extras; JAX uses double
+    precision. Backend selection is process-wide; switch outside compiled user functions and do not switch
+    while another thread is generating events. Existing arrays and random generators retain their original
+    backend.
     """
     global BACKEND, Tensor, Variable, _implementation, _generation
     backend_type = (
@@ -198,4 +199,4 @@ def set_backend(
     _generation += 1
 
 
-set_backend(os.environ.get("PHASESPACE_BACKEND", "tensorflow"))
+set_backend(os.environ.get("PHASESPACE_BACKEND", "numpy"))

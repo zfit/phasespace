@@ -95,17 +95,18 @@ To install the necessary dependencies to be used with
 
     $ pip install "phasespace[fromdecay]"
 
-TensorFlow remains installed by default. For JAX support, install the optional extra:
+The default installation only depends on NumPy. TensorFlow and JAX support are available through optional extras (the ``fromdecay`` extra already includes TensorFlow):
 
 .. code-block:: console
 
+    $ pip install "phasespace[tf]"
     $ pip install "phasespace[jax]"
 
 
 Backend Selection
 =================
 
-Phasespace supports **TensorFlow** (default), **NumPy**, and **JAX**. Keeping TensorFlow as the default preserves the behavior of existing applications; selecting NumPy or JAX does not remove the TensorFlow dependency.
+Phasespace supports **NumPy** (default), **TensorFlow**, and **JAX**. Applications that rely on TensorFlow tensors or TensorFlow random generators should install the ``tf`` extra and select the TensorFlow backend explicitly.
 
 Use the public API to switch backends, including for decay objects you have already created:
 
@@ -114,8 +115,10 @@ Use the public API to switch backends, including for decay objects you have alre
     import phasespace
 
     decay = phasespace.nbody_decay(5279, [139, 493])
-    phasespace.set_backend("numpy")
     numpy_weights, numpy_particles = decay.generate(n_events=1000, seed=42)
+
+    phasespace.set_backend("tensorflow")
+    tf_weights, tf_particles = decay.generate(n_events=1000, seed=42)
 
     phasespace.set_backend("jax")
     jax_weights, jax_particles = decay.generate(n_events=1000, seed=42)
@@ -125,8 +128,8 @@ The initial backend can also be selected through an environment variable:
 
 .. code-block:: bash
 
-    export PHASESPACE_BACKEND=numpy
-    # Other choices: tensorflow, jax
+    export PHASESPACE_BACKEND=tensorflow
+    # Other choices: numpy (default), jax
 
 Backend selection is process-wide. Switch outside user-compiled functions and while no other thread is generating events. Previously returned arrays keep their original type. Existing random generators also belong to their original backend; pass an integer seed or create a new generator after switching. The same integer seed reproduces a stream within a backend, but streams differ between backends.
 

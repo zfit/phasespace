@@ -132,7 +132,10 @@ write the :math:`B^{0}\to K^{*}\gamma` decay chain as (more details can be found
 
     import tensorflow.experimental.numpy as tnp
     import tensorflow_probability as tfp
+    import phasespace
     from phasespace import GenParticle
+
+    phasespace.set_backend("tensorflow")
 
     KSTARZ_MASS = 895.81
     KSTARZ_WIDTH = 47.4
@@ -157,6 +160,7 @@ write the :math:`B^{0}\to K^{*}\gamma` decay chain as (more details can be found
                                                 GenParticle('gamma', mass=0.0))
 
     bz.generate(n_events=500)
+    phasespace.set_backend("numpy")
 
 
 Shortcut for simple decays
@@ -192,15 +196,15 @@ In this example, ``decay`` is simply a ``GenParticle`` with the corresponding ch
 Choosing a backend
 ------------------
 
-Events are generated with TensorFlow by default, but NumPy and JAX can be selected with :func:`phasespace.set_backend`. Decay objects that already exist, such as ``decay`` above, can be reused after switching, and the returned arrays are of the selected backend's type:
+Events are generated with NumPy by default, but TensorFlow and JAX can be selected with :func:`phasespace.set_backend`. Decay objects that already exist, such as ``decay`` above, can be reused after switching, and the returned arrays are of the selected backend's type:
 
 .. jupyter-execute::
 
-    phasespace.set_backend("numpy")
+    phasespace.set_backend("tensorflow")
     weights, particles = decay.generate(n_events=N_EVENTS, seed=42)
     print(phasespace.get_backend(), type(weights))
 
-    phasespace.set_backend("tensorflow")
+    phasespace.set_backend("numpy")
 
 The selection is process-wide and can also be made through the ``PHASESPACE_BACKEND`` environment variable. The Backend Selection section on the :doc:`front page <index>` describes how random generators, compilation and custom mass functions behave on each backend.
 
@@ -208,7 +212,7 @@ The selection is process-wide and can also be made through the ``PHASESPACE_BACK
 Eager execution
 ---------------
 
-By default, `phasespace` uses JIT (*just-in-time*) compilation of TensorFlow to greatly speed up the generation of events. Simplified, this means that the first time a decay is generated, a symbolic array *without a concrete value* is used and the computation is remembered. As a user calling the function, you will not notice this, the output will be the same as if the function was executed eagerly.
+With the TensorFlow backend, `phasespace` uses JIT (*just-in-time*) compilation of TensorFlow to greatly speed up the generation of events. Simplified, this means that the first time a decay is generated, a symbolic array *without a concrete value* is used and the computation is remembered. As a user calling the function, you will not notice this, the output will be the same as if the function was executed eagerly.
 The consequence is two-fold: on one hand the initial overhead is higher with a significant speedup for subsequent generations, on the other hand, the values of the generated particles *inside the function* are not available in pure Python (e.g. for debugging basically).
 
 If you need to debug the internals, using ``tf.config.run_functions_eagerly(True)`` (or the environment variable ``"PHASESPACE_EAGER=1"``) will make everything run numpy-like.
@@ -220,10 +224,8 @@ The random number generation inside `phasespace` is transparent in order to allo
 behavior if desired. A function that uses random number generation inside always takes a `seed` (or `rng`)
 argument. The behavior is as follows
 
-- if no seed is given, the global random number generator of TensorFlow will be used. Setting this
-  instance explicitly or by setting the seed via `tf.random.set_seed` allows for a deterministic
-  execution of a whole _script_.
+- if no seed is given, the global random number generator of the selected backend will be used. With TensorFlow, setting this instance explicitly or by setting the seed via `tf.random.set_seed` allows for a deterministic execution of a whole _script_.
 - if the seed is a number it will be used to create a random number generator from this. Using the
   same seed again will result in the same output.
-- if the seed is an instance of :py:class:`tf.random.Generator`, this instance will directly be used
+- if the seed is a random generator of the selected backend, such as :py:class:`numpy.random.Generator` or :py:class:`tf.random.Generator`, this instance will directly be used
   and advances an undefined number of steps.
