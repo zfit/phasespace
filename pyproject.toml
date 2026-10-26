@@ -123,3 +123,11 @@ addopts = """
 --ignore=setup.py"""
 filterwarnings = ["ignore:.*the imp module is deprecated in favour of importlib.*:DeprecationWarning"]
 norecursedirs = ["tests/helpers"]
+
+[tool.tombi.format.rules]
+indent-width = 4
+trailing-comment-space-width = 1
+
+# Avoid schema-driven reordering and network access (for pre-commit.ci)
+[tool.tombi.schema]
+enabled = false
