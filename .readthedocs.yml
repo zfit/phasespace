@@ -8,10 +8,15 @@ build:
   tools:
     python: "3.13"
 
-  jobs:
-    install:
-      - pip install --upgrade "pip>=25.1"
-      - pip install .[fromdecay,vector] --group doc
+python:
+  install:
+    - method: uv
+      command: sync
+      extras:
+        - fromdecay
+        - vector
+      groups:
+        - doc
 
 sphinx:
   builder: html
