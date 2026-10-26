@@ -8,12 +8,10 @@ build:
   tools:
     python: "3.13"
 
-python:
-  install:
-    - method: pip
-      path: .
-      extra_requirements:
-        - doc
+  jobs:
+    install:
+      - pip install --upgrade "pip>=25.1"
+      - pip install .[fromdecay,vector] --group doc
 
 sphinx:
   builder: html

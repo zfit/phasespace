@@ -53,8 +53,9 @@ all = [
     "phasespace[vector]",
     "phasespace[tf]",
 ]
+
+[dependency-groups]
 test = [
-    "phasespace[all]",
     "awkward>=2.7",
     "coverage",
     "flaky",
@@ -69,8 +70,6 @@ test = [
     "wget",
 ]
 doc = [
-    "phasespace[fromdecay]",
-    "phasespace[vector]",
     "graphviz",
     "Sphinx",
     "myst-nb",
@@ -79,8 +78,8 @@ doc = [
     "sphinx-math-dollar",
 ]
 dev = [
-    "phasespace[doc]",
-    "phasespace[test]",
+    { include-group = "doc" },
+    { include-group = "test" },
     "bumpversion",
     "pre-commit",
     "twine",
