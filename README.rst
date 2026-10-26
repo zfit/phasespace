@@ -23,8 +23,8 @@ PhaseSpace
 .. image:: https://badge.fury.io/py/phasespace.svg
    :target: https://badge.fury.io/py/phasespace
 
-Python implementation of the Raubold and Lynch method for `n`-body events using
-TensorFlow as a backend.
+Python implementation of the Raubold and Lynch method for `n`-body events with
+support for multiple computational backends (TensorFlow, NumPy, JAX).
 
 The code is based on the GENBOD function (W515 from CERNLIB), documented in [1]
 and tries to follow it as closely as possible.
@@ -94,6 +94,45 @@ To install the necessary dependencies to be used with
 .. code-block:: console
 
     $ pip install "phasespace[fromdecay]"
+
+TensorFlow remains installed by default. For JAX support, install the optional extra:
+
+.. code-block:: console
+
+    $ pip install "phasespace[jax]"
+
+
+Backend Selection
+=================
+
+Phasespace supports **TensorFlow** (default), **NumPy**, and **JAX**. Keeping TensorFlow as the default preserves the behavior of existing applications; selecting NumPy or JAX does not remove the TensorFlow dependency.
+
+Use the public API to switch backends, including for decay objects you have already created:
+
+.. code-block:: python
+
+    import phasespace
+
+    decay = phasespace.nbody_decay(5279, [139, 493])
+    phasespace.set_backend("numpy")
+    numpy_weights, numpy_particles = decay.generate(n_events=1000, seed=42)
+
+    phasespace.set_backend("jax")
+    jax_weights, jax_particles = decay.generate(n_events=1000, seed=42)
+    print(phasespace.get_backend())  # BackendType.JAX
+
+The initial backend can also be selected through an environment variable:
+
+.. code-block:: bash
+
+    export PHASESPACE_BACKEND=numpy
+    # Other choices: tensorflow, jax
+
+Backend selection is process-wide. Switch outside user-compiled functions and while no other thread is generating events. Previously returned arrays keep their original type. Existing random generators also belong to their original backend; pass an integer seed or create a new generator after switching. The same integer seed reproduces a stream within a backend, but streams differ between backends.
+
+NumPy executes without compilation. TensorFlow compiles generation graphs. JAX uses double precision and compiles the numerical kernels, including the particle rotations, with the particle count treated as a static argument. Decay-tree traversal and random-key advancement stay outside JAX compilation so mutable particles and random state are not captured by a cached trace.
+
+Custom mass functions should use operations compatible with the selected backend. Functions that accept a ``seed`` parameter receive the current random generator. The supplied ``fromdecay`` mass distributions use TensorFlow and zfit; use the TensorFlow backend for that integration.
 
 
 How to use

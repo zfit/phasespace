@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "phasespace"
-description = "TensorFlow implementation of the Raubold and Lynch method for n-body events"
+description = "Raubold and Lynch n-body phase space generation with TensorFlow, NumPy, and JAX"
 authors = [{ name = "Albert Puig Navarro", email = "apuignav@gmail.com" }]
 maintainers = [{ name = "zfit", email = "zfit@physik.uzh.ch" }]
 license = "BSD-3-Clause"
@@ -26,6 +26,7 @@ keywords = ["TensorFlow", "phasespace", "HEP"]
 urls = { Homepage = "https://github.com/zfit/phasespace" }
 requires-python = ">=3.10"
 dependencies = [
+    "numpy",
     "tensorflow>=2.19.0",
     "tensorflow_probability>=0.25.0",
 ]
@@ -36,6 +37,7 @@ file = "README.rst"
 content-type = "text/x-rst"
 
 [project.optional-dependencies]
+jax = ["jax>=0.4.18"]
 tf = [
     "tensorflow >=2.19.0", # TODO(2.0): make this the only requirement, add versions, remove from install_requires
     "tensorflow_probability >=0.25.0",
@@ -52,6 +54,7 @@ all = [
     "phasespace[fromdecay]",
     "phasespace[vector]",
     "phasespace[tf]",
+    "phasespace[jax]",
 ]
 
 [dependency-groups]
@@ -124,4 +127,10 @@ addopts = """
 filterwarnings = ["ignore:.*the imp module is deprecated in favour of importlib.*:DeprecationWarning"]
 norecursedirs = ["tests/helpers"]
 
+[tool.tombi.format.rules]
+indent-width = 4
+trailing-comment-space-width = 1
 
+# Avoid schema-driven reordering and network access (for pre-commit.ci)
+[tool.tombi.schema]
+enabled = false

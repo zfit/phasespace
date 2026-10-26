@@ -8,11 +8,15 @@ Develop
 Major Features and Improvements
 -------------------------------
 
+- Add NumPy and optional JAX backends alongside TensorFlow, with runtime backend selection through ``phasespace.set_backend`` and ``phasespace.get_backend``. Existing decay objects can be reused after switching.
+
 Behavioral changes
 ------------------
 
 Bug fixes and small changes
 ---------------------------
+
+- Pass the generation random stream to seeded resonance mass functions, avoid division by zero for zero Lorentz boosts, and accept equality in NumPy mass checks.
 
 Requirement changes
 -------------------
@@ -60,7 +64,7 @@ Requirement changes
 Upgraded Python and TensorFlow version.
 
 Added ``tf`` and ``tensorflow`` extra to requirements. If you intend to use
-phasespace with TensorFlow in the future (and not another backend like numpy or JAX),
+phasespace with TensorFlow in the future (and not only NumPy),
 make sure to always install with ``phasespace[tf]``.
 
 Requirement changes
