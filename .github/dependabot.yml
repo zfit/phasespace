@@ -3,7 +3,7 @@ version: 2
 multi-ecosystem-groups:
   lock:
     commit-message: { prefix: "build(deps)" }
-    schedule: { interval: monthly }
+    schedule: { interval: quarterly }
 
 updates:
   - package-ecosystem: github-actions
