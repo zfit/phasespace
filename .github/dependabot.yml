@@ -1,7 +1,16 @@
 version: 2
+
+multi-ecosystem-groups:
+  lock:
+    commit-message: { prefix: "build(deps)" }
+    schedule: { interval: monthly }
+
 updates:
-  - package-ecosystem: "github-actions"
+  - package-ecosystem: github-actions
     directory: "/"
-    schedule:
-      # Check for updates to GitHub Actions monthly
-      interval: "monthly"
+    multi-ecosystem-group: lock
+    patterns: ["*"]
+  - package-ecosystem: pre-commit
+    directory: "/"
+    multi-ecosystem-group: lock
+    patterns: ["*"]
