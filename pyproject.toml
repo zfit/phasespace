@@ -5,8 +5,11 @@ build-backend = "hatchling.build"
 [project]
 name = "phasespace"
 description = "Raubold and Lynch n-body phase space generation with TensorFlow, NumPy, and JAX"
-authors = [{ name = "Albert Puig Navarro", email = "apuignav@gmail.com" }]
-maintainers = [{ name = "zfit", email = "zfit@physik.uzh.ch" }]
+authors = [
+    { name = "Albert Puig Navarro" },
+    { name = "Jonas Eschle" },
+    { name = "Remco de Boer" },
+]
 license = "BSD-3-Clause"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
