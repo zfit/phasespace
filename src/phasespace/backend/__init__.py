@@ -37,6 +37,31 @@ from typing import TYPE_CHECKING, Any, Literal
 import numpy as np
 
 
+def set_backend(
+    backend: Literal["tensorflow", "tf", "numpy", "np", "jax"] | BackendType,
+) -> None:
+    """Select the backend for subsequent calls, including existing decay objects.
+
+    The initial backend is taken from the ``PHASESPACE_BACKEND`` environment variable and defaults to
+    TensorFlow. JAX requires the optional ``jax`` extra and uses double precision. Backend selection is
+    process-wide; switch outside compiled user functions and do not switch while another thread is generating
+    events. Existing arrays and random generators retain their original backend.
+    """
+    if isinstance(backend, str):
+        backend_type = BackendType.from_string(backend)
+    if not isinstance(backend_type, BackendType):
+        raise NotImplementedError(f"Backend {backend_type} not implemented")
+    if _active.backend == backend_type:
+        return
+    _active.implementation = _initialize_backend(backend_type)
+    _active.backend = backend_type
+
+
+def get_backend() -> BackendType:
+    """Return the currently selected backend."""
+    return _active.backend
+
+
 class BackendType(Enum):
     NUMPY = auto()
     JAX = auto()
@@ -54,6 +79,70 @@ class BackendType(Enum):
         raise NotImplementedError(f'No backend implemented for "{backend}"')
 
 
+def function(func=None, *, jit=False, fixed_shape=False, static_argnames=()):
+    """Compile ``func`` for the active backend on first call, once per backend.
+
+    Each compiled version is kept, so switching back to a backend that was used before does not recompile.
+    """
+    if func is None:
+        return functools.partial(
+            function, jit=jit, fixed_shape=fixed_shape, static_argnames=static_argnames
+        )
+    compiled = {}
+    is_method = next(iter(inspect.signature(func).parameters), None) == "self"
+
+    @functools.wraps(func)
+    def dispatch(*args, **kwargs):
+        backend_type = _active.backend
+        if backend_type not in compiled:
+            compiled[backend_type] = _compile(
+                func, backend_type, jit, fixed_shape, static_argnames
+            )
+        compiled_func = compiled[backend_type]
+        if backend_type == BackendType.TENSORFLOW and is_method:
+            return compiled_func.__get__(args[0], type(args[0]))(*args[1:], **kwargs)
+        return compiled_func(*args, **kwargs)
+
+    return dispatch
+
+
+function_jit = functools.partial(function, jit=True)
+function_jit_fixedshape = functools.partial(function, jit=True, fixed_shape=True)
+
+
+def as_event_count(n_events):
+    if _active.backend != BackendType.TENSORFLOW:
+        return int(n_events)
+    if isinstance(n_events, _active.implementation.Variable):
+        return n_events
+    return array_api.asarray(n_events, dtype=array_api.int64)
+
+
+def get_shape(array):
+    return _active.implementation.shape(array)
+
+
+def assert_equal(x, y, message="", name=None):
+    return _active.implementation.assert_equal(x, y, message=message, name=name)
+
+
+def assert_greater_equal(x, y, message="", name=None):
+    return _active.implementation.assert_greater_equal(x, y, message=message, name=name)
+
+
+def __getattr__(name):
+    """Serve `BACKEND`, `Tensor` and `Variable` from the active backend at lookup time.
+
+    Module attribute access such as ``backend.Tensor`` therefore follows `set_backend`. A direct import such
+    as ``from phasespace.backend import Tensor`` still binds the value at import time.
+    """
+    if name == "BACKEND":
+        return _active.backend
+    if name in {"Tensor", "Variable"}:
+        return getattr(_active.implementation, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
 class _BackendModule:
     """Resolve attributes at use time so imported namespaces survive backend switches."""
 
@@ -62,25 +151,6 @@ class _BackendModule:
 
     def __getattr__(self, name):
         return getattr(getattr(_active.implementation, self._name), name)
-
-
-@dataclass
-class _ActiveBackend:
-    backend: BackendType
-    implementation: _Implementation
-
-
-@dataclass(frozen=True)
-class _Implementation:
-    """Library-specific objects behind the public names of this module, one instance per backend."""
-
-    array: ModuleType
-    random: ModuleType
-    Tensor: type
-    Variable: type
-    shape: Callable[[Any], Any]
-    assert_equal: Callable[..., Any]
-    assert_greater_equal: Callable[..., Any]
 
 
 if TYPE_CHECKING:
@@ -95,22 +165,8 @@ if TYPE_CHECKING:
 else:
     array_api = _BackendModule("array")
     """NumPy-compatible array module of the active backend, conventionally imported as ``xp``."""
-
     random = _BackendModule("random")
     """Random number API of the active backend."""
-
-
-def __getattr__(name):
-    """Serve `BACKEND`, `Tensor` and `Variable` from the active backend at lookup time.
-
-    Module attribute access such as ``backend.Tensor`` therefore follows `set_backend`. A direct import such
-    as ``from phasespace.backend import Tensor`` still binds the value at import time.
-    """
-    if name == "BACKEND":
-        return _active.backend
-    if name in {"Tensor", "Variable"}:
-        return getattr(_active.implementation, name)
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def _initialize_backend(backend_type: BackendType) -> _Implementation:
@@ -163,6 +219,19 @@ def _initialize_backend(backend_type: BackendType) -> _Implementation:
     raise NotImplementedError(f"Backend {backend_type} not implemented")
 
 
+@dataclass(frozen=True)
+class _Implementation:
+    """Library-specific objects behind the public names of this module, one instance per backend."""
+
+    array: ModuleType
+    random: ModuleType
+    Tensor: type
+    Variable: type
+    shape: Callable[[Any], Any]
+    assert_equal: Callable[..., Any]
+    assert_greater_equal: Callable[..., Any]
+
+
 def _compile(func, backend_type, jit, fixed_shape, static_argnames):
     if backend_type == BackendType.TENSORFLOW:
         import tensorflow as tf
@@ -180,82 +249,10 @@ def _compile(func, backend_type, jit, fixed_shape, static_argnames):
     return func
 
 
-def _decorate(func=None, *, jit=False, fixed_shape=False, static_argnames=()):
-    """Compile ``func`` for the active backend on first call, once per backend.
-
-    Each compiled version is kept, so switching back to a backend that was used before does not recompile.
-    """
-    if func is None:
-        return functools.partial(
-            _decorate, jit=jit, fixed_shape=fixed_shape, static_argnames=static_argnames
-        )
-    compiled = {}
-    is_method = next(iter(inspect.signature(func).parameters), None) == "self"
-
-    @functools.wraps(func)
-    def dispatch(*args, **kwargs):
-        backend_type = _active.backend
-        if backend_type not in compiled:
-            compiled[backend_type] = _compile(
-                func, backend_type, jit, fixed_shape, static_argnames
-            )
-        compiled_func = compiled[backend_type]
-        if backend_type == BackendType.TENSORFLOW and is_method:
-            return compiled_func.__get__(args[0], type(args[0]))(*args[1:], **kwargs)
-        return compiled_func(*args, **kwargs)
-
-    return dispatch
-
-
-function = _decorate
-function_jit = functools.partial(_decorate, jit=True)
-function_jit_fixedshape = functools.partial(_decorate, jit=True, fixed_shape=True)
-
-
-def as_event_count(n_events):
-    if _active.backend != BackendType.TENSORFLOW:
-        return int(n_events)
-    if isinstance(n_events, _active.implementation.Variable):
-        return n_events
-    return array_api.asarray(n_events, dtype=array_api.int64)
-
-
-def get_shape(array):
-    return _active.implementation.shape(array)
-
-
-def assert_equal(x, y, message="", name=None):
-    return _active.implementation.assert_equal(x, y, message=message, name=name)
-
-
-def assert_greater_equal(x, y, message="", name=None):
-    return _active.implementation.assert_greater_equal(x, y, message=message, name=name)
-
-
-def get_backend() -> BackendType:
-    """Return the currently selected backend."""
-    return _active.backend
-
-
-def set_backend(
-    backend: Literal["tensorflow", "tf", "numpy", "np", "jax"] | BackendType,
-) -> None:
-    """Select the backend for subsequent calls, including existing decay objects.
-
-    The initial backend is taken from the ``PHASESPACE_BACKEND`` environment variable and defaults to
-    TensorFlow. JAX requires the optional ``jax`` extra and uses double precision. Backend selection is
-    process-wide; switch outside compiled user functions and do not switch while another thread is generating
-    events. Existing arrays and random generators retain their original backend.
-    """
-    backend_type = (
-        BackendType.from_string(backend) if isinstance(backend, str) else backend
-    )
-    if not isinstance(backend_type, BackendType):
-        raise NotImplementedError(f"Backend {backend_type} not implemented")
-    if _active.backend == backend_type:
-        return
-    _active.implementation = _initialize_backend(backend_type)
-    _active.backend = backend_type
+@dataclass
+class _ActiveBackend:
+    backend: BackendType
+    implementation: _Implementation
 
 
 _initial_backend = BackendType.from_string(
