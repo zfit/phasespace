@@ -26,15 +26,15 @@ __all__ = [
 ]
 
 import functools
+import importlib
 import inspect
 import os
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum, auto
-from types import ModuleType
-from typing import TYPE_CHECKING, Any, Literal, ParamSpec, TypeVar, overload
+from typing import TYPE_CHECKING, Literal, ParamSpec, TypeVar, overload
 
-import numpy as np
+from ._types import Implementation
 
 _P = ParamSpec("_P")
 _R = TypeVar("_R")
@@ -50,8 +50,9 @@ def set_backend(
     process-wide; switch outside compiled user functions and do not switch while another thread is generating
     events. Existing arrays and random generators retain their original backend.
     """
-    if isinstance(backend, str):
-        backend_type = BackendType.from_string(backend)
+    backend_type = (
+        BackendType.from_string(backend) if isinstance(backend, str) else backend
+    )
     if not isinstance(backend_type, BackendType):
         raise NotImplementedError(f"Backend {backend_type} not implemented")
     if _active.backend == backend_type:
@@ -184,8 +185,9 @@ if TYPE_CHECKING:
     from numpy import ndarray as Tensor
     from numpy import ndarray as Variable
 
-    from . import _np_random as random
+    from ._types import Random as _Random
 
+    random: _Random
     BACKEND: BackendType
 else:
     array_api = _BackendModule("array")
@@ -194,67 +196,16 @@ else:
     """Random number API of the active backend."""
 
 
-def _initialize_backend(backend_type: BackendType) -> _Implementation:
-    if backend_type == BackendType.TENSORFLOW:
-        import tensorflow as tf
-        import tensorflow.experimental.numpy as tnp
-
-        from . import _tf_random
-
-        tf.config.run_functions_eagerly(
-            os.environ.get("PHASESPACE_EAGER", "0") not in {"", "0"}
-        )
-        return _Implementation(
-            array=tnp,
-            random=_tf_random,
-            Tensor=tf.Tensor,
-            Variable=tf.Variable,
-            shape=tf.shape,
-            assert_equal=tf.debugging.assert_equal,
-            assert_greater_equal=tf.debugging.assert_greater_equal,
-        )
-    if backend_type == BackendType.NUMPY:
-        from . import _np_assert, _np_random
-
-        return _Implementation(
-            array=np,
-            random=_np_random,
-            Tensor=np.ndarray,
-            Variable=np.ndarray,
-            shape=np.shape,
-            assert_equal=_np_assert.assert_equal,
-            assert_greater_equal=_np_assert.assert_greater_equal,
-        )
-    if backend_type == BackendType.JAX:
-        import jax
-        import jax.numpy as jnp
-
-        from . import _jax_random, _np_assert
-
-        jax.config.update("jax_enable_x64", True)
-        return _Implementation(
-            array=jnp,
-            random=_jax_random,
-            Tensor=jax.Array,
-            Variable=jax.Array,
-            shape=np.shape,
-            assert_equal=_np_assert.assert_equal,
-            assert_greater_equal=_np_assert.assert_greater_equal,
-        )
-    raise NotImplementedError(f"Backend {backend_type} not implemented")
-
-
-@dataclass(frozen=True)
-class _Implementation:
-    """Library-specific objects behind the public names of this module, one instance per backend."""
-
-    array: ModuleType
-    random: ModuleType
-    Tensor: type
-    Variable: type
-    shape: Callable[[Any], Any]
-    assert_equal: Callable[..., Any]
-    assert_greater_equal: Callable[..., Any]
+def _initialize_backend(backend_type: BackendType) -> Implementation:
+    module_name = {
+        BackendType.TENSORFLOW: "_tensorflow",
+        BackendType.NUMPY: "_numpy",
+        BackendType.JAX: "_jax",
+    }.get(backend_type)
+    if module_name is None:
+        raise NotImplementedError(f"Backend {backend_type} not implemented")
+    module = importlib.import_module(f".{module_name}", __package__)
+    return module.create_implementation()
 
 
 def _compile(func, backend_type, jit, fixed_shape, static_argnames):
@@ -277,7 +228,7 @@ def _compile(func, backend_type, jit, fixed_shape, static_argnames):
 @dataclass
 class _ActiveBackend:
     backend: BackendType
-    implementation: _Implementation
+    implementation: Implementation
 
 
 _initial_backend = BackendType.from_string(
