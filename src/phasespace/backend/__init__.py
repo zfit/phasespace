@@ -31,9 +31,9 @@ import numpy as np
 
 
 class BackendType(Enum):
-    TENSORFLOW = auto()
     NUMPY = auto()
     JAX = auto()
+    TENSORFLOW = auto()
 
     @staticmethod
     def from_string(backend: str) -> BackendType:
