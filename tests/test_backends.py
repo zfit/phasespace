@@ -5,7 +5,7 @@ import pytest
 
 from .helpers import AVAILABLE_BACKENDS
 
-# Test constants
+# Test constants - masses in MeV
 B0_MASS = 5279.58
 PION_MASS = 139.57018
 KAON_MASS = 493.677
