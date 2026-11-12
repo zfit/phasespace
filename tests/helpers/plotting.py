@@ -1,8 +1,3 @@
-# =============================================================================
-# @file   plotting.py
-# @author Albert Puig (albert.puig@cern.ch)
-# @date   07.03.2019
-# =============================================================================
 """Plotting helpers for tests."""
 
 import numpy as np
@@ -22,6 +17,3 @@ def mass(vector):
             axis=1,
         )
     )
-
-
-# EOF

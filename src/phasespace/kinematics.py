@@ -1,12 +1,6 @@
-# =============================================================================
-# @file   kinematics.py
-# @author Albert Puig (albert.puig@cern.ch)
-# @date   12.02.2019
-# =============================================================================
 """Basic kinematics."""
 
-import tensorflow.experimental.numpy as tnp
-
+from phasespace.backend import array_api as xp
 from phasespace.backend import function, function_jit
 
 
@@ -21,7 +15,7 @@ def scalar_product(vec1, vec2):
     Returns:
         Scalar product of the two vectors.
     """
-    return tnp.sum(vec1 * vec2, axis=1)
+    return xp.sum(vec1 * vec2, axis=1)
 
 
 @function_jit
@@ -34,7 +28,7 @@ def spatial_component(vector):
     Returns:
         Spatial components (3-vector) of the input Lorentz vector.
     """
-    return tnp.take(vector, indices=[0, 1, 2], axis=-1)
+    return vector[..., :3]
 
 
 @function_jit
@@ -47,7 +41,7 @@ def time_component(vector):
     Returns:
         Time component of the input Lorentz vector.
     """
-    return tnp.take(vector, indices=[3], axis=-1)
+    return vector[..., 3:4]
 
 
 @function
@@ -60,7 +54,7 @@ def x_component(vector):
     Returns:
         X component of the input vector.
     """
-    return tnp.take(vector, indices=[0], axis=-1)
+    return vector[..., 0:1]
 
 
 @function_jit
@@ -73,7 +67,7 @@ def y_component(vector):
     Returns:
         Y component of the input vector.
     """
-    return tnp.take(vector, indices=[1], axis=-1)
+    return vector[..., 1:2]
 
 
 @function_jit
@@ -86,7 +80,7 @@ def z_component(vector):
     Returns:
         Z component of the input vector.
     """
-    return tnp.take(vector, indices=[2], axis=-1)
+    return vector[..., 2:3]
 
 
 @function_jit
@@ -99,9 +93,7 @@ def mass(vector):
     Returns:
         Mass of the Lorentz 4-momentum vector.
     """
-    return tnp.sqrt(
-        tnp.sum(tnp.square(vector) * metric_tensor(), axis=-1, keepdims=True)
-    )
+    return xp.sqrt(xp.sum(xp.square(vector) * metric_tensor(), axis=-1, keepdims=True))
 
 
 @function_jit
@@ -115,7 +107,7 @@ def lorentz_vector(space, time):
     Returns:
         Lorentz 4-vector combining spatial and time components.
     """
-    return tnp.concatenate([space, time], axis=-1)
+    return xp.concatenate([space, time], axis=-1)
 
 
 @function_jit
@@ -131,21 +123,21 @@ def lorentz_boost(vector, boostvector):
         Boosted 4-vector.
     """
     boost = spatial_component(boostvector)
-    b2 = tnp.expand_dims(scalar_product(boost, boost), axis=-1)
+    b2 = xp.expand_dims(scalar_product(boost, boost), axis=-1)
 
     def boost_fn():
-        gamma = 1.0 / tnp.sqrt(1.0 - b2)
-        gamma2 = (gamma - 1.0) / b2
+        gamma = 1.0 / xp.sqrt(1.0 - b2)
+        gamma2 = gamma * gamma / (gamma + 1.0)
         ve = time_component(vector)
         vp = spatial_component(vector)
-        bp = tnp.expand_dims(scalar_product(vp, boost), axis=-1)
+        bp = xp.expand_dims(scalar_product(vp, boost), axis=-1)
         vp2 = vp + (gamma2 * bp + gamma * ve) * boost
         ve2 = gamma * (ve + bp)
         return lorentz_vector(vp2, ve2)
 
     # if boost vector is zero, return the original vector
-    all_b2_zero = tnp.all(tnp.equal(b2, tnp.zeros_like(b2)))
-    boosted_vector = tnp.where(all_b2_zero, vector, boost_fn())
+    all_b2_zero = xp.all(xp.equal(b2, xp.zeros_like(b2)))
+    boosted_vector = xp.where(all_b2_zero, vector, boost_fn())
     return boosted_vector
 
 
@@ -182,7 +174,4 @@ def metric_tensor():
     Returns:
         Metric tensor for Lorentz space with signature (-1, -1, -1, 1).
     """
-    return tnp.asarray([-1.0, -1.0, -1.0, 1.0], dtype=tnp.float64)
-
-
-# EOF
+    return xp.asarray([-1.0, -1.0, -1.0, 1.0], dtype=xp.float64)

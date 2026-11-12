@@ -23,8 +23,8 @@ PhaseSpace
 .. image:: https://badge.fury.io/py/phasespace.svg
    :target: https://badge.fury.io/py/phasespace
 
-Python implementation of the Raubold and Lynch method for `n`-body events using
-TensorFlow as a backend.
+Python implementation of the Raubold and Lynch method for `n`-body events with
+support for multiple computational backends (TensorFlow, NumPy, JAX).
 
 The code is based on the GENBOD function (W515 from CERNLIB), documented in [1]
 and tries to follow it as closely as possible.
@@ -94,6 +94,41 @@ To install the necessary dependencies to be used with
 .. code-block:: console
 
     $ pip install "phasespace[fromdecay]"
+
+TensorFlow remains installed by default. For JAX support, install the optional extra:
+
+.. code-block:: console
+
+    $ pip install "phasespace[jax]"
+
+
+Backend Selection
+=================
+
+Phasespace supports **TensorFlow** (default), **NumPy**, and **JAX**. The backend can be selected at runtime using the public API:
+
+.. code-block:: python
+
+    import phasespace
+
+    decay = phasespace.nbody_decay(5279, [139, 493])
+    phasespace.set_backend("numpy")
+    numpy_weights, numpy_particles = decay.generate(n_events=1000, seed=42)
+
+    phasespace.set_backend("jax")
+    jax_weights, jax_particles = decay.generate(n_events=1000, seed=42)
+    print(phasespace.get_backend())  # BackendType.JAX
+
+Alternatively, the initial backend can also be selected through an environment variable:
+
+.. code-block:: bash
+
+    export PHASESPACE_BACKEND=numpy
+    # Other choices: tensorflow, jax
+
+The backend applies to the whole program, so avoid switching it while events are being generated. Arrays you already generated keep their original type. A random generator belongs to the backend it was created with, so after switching, pass an integer seed or create a new generator. The same seed gives the same events within one backend, but different backends produce different events.
+
+Custom mass functions should use operations that work with the selected backend. The mass distributions in ``phasespace.fromdecay`` are built on zfit, so use the TensorFlow backend with them.
 
 
 How to use
