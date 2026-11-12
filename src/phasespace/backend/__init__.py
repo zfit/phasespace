@@ -28,9 +28,11 @@ __all__ = [
 import functools
 import inspect
 import os
+from collections.abc import Callable
+from dataclasses import dataclass
 from enum import Enum, auto
-from types import SimpleNamespace
-from typing import TYPE_CHECKING, Literal
+from types import ModuleType
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 
@@ -62,14 +64,24 @@ class _BackendModule:
         return getattr(getattr(_active.implementation, self._name), name)
 
 
-_active = SimpleNamespace(
-    backend=None,
-    implementation=None,
-)
-"""Single source of the active backend type and its implementation namespace, set by `set_backend`.
+@dataclass
+class _ActiveBackend:
+    backend: BackendType
+    implementation: _Implementation
 
-Nothing else in the package stores a copy of this state, so that a backend switch reaches every caller.
-"""
+
+@dataclass(frozen=True)
+class _Implementation:
+    """Library-specific objects behind the public names of this module, one instance per backend."""
+
+    array: ModuleType
+    random: ModuleType
+    Tensor: type
+    Variable: type
+    shape: Callable[[Any], Any]
+    assert_equal: Callable[..., Any]
+    assert_greater_equal: Callable[..., Any]
+
 
 if TYPE_CHECKING:
     # Type checkers see the NumPy versions, the API that all backends follow.
@@ -83,6 +95,7 @@ if TYPE_CHECKING:
 else:
     array_api = _BackendModule("array")
     """NumPy-compatible array module of the active backend, conventionally imported as ``xp``."""
+
     random = _BackendModule("random")
     """Random number API of the active backend."""
 
@@ -100,7 +113,7 @@ def __getattr__(name):
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
-def _initialize_backend(backend_type):
+def _initialize_backend(backend_type: BackendType) -> _Implementation:
     if backend_type == BackendType.TENSORFLOW:
         import tensorflow as tf
         import tensorflow.experimental.numpy as tnp
@@ -110,7 +123,7 @@ def _initialize_backend(backend_type):
         tf.config.run_functions_eagerly(
             os.environ.get("PHASESPACE_EAGER", "0") not in {"", "0"}
         )
-        return SimpleNamespace(
+        return _Implementation(
             array=tnp,
             random=_tf_random,
             Tensor=tf.Tensor,
@@ -120,26 +133,32 @@ def _initialize_backend(backend_type):
             assert_greater_equal=tf.debugging.assert_greater_equal,
         )
     if backend_type == BackendType.NUMPY:
-        from . import _np_random
+        from . import _np_assert, _np_random
 
-        return SimpleNamespace(
+        return _Implementation(
             array=np,
             random=_np_random,
             Tensor=np.ndarray,
             Variable=np.ndarray,
+            shape=np.shape,
+            assert_equal=_np_assert.assert_equal,
+            assert_greater_equal=_np_assert.assert_greater_equal,
         )
     if backend_type == BackendType.JAX:
         import jax
         import jax.numpy as jnp
 
-        from . import _jax_random
+        from . import _jax_random, _np_assert
 
         jax.config.update("jax_enable_x64", True)
-        return SimpleNamespace(
+        return _Implementation(
             array=jnp,
             random=_jax_random,
             Tensor=jax.Array,
             Variable=jax.Array,
+            shape=np.shape,
+            assert_equal=_np_assert.assert_equal,
+            assert_greater_equal=_np_assert.assert_greater_equal,
         )
     raise NotImplementedError(f"Backend {backend_type} not implemented")
 
@@ -202,23 +221,15 @@ def as_event_count(n_events):
 
 
 def get_shape(array):
-    if _active.backend == BackendType.TENSORFLOW:
-        return _active.implementation.shape(array)
-    return np.shape(array)
+    return _active.implementation.shape(array)
 
 
 def assert_equal(x, y, message="", name=None):
-    if _active.backend == BackendType.TENSORFLOW:
-        return _active.implementation.assert_equal(x, y, message=message, name=name)
-    np.testing.assert_equal(np.asarray(x), np.asarray(y), err_msg=message)
+    return _active.implementation.assert_equal(x, y, message=message, name=name)
 
 
 def assert_greater_equal(x, y, message="", name=None):
-    if _active.backend == BackendType.TENSORFLOW:
-        return _active.implementation.assert_greater_equal(
-            x, y, message=message, name=name
-        )
-    np.testing.assert_equal(np.asarray(x) >= np.asarray(y), True, err_msg=message)
+    return _active.implementation.assert_greater_equal(x, y, message=message, name=name)
 
 
 def get_backend() -> BackendType:
@@ -231,9 +242,10 @@ def set_backend(
 ) -> None:
     """Select the backend for subsequent calls, including existing decay objects.
 
-    TensorFlow is the default. JAX requires the optional ``jax`` extra and uses double precision. Backend
-    selection is process-wide; switch outside compiled user functions and do not switch while another thread
-    is generating events. Existing arrays and random generators retain their original backend.
+    The initial backend is taken from the ``PHASESPACE_BACKEND`` environment variable and defaults to
+    TensorFlow. JAX requires the optional ``jax`` extra and uses double precision. Backend selection is
+    process-wide; switch outside compiled user functions and do not switch while another thread is generating
+    events. Existing arrays and random generators retain their original backend.
     """
     backend_type = (
         BackendType.from_string(backend) if isinstance(backend, str) else backend
@@ -246,4 +258,11 @@ def set_backend(
     _active.backend = backend_type
 
 
-set_backend(os.environ.get("PHASESPACE_BACKEND", "tensorflow"))
+_initial_backend = BackendType.from_string(
+    os.environ.get("PHASESPACE_BACKEND", "tensorflow")
+)
+_active = _ActiveBackend(_initial_backend, _initialize_backend(_initial_backend))
+"""Single source of the active backend type and its implementation, changed by `set_backend`.
+
+Nothing else in the package stores a copy of this state, so that a backend switch reaches every caller.
+"""
