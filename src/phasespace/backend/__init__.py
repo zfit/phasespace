@@ -1,4 +1,9 @@
-"""Runtime backend selection and compilation for NumPy, TensorFlow, and JAX."""
+"""Runtime backend selection and compilation for NumPy, TensorFlow, and JAX.
+
+Other `phasespace` sub-modules import from this module and `set_backend` decides which library executes it.
+Because the backend can be switched after other modules imported names from here, every public name looks up
+the active backend when it is used rather than when it is imported.
+"""
 
 from __future__ import annotations
 
@@ -61,8 +66,16 @@ _active = SimpleNamespace(
     backend=None,
     implementation=None,
 )
+"""Single source of the active backend type and its implementation namespace, set by `set_backend`.
+
+Nothing else in the package stores a copy of this state, so that a backend switch reaches every caller.
+"""
+
 tnp = _BackendModule("array")
+"""NumPy-like array API of the active backend."""
+
 random = _BackendModule("random")
+"""Random number API of the active backend."""
 
 if TYPE_CHECKING:
     BACKEND: BackendType
@@ -71,7 +84,11 @@ if TYPE_CHECKING:
 
 
 def __getattr__(name):
-    """Resolve backend-dependent names at use time so they follow `set_backend`."""
+    """Serve `BACKEND`, `Tensor` and `Variable` from the active backend at lookup time.
+
+    Module attribute access such as ``backend.Tensor`` therefore follows `set_backend`. A direct import such
+    as ``from phasespace.backend import Tensor`` still binds the value at import time.
+    """
     if name == "BACKEND":
         return _active.backend
     if name in {"Tensor", "Variable"}:
@@ -135,6 +152,10 @@ def _compile(func, backend_type, jit, fixed_shape, static_argnames):
 
 
 def _decorate(func=None, *, jit=False, fixed_shape=False, static_argnames=()):
+    """Compile ``func`` for the active backend on first call, once per backend.
+
+    Each compiled version is kept, so switching back to a backend that was used before does not recompile.
+    """
     if func is None:
         return functools.partial(
             _decorate, jit=jit, fixed_shape=fixed_shape, static_argnames=static_argnames
