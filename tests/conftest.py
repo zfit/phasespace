@@ -16,9 +16,3 @@ def backend_context():
     original_backend = phasespace.get_backend()
     yield phasespace.set_backend
     phasespace.set_backend(original_backend)
-
-
-def pytest_configure(config):
-    config.addinivalue_line(
-        "markers", "tf_only: mark test as TensorFlow-only (skip for other backends)"
-    )

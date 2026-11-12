@@ -127,5 +127,6 @@ show_missing = true
 addopts = """
 --color=yes
 --ignore=setup.py"""
+markers = ["tf_only: mark test as TensorFlow-only (skip for other backends)"]
 filterwarnings = ["ignore:.*the imp module is deprecated in favour of importlib.*:DeprecationWarning"]
 norecursedirs = ["tests/helpers"]
