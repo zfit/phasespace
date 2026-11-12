@@ -1,7 +1,5 @@
 """Random number generation for the selected computational backend."""
 
-from __future__ import annotations
-
 from typing import Protocol
 
 from . import backend

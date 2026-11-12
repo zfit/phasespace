@@ -4,8 +4,6 @@ More generally, the `GenMultiDecay` object can also be used as a high-level inte
 that can decay in multiple different ways.
 """
 
-from __future__ import annotations
-
 import sys
 
 from .genmultidecay import GenMultiDecay
