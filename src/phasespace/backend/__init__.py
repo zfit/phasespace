@@ -12,6 +12,7 @@ __all__ = [
     "BackendType",
     "Tensor",
     "Variable",
+    "array_api",
     "as_event_count",
     "assert_equal",
     "assert_greater_equal",
@@ -22,7 +23,6 @@ __all__ = [
     "get_shape",
     "random",
     "set_backend",
-    "tnp",
 ]
 
 import functools
@@ -71,16 +71,20 @@ _active = SimpleNamespace(
 Nothing else in the package stores a copy of this state, so that a backend switch reaches every caller.
 """
 
-tnp = _BackendModule("array")
-"""NumPy-like array API of the active backend."""
-
-random = _BackendModule("random")
-"""Random number API of the active backend."""
-
 if TYPE_CHECKING:
+    # Type checkers see the NumPy versions, the API that all backends follow.
+    import numpy as array_api
+    from numpy import ndarray as Tensor
+    from numpy import ndarray as Variable
+
+    from . import _np_random as random
+
     BACKEND: BackendType
-    Tensor: type
-    Variable: type
+else:
+    array_api = _BackendModule("array")
+    """NumPy-compatible array module of the active backend, conventionally imported as ``xp``."""
+    random = _BackendModule("random")
+    """Random number API of the active backend."""
 
 
 def __getattr__(name):
@@ -99,7 +103,7 @@ def __getattr__(name):
 def _initialize_backend(backend_type):
     if backend_type == BackendType.TENSORFLOW:
         import tensorflow as tf
-        import tensorflow.experimental.numpy as tfnp
+        import tensorflow.experimental.numpy as tnp
 
         from . import _tf_random
 
@@ -107,7 +111,7 @@ def _initialize_backend(backend_type):
             os.environ.get("PHASESPACE_EAGER", "0") not in {"", "0"}
         )
         return SimpleNamespace(
-            array=tfnp,
+            array=tnp,
             random=_tf_random,
             Tensor=tf.Tensor,
             Variable=tf.Variable,
@@ -119,7 +123,10 @@ def _initialize_backend(backend_type):
         from . import _np_random
 
         return SimpleNamespace(
-            array=np, random=_np_random, Tensor=np.ndarray, Variable=np.ndarray
+            array=np,
+            random=_np_random,
+            Tensor=np.ndarray,
+            Variable=np.ndarray,
         )
     if backend_type == BackendType.JAX:
         import jax
@@ -129,7 +136,10 @@ def _initialize_backend(backend_type):
 
         jax.config.update("jax_enable_x64", True)
         return SimpleNamespace(
-            array=jnp, random=_jax_random, Tensor=jax.Array, Variable=jax.Array
+            array=jnp,
+            random=_jax_random,
+            Tensor=jax.Array,
+            Variable=jax.Array,
         )
     raise NotImplementedError(f"Backend {backend_type} not implemented")
 
@@ -188,7 +198,7 @@ def as_event_count(n_events):
         return int(n_events)
     if isinstance(n_events, _active.implementation.Variable):
         return n_events
-    return tnp.asarray(n_events, dtype=tnp.int64)
+    return array_api.asarray(n_events, dtype=array_api.int64)
 
 
 def get_shape(array):

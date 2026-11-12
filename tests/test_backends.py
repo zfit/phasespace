@@ -117,14 +117,14 @@ def test_boost(backend_name, backend_context):
     backend_context(backend_name)
 
     import phasespace
-    from phasespace.backend import tnp
+    from phasespace.backend import array_api as xp
 
     n_events = 100
     decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, KAON_MASS])
 
     # Create boost momentum (moving in z direction) - one per event
     energy = np.sqrt(B0_MASS**2 + 1000**2)
-    boost_momentum = tnp.asarray([[0, 0, 1000, energy]] * n_events)
+    boost_momentum = xp.asarray([[0, 0, 1000, energy]] * n_events)
 
     _, particles = decay.generate(n_events=n_events, boost_to=boost_momentum)
 
@@ -211,7 +211,7 @@ class TestBackendSwitching:
 @pytest.mark.parametrize("second_backend", AVAILABLE_BACKENDS)
 def test_switch_existing_decay(first_backend, second_backend, backend_context):
     import phasespace
-    from phasespace.backend import tnp
+    from phasespace.backend import array_api as xp
     from phasespace.kinematics import mass
 
     backend_context(first_backend)
@@ -221,7 +221,7 @@ def test_switch_existing_decay(first_backend, second_backend, backend_context):
     weights, parts = decay.generate(20, seed=42)
     assert isinstance(weights, phasespace.backend.Tensor)
     assert all(isinstance(p, phasespace.backend.Tensor) for p in parts.values())
-    assert isinstance(tnp.asarray([1.0]), phasespace.backend.Tensor)
+    assert isinstance(xp.asarray([1.0]), phasespace.backend.Tensor)
     np.testing.assert_allclose(mass(parts["p_0"]), PION_MASS, rtol=1e-8)
     backend_context(first_backend)
     restored_weights, restored_parts = decay.generate(20, seed=42)

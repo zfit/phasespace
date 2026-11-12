@@ -30,10 +30,10 @@ def test_resonance_uses_generation_seed(backend_name, backend_context):
 def test_zero_and_nonzero_boosts(backend_name, backend_context):
     backend_context(backend_name)
     from phasespace import kinematics
-    from phasespace.backend import tnp
+    from phasespace.backend import array_api as xp
 
-    momenta = tnp.asarray([[0, 0, 0, 1], [0, 0, 0, 1]], dtype=tnp.float64)
-    boosts = tnp.asarray([[0, 0, 0], [0, 0, 0.5]], dtype=tnp.float64)
+    momenta = xp.asarray([[0, 0, 0, 1], [0, 0, 0, 1]], dtype=xp.float64)
+    boosts = xp.asarray([[0, 0, 0], [0, 0, 0.5]], dtype=xp.float64)
     with np.errstate(divide="raise", invalid="raise"):
         boosted = kinematics.lorentz_boost(momenta, boosts)
     gamma = 1 / np.sqrt(1 - 0.5**2)

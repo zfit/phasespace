@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING, NoReturn
 
 import numpy as np
 
-from phasespace.backend import tnp
+from phasespace.backend import array_api as xp
 
 from . import backend
 from . import kinematics as kin
@@ -56,8 +56,8 @@ def process_list_to_tensor(lst):
         Array for the selected backend.
     """
     if isinstance(lst, list):
-        lst = tnp.transpose(tnp.asarray(lst, dtype=tnp.float64))
-    return tnp.asarray(lst, dtype=tnp.float64)
+        lst = xp.transpose(xp.asarray(lst, dtype=xp.float64))
+    return xp.asarray(lst, dtype=xp.float64)
 
 
 @function
@@ -75,7 +75,7 @@ def pdk(a, b, c):
         ``~tf.Tensor``
     """
     x = (a - b - c) * (a + b + c) * (a - b + c) * (a + b - c)
-    return tnp.sqrt(x) / (tnp.asarray(2.0, dtype=tnp.float64) * a)
+    return xp.sqrt(x) / (xp.asarray(2.0, dtype=xp.float64) * a)
 
 
 class GenParticle:
@@ -112,11 +112,11 @@ class GenParticle:
 
             @functools.wraps(mass)
             def mass_preprocessed(*args, mass=mass, **kwargs):
-                return tnp.atleast_1d(
-                    tnp.asarray(mass(*args, **kwargs), dtype=tnp.float64)
+                return xp.atleast_1d(
+                    xp.asarray(mass(*args, **kwargs), dtype=xp.float64)
                 )
         elif not isinstance(mass, backend.Variable):
-            mass_preprocessed = tnp.atleast_1d(tnp.asarray(mass, dtype=tnp.float64))
+            mass_preprocessed = xp.atleast_1d(xp.asarray(mass, dtype=xp.float64))
         else:
             mass_preprocessed = mass
 
@@ -174,11 +174,11 @@ class GenParticle:
             ValueError: If the mass is requested and has not been set.
         """
         if self.has_fixed_mass:
-            mass = tnp.atleast_1d(tnp.asarray(self._mass, dtype=tnp.float64))
+            mass = xp.atleast_1d(xp.asarray(self._mass, dtype=xp.float64))
         else:
             seed = get_rng(seed)
-            min_mass = tnp.reshape(min_mass, (n_events,))
-            max_mass = tnp.reshape(max_mass, (n_events,))
+            min_mass = xp.reshape(min_mass, (n_events,))
+            max_mass = xp.reshape(max_mass, (n_events,))
             signature = inspect.signature(self._mass)
             if "seed" in signature.parameters:
                 mass = self._mass(min_mass, max_mass, n_events, seed=seed)
@@ -265,9 +265,9 @@ class GenParticle:
             momentum_shape = momentum.shape[0]
             if momentum_shape is None:
                 momentum_shape = get_shape(momentum)[0]
-                momentum_shape = tnp.asarray(momentum_shape, tnp.int64)
+                momentum_shape = xp.asarray(momentum_shape, xp.int64)
             else:
-                momentum_shape = tnp.asarray(momentum_shape, dtype=tnp.int64)
+                momentum_shape = xp.asarray(momentum_shape, dtype=xp.int64)
             assert_equal(
                 n_events,
                 momentum_shape,
@@ -279,21 +279,21 @@ class GenParticle:
                 n_events = momentum.shape[0]
                 if n_events is None:  # dynamic shape
                     n_events = get_shape(momentum)[0]
-                    n_events = tnp.asarray(n_events, dtype=tnp.int64)
+                    n_events = xp.asarray(n_events, dtype=xp.int64)
             else:
-                n_events = tnp.asarray(1, dtype=tnp.int64)
+                n_events = xp.asarray(1, dtype=xp.int64)
         n_events = as_event_count(n_events)
         # Now preparation of tensors
         if len(momentum.shape) == 1:
-            momentum = tnp.expand_dims(momentum, axis=0)
+            momentum = xp.expand_dims(momentum, axis=0)
         return momentum, n_events
 
     @staticmethod
     @function_jit_fixedshape
     def _get_w_max(available_mass, masses):
         emmax = available_mass + masses[:, 0:1]
-        emmin = tnp.zeros_like(emmax, dtype=tnp.float64)
-        w_max = tnp.ones_like(emmax, dtype=tnp.float64)
+        emmin = xp.zeros_like(emmax, dtype=xp.float64)
+        w_max = xp.ones_like(emmax, dtype=xp.float64)
         for i in range(1, masses.shape[1]):
             emmin += masses[:, i - 1 : i]
             emmax += masses[:, i : i + 1]
@@ -322,7 +322,7 @@ class GenParticle:
         if not self.children:
             raise ValueError("No children have been configured")
         p_top, n_events = self._preprocess(momentum, n_events)
-        top_mass = tnp.broadcast_to(kin.mass(p_top), (n_events, 1))
+        top_mass = xp.broadcast_to(kin.mass(p_top), (n_events, 1))
         n_particles = len(self.children)
 
         # Prepare masses
@@ -339,31 +339,31 @@ class GenParticle:
             child.get_mass() for child in self.children if child.has_fixed_mass
         ]
         if fixed_masses:
-            mass_from_stable = tnp.broadcast_to(
-                tnp.sum(tnp.stack(fixed_masses), axis=0),
+            mass_from_stable = xp.broadcast_to(
+                xp.sum(xp.stack(fixed_masses), axis=0),
                 (n_events, 1),
             )
         else:
-            mass_from_stable = tnp.zeros((n_events, 1), dtype=tnp.float64)
+            mass_from_stable = xp.zeros((n_events, 1), dtype=xp.float64)
         max_mass = top_mass - mass_from_stable
         masses = []
         for child in self.children:
             if child.has_fixed_mass:
-                masses.append(tnp.broadcast_to(child.get_mass(), (n_events, 1)))
+                masses.append(xp.broadcast_to(child.get_mass(), (n_events, 1)))
             else:
                 # Recurse that particle to know the minimum mass we need to generate
-                min_mass = tnp.broadcast_to(recurse_stable(child), (n_events, 1))
+                min_mass = xp.broadcast_to(recurse_stable(child), (n_events, 1))
                 mass = child.get_mass(min_mass, max_mass, n_events, seed=rng)
-                mass = tnp.reshape(mass, (n_events, 1))
+                mass = xp.reshape(mass, (n_events, 1))
                 max_mass -= mass
                 masses.append(mass)
-        masses = tnp.concatenate(masses, axis=-1)
+        masses = xp.concatenate(masses, axis=-1)
         # if len(masses.shape) == 1:
-        #     masses = tnp.expand_dims(masses, axis=0)
-        available_mass = top_mass - tnp.sum(masses, axis=1, keepdims=True)
+        #     masses = xp.expand_dims(masses, axis=0)
+        available_mass = top_mass - xp.sum(masses, axis=1, keepdims=True)
         assert_greater_equal(
             available_mass,
-            tnp.zeros_like(available_mass, dtype=tnp.float64),
+            xp.zeros_like(available_mass, dtype=xp.float64),
             message="Forbidden decay",
             name="mass_check",
         )  # Calculate the max weight, initial beta, etc
@@ -371,18 +371,18 @@ class GenParticle:
         p_top_boost = kin.boost_components(p_top)
         # Start the generation
         random_numbers = generate_uniform(rng, shape=(n_events, n_particles - 2))
-        random = tnp.concatenate(
+        random = xp.concatenate(
             [
-                tnp.zeros((n_events, 1), dtype=tnp.float64),
-                tnp.sort(random_numbers, axis=1),
-                tnp.ones((n_events, 1), dtype=tnp.float64),
+                xp.zeros((n_events, 1), dtype=xp.float64),
+                xp.sort(random_numbers, axis=1),
+                xp.ones((n_events, 1), dtype=xp.float64),
             ],
             axis=1,
         )
         if random.shape[1] is None:
             random.set_shape((None, n_particles))
-        # random = tnp.expand_dims(random, axis=-1)
-        sum_ = tnp.zeros((n_events, 1), dtype=tnp.float64)
+        # random = xp.expand_dims(random, axis=-1)
+        sum_ = xp.zeros((n_events, 1), dtype=xp.float64)
         inv_masses = []
         # TODO(Mayou36): rewrite with cumsum?
         for i in range(n_particles):
@@ -403,8 +403,8 @@ class GenParticle:
             kin.lorentz_boost(part, p_top_boost) for part in generated_particles
         ]
         return (
-            tnp.reshape(weights, (n_events,)),
-            tnp.reshape(w_max, (n_events,)),
+            xp.reshape(weights, (n_events,)),
+            xp.reshape(w_max, (n_events,)),
             generated_particles,
             masses,
         )
@@ -422,15 +422,15 @@ class GenParticle:
                     masses[:, i + 1 : i + 2],
                 )
             )
-        weights = tnp.prod(tnp.stack(pds), axis=0)
-        zero_component = tnp.zeros_like(pds[0], dtype=tnp.float64)
+        weights = xp.prod(xp.stack(pds), axis=0)
+        zero_component = xp.zeros_like(pds[0], dtype=xp.float64)
         generated_particles = [
-            tnp.concatenate(
+            xp.concatenate(
                 [
                     zero_component,
                     pds[0],
                     zero_component,
-                    tnp.sqrt(tnp.square(pds[0]) + tnp.square(masses[:, 0:1])),
+                    xp.sqrt(xp.square(pds[0]) + xp.square(masses[:, 0:1])),
                 ],
                 axis=1,
             )
@@ -438,14 +438,14 @@ class GenParticle:
         part_num = 1
         while True:
             generated_particles.append(
-                tnp.concatenate(
+                xp.concatenate(
                     [
                         zero_component,
                         -pds[part_num - 1],
                         zero_component,
-                        tnp.sqrt(
-                            tnp.square(pds[part_num - 1])
-                            + tnp.square(masses[:, part_num : part_num + 1])
+                        xp.sqrt(
+                            xp.square(pds[part_num - 1])
+                            + xp.square(masses[:, part_num : part_num + 1])
                         ),
                     ],
                     axis=1,
@@ -453,24 +453,24 @@ class GenParticle:
             )
 
             uniform_z, uniform_y = angles[part_num - 1]
-            cos_z = tnp.asarray(2.0, dtype=tnp.float64) * uniform_z - tnp.asarray(
-                1.0, dtype=tnp.float64
+            cos_z = xp.asarray(2.0, dtype=xp.float64) * uniform_z - xp.asarray(
+                1.0, dtype=xp.float64
             )
-            sin_z = tnp.sqrt(tnp.asarray(1.0, dtype=tnp.float64) - cos_z * cos_z)
+            sin_z = xp.sqrt(xp.asarray(1.0, dtype=xp.float64) - cos_z * cos_z)
             ang_y = (
-                tnp.asarray(2.0, dtype=tnp.float64)
-                * tnp.asarray(pi, dtype=tnp.float64)
+                xp.asarray(2.0, dtype=xp.float64)
+                * xp.asarray(pi, dtype=xp.float64)
                 * uniform_y
             )
-            cos_y = tnp.cos(ang_y)
-            sin_y = tnp.sin(ang_y)
+            cos_y = xp.cos(ang_y)
+            sin_y = xp.sin(ang_y)
             # Do the rotations
             for j in range(part_num + 1):
                 px = kin.x_component(generated_particles[j])
                 py = kin.y_component(generated_particles[j])
                 # Rotate about z
                 # TODO(Mayou36): only list? will be overwritten below anyway, but can `*_component` handle it?
-                generated_particles[j] = tnp.concatenate(
+                generated_particles[j] = xp.concatenate(
                     [
                         cos_z * px - sin_z * py,
                         sin_z * px + cos_z * py,
@@ -482,7 +482,7 @@ class GenParticle:
                 # Rotate about y
                 px = kin.x_component(generated_particles[j])
                 pz = kin.z_component(generated_particles[j])
-                generated_particles[j] = tnp.concatenate(
+                generated_particles[j] = xp.concatenate(
                     [
                         cos_y * px - sin_y * pz,
                         kin.y_component(generated_particles[j]),
@@ -493,13 +493,13 @@ class GenParticle:
                 )
             if part_num == (n_particles - 1):
                 break
-            betas = pds[part_num] / tnp.sqrt(
-                tnp.square(pds[part_num]) + tnp.square(inv_masses[part_num])
+            betas = pds[part_num] / xp.sqrt(
+                xp.square(pds[part_num]) + xp.square(inv_masses[part_num])
             )
             generated_particles = [
                 kin.lorentz_boost(
                     part,
-                    tnp.concatenate([zero_component, betas, zero_component], axis=1),
+                    xp.concatenate([zero_component, betas, zero_component], axis=1),
                 )
                 for part in generated_particles
             ]
@@ -547,8 +547,8 @@ class GenParticle:
             momentum = boost_to
         else:
             if self.has_fixed_mass:
-                momentum = tnp.broadcast_to(
-                    tnp.stack((0.0, 0.0, 0.0, self.get_mass()[0]), axis=-1),
+                momentum = xp.broadcast_to(
+                    xp.stack((0.0, 0.0, 0.0, self.get_mass()[0]), axis=-1),
                     (n_events, 4),
                 )
             else:
@@ -604,7 +604,7 @@ class GenParticle:
                     get_flattened_values(current_mass_tree)
                 )
                 masses = []
-                w_max = tnp.ones_like(available_mass)
+                w_max = xp.ones_like(available_mass)
                 for child, child_mass in current_mass_tree.items():
                     if isinstance(child_mass, dict):
                         w_max *= recurse_w_max(
@@ -623,7 +623,7 @@ class GenParticle:
                         masses.append(sum(get_flattened_values(child_mass)))
                     else:
                         masses.append(child_mass)
-                masses = tnp.concatenate(masses, axis=1)
+                masses = xp.concatenate(masses, axis=1)
                 w_max *= self._get_w_max(available_mass, masses)
                 return w_max
 
@@ -631,8 +631,8 @@ class GenParticle:
             build_mass_tree(self, mass_tree)
             momentum = process_list_to_tensor(momentum)
             if len(momentum.shape) == 1:
-                momentum = tnp.expand_dims(momentum, axis=-1)
-            weights_max = tnp.reshape(
+                momentum = xp.expand_dims(momentum, axis=-1)
+            weights_max = xp.reshape(
                 recurse_w_max(kin.mass(momentum), mass_tree[self.name]), (n_events,)
             )
         return weights, weights_max, output_particles, output_masses
@@ -700,7 +700,7 @@ class GenParticle:
                     raise ValueError(
                         "boost_to has to be a momentum Lorentz vector, failed to convert to pxpypzenergy."
                     ) from error
-                boost_to = tnp.stack(
+                boost_to = xp.stack(
                     [boost_to.px, boost_to.py, boost_to.pz, boost_to.energy], axis=-1
                 )
 
