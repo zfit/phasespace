@@ -31,7 +31,7 @@ def test_nbody_decay_simple(backend_name, backend_context):
 
     # Check particles
     assert len(particles) == 2
-    for i, p in enumerate(particles.values()):
+    for p in particles.values():
         p_np = np.asarray(p)
         assert p_np.shape == (n_events, 4)
 
