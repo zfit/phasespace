@@ -15,10 +15,7 @@ def create_from_seed_input():
 @tf_only
 @pytest.mark.parametrize(
     "seed",
-    [
-        lambda: 15,
-        create_from_seed_input,
-    ],
+    [lambda: 15, create_from_seed_input],
 )
 def test_get_rng(seed):
     rng1 = phsp.random.get_rng(seed())
