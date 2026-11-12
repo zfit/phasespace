@@ -32,9 +32,12 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum, auto
 from types import ModuleType
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, ParamSpec, TypeVar, overload
 
 import numpy as np
+
+_P = ParamSpec("_P")
+_R = TypeVar("_R")
 
 
 def set_backend(
@@ -79,7 +82,29 @@ class BackendType(Enum):
         raise NotImplementedError(f'No backend implemented for "{backend}"')
 
 
-def function(func=None, *, jit=False, fixed_shape=False, static_argnames=()):
+@overload
+def function(
+    func: Callable[_P, _R],
+    *,
+    jit: bool = False,
+    fixed_shape: bool = False,
+    static_argnames: tuple[str, ...] = (),
+) -> Callable[_P, _R]: ...
+@overload
+def function(
+    func: None = None,
+    *,
+    jit: bool = False,
+    fixed_shape: bool = False,
+    static_argnames: tuple[str, ...] = (),
+) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]: ...
+def function(
+    func: Callable[_P, _R] | None = None,
+    *,
+    jit: bool = False,
+    fixed_shape: bool = False,
+    static_argnames: tuple[str, ...] = (),
+) -> Callable[_P, _R] | Callable[[Callable[_P, _R]], Callable[_P, _R]]:
     """Compile ``func`` for the active backend on first call, once per backend.
 
     Each compiled version is kept, so switching back to a backend that was used before does not recompile.
@@ -88,11 +113,11 @@ def function(func=None, *, jit=False, fixed_shape=False, static_argnames=()):
         return functools.partial(
             function, jit=jit, fixed_shape=fixed_shape, static_argnames=static_argnames
         )
-    compiled = {}
+    compiled: dict[BackendType, Callable[_P, _R]] = {}
     is_method = next(iter(inspect.signature(func).parameters), None) == "self"
 
     @functools.wraps(func)
-    def dispatch(*args, **kwargs):
+    def dispatch(*args: _P.args, **kwargs: _P.kwargs) -> _R:
         backend_type = _active.backend
         if backend_type not in compiled:
             compiled[backend_type] = _compile(

@@ -149,9 +149,9 @@ class GenParticle:
     @function
     def get_mass(
         self,
-        min_mass: backend.Tensor = None,
-        max_mass: backend.Tensor = None,
-        n_events: backend.Tensor | backend.Variable = None,
+        min_mass: backend.Tensor | None = None,
+        max_mass: backend.Tensor | None = None,
+        n_events: backend.Tensor | backend.Variable | None = None,
         seed: SeedLike = None,
     ) -> backend.Tensor:
         """Get the particle mass.
@@ -265,7 +265,7 @@ class GenParticle:
             momentum_shape = momentum.shape[0]
             if momentum_shape is None:
                 momentum_shape = get_shape(momentum)[0]
-                momentum_shape = xp.asarray(momentum_shape, xp.int64)
+                momentum_shape = xp.asarray(momentum_shape, dtype=xp.int64)
             else:
                 momentum_shape = xp.asarray(momentum_shape, dtype=xp.int64)
             assert_equal(
