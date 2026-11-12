@@ -1,10 +1,5 @@
 """Some physics models to test with."""
 
-try:
-    import tensorflow_probability as tfp
-except ImportError:
-    pass
-
 from phasespace import GenParticle
 from phasespace.backend import array_api as xp
 
@@ -29,6 +24,8 @@ def b0_to_kstar_gamma(kstar_width=KSTARZ_WIDTH):
 
         kstar_mass = xp.broadcast_to(kstar_mass_cast, shape=(n_events,))
         if kstar_width > 0:
+            import tensorflow_probability as tfp
+
             kstar_mass = tfp.distributions.TruncatedNormal(
                 loc=kstar_mass, scale=kstar_width_cast, low=min_mass, high=max_mass
             ).sample()
@@ -52,6 +49,8 @@ def bp_to_k1_kstar_pi_gamma(k1_width=K1_WIDTH, kstar_width=KSTARZ_WIDTH):
         max_mass = xp.asarray(max_mass, xp.float64)
         masses = xp.broadcast_to(mass, shape=(n_events,))
         if kstar_width > 0:
+            import tensorflow_probability as tfp
+
             masses = tfp.distributions.TruncatedNormal(
                 loc=masses, scale=width, low=min_mass, high=max_mass
             ).sample()
