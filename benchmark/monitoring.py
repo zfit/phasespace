@@ -1,8 +1,3 @@
-# =============================================================================
-# @file   monitoring.py
-# @author Albert Puig (albert.puig@cern.ch)
-# @date   14.02.2017
-# =============================================================================
 """Various code monitoring utilities."""
 
 import os
@@ -70,6 +65,3 @@ class Timer:
         self.elapsed = self._timer() - self.start
         if self.verbose:
             print(f"Elapsed time: {self.elapsed * 1000.0} ms")
-
-
-# EOF

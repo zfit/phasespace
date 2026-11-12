@@ -1,8 +1,3 @@
-# =============================================================================
-# @file   decays.py
-# @author Albert Puig (albert.puig@cern.ch)
-# @date   07.03.2019
-# =============================================================================
 """Some physics models to test with."""
 
 try:
@@ -77,6 +72,3 @@ def bp_to_k1_kstar_pi_gamma(k1_width=K1_WIDTH, kstar_width=KSTARZ_WIDTH):
         ),
         GenParticle("gamma", mass=0.0),
     )
-
-
-# EOF

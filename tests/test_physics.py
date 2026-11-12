@@ -1,8 +1,3 @@
-# =============================================================================
-# @file   test_physics.py
-# @author Albert Puig (albert.puig@cern.ch)
-# @date   27.02.2019
-# =============================================================================
 """Test physics output."""
 
 import platform
@@ -449,5 +444,3 @@ if __name__ == "__main__":
     test_k1gamma_kstarnonresonant_at_rest()
     test_k1gamma_kstarnonresonant_lhc()
     test_k1gamma_resonant_at_rest()
-
-# EOF

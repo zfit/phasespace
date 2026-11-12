@@ -1,8 +1,3 @@
-# =============================================================================
-# @file   phasespace.py
-# @author Albert Puig (albert.puig@cern.ch)
-# @date   25.02.2019
-# =============================================================================
 """Implementation of the Raubold and Lynch method to generate n-body events.
 
 The code is based on the GENBOD function (W515 from CERNLIB), documented in:

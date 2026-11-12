@@ -1,8 +1,3 @@
-# =============================================================================
-# @file   bench_phasespace.py
-# @author Albert Puig (albert.puig@cern.ch)
-# @date   27.02.2019
-# =============================================================================
 """Benchmark phasespace."""
 
 import os
@@ -80,9 +75,6 @@ class Timer:
             print(f"Elapsed time: {self.elapsed * 1000.0 / self.n} ms")
 
 
-# EOF
-
-
 # to play around with optimization, no big effect though
 NUM_PARALLEL_EXEC_UNITS = 1
 # config = tf.ConfigProto(
@@ -135,5 +127,3 @@ def do_run():
 
 if __name__ == "__main__":
     test_three_body()
-
-# EOF

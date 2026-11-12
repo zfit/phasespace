@@ -1,8 +1,3 @@
-# =============================================================================
-# @file   kinematics.py
-# @author Albert Puig (albert.puig@cern.ch)
-# @date   12.02.2019
-# =============================================================================
 """Basic kinematics."""
 
 from phasespace.backend import array_api as xp
@@ -180,6 +175,3 @@ def metric_tensor():
         Metric tensor for Lorentz space with signature (-1, -1, -1, 1).
     """
     return xp.asarray([-1.0, -1.0, -1.0, 1.0], dtype=xp.float64)
-
-
-# EOF
