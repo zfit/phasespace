@@ -40,7 +40,7 @@ Lately, data analysis in High Energy Physics (HEP), traditionally performed with
 
 One of the aspects where this is still not possible is in the random generation of *n*-body phase space events, which are widely used in the field, for example to study kinematics of the particle decays of interest, or to perform importance sampling in the case of complex amplitude models. This has been traditionally done with the [TGenPhaseSpace](https://root.cern.ch/doc/master/classTGenPhaseSpace.html) class, which is based of the GENBOD function of the CERNLIB FORTRAN libraries and which requires a full working ROOT installation.
 
-This package aims to address this issue by providing a TensorFlow-based implementation of such a function to generate *n*-body decays without requiring a ROOT installation. Additionally, an oft-needed functionality to generate complex decay chains, not included in `TGenPhaseSpace`, is also offered, leaving room for decaying resonances (which don't have a fixed mass, but can be seen as a broad peak).
+This package aims to address this issue by providing an implementation of such a function, running on TensorFlow, NumPy or JAX, to generate *n*-body decays without requiring a ROOT installation. Additionally, an oft-needed functionality to generate complex decay chains, not included in `TGenPhaseSpace`, is also offered, leaving room for decaying resonances (which don't have a fixed mass, but can be seen as a broad peak).
 
 ## Installing
 
@@ -105,7 +105,7 @@ KAON_MASS = 493.677
 weights, particles = phasespace.nbody_decay(B0_MASS, [PION_MASS, KAON_MASS]).generate(n_events=1000)
 ```
 
-Behind the scenes, this function runs the TensorFlow graph. It returns `tf.Tensor`, which, as TensorFlow 2.x is in eager mode, is basically a numpy array. Any `tf.Tensor` can be explicitly converted to a numpy array by calling `tf.Tensor.numpy()` on it. The `generate` function returns a `tf.Tensor` of 1000 elements in the case of `weights` and a list of `n particles` (2) arrays of (1000, 4) shape, where each of the 4-dimensions corresponds to one of the components of the generated Lorentz 4-vector. All particles are generated in the rest frame of the top particle; boosting to a certain momentum (or list of momenta) can be achieved by passing the momenta to the `boost_to` argument.
+The arrays returned by `generate` belong to the selected backend: a `tf.Tensor` with TensorFlow (convertible with `tf.Tensor.numpy()`), a NumPy array with NumPy, and a JAX array with JAX. The `generate` function returns an array of 1000 elements in the case of `weights` and a list of `n particles` (2) arrays of (1000, 4) shape, where each of the 4-dimensions corresponds to one of the components of the generated Lorentz 4-vector. All particles are generated in the rest frame of the top particle; boosting to a certain momentum (or list of momenta) can be achieved by passing the momenta to the `boost_to` argument.
 
 Sequential decays can be handled with the `GenParticle` class (used internally by `generate`) and its `set_children` method. As an example, to build the $B^{0}\to K^{*}\gamma$ decay in which $K^*\to K\pi$, we would write:
 
@@ -160,7 +160,7 @@ Where we have used the fact that `set_children` returns the parent particle. In 
        [  479.39757002,  -268.78145413,  1397.86577911,  1508.50060384]])}
 ```
 
-The `GenParticle` class is able to cache the graphs so it is possible to generate in a loop without overhead:
+A `GenParticle` can be reused to generate in a loop. With the TensorFlow backend, the compiled graphs are cached, so repeated calls have no extra overhead:
 
 ```python
 for i in range(10):
@@ -172,18 +172,16 @@ for i in range(10):
 
 This way of generating is recommended in the case of large samples, as it allows to benefit from parallelisation while at the same time keep the memory usage low.
 
-If we want to operate with the TensorFlow graph instead, we can use the `generate_tensor` method of `GenParticle`, which has the same signature as `generate`.
-
 More examples can be found in the `tests` folder and in the [documentation](https://phasespace.readthedocs.io/en/stable/usage.html).
 
 ## Physics validation
 
-Physics validation is performed continuously in the included tests (`tests/test_physics.py`), run through GitHub Actions. This validation is performed at two levels:
+Physics validation is performed continuously in the included tests ([`tests/test_physics.py`](https://github.com/zfit/phasespace/blob/main/tests/test_physics.py)), run through GitHub Actions. This validation is performed at two levels:
 
 - In simple *n*-body decays, the results of `phasespace` are checked against `TGenPhaseSpace`.
 - For sequential decays, the results of `phasespace` are checked against [RapidSim](https://github.com/gcowan/RapidSim/), a "fast Monte Carlo generator for simulation of heavy-quark hadron decays". In the case of resonances, differences are expected because our tests don't include proper modelling of their mass shape, as it would require the introduction of further dependencies. However, the results of the comparison can be expected visually.
 
-The results of all physics validation performed by the `tests_physics.py` test are written in `tests/plots`.
+The results of all physics validation performed by [`tests/test_physics.py`](https://github.com/zfit/phasespace/blob/main/tests/test_physics.py) are written in `tests/plots`.
 
 ## Contributing
 
