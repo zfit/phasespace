@@ -95,7 +95,7 @@ for i in range(5):
 
 ## Resonances with variable mass
 
-To generate the mass of a resonance, we need to give a function as its mass instead of a floating number. This function should take as input the per-event lower mass allowed, per-event upper mass allowed and the number of events, and should return an array-like object with the generated masses and shape `(nevents,)`. Well suited for this task are the [TensorFlow Probability distributions](https://www.tensorflow.org/probability/api_docs/python/tfp/distributions) or, for more customized mass shapes, the [zfit pdfs](https://zfit.github.io/zfit/model.html#tensor-sampling) (currently an *experimental feature* is needed, contact the [zfit developers](https://github.com/zfit/zfit) to learn more).
+To generate the mass of a resonance, we need to give a function as its mass instead of a floating number. This function should take as input the per-event lower mass allowed, per-event upper mass allowed and the number of events, and should return an array-like object with the generated masses and shape `(nevents,)`. Well suited for this task are the [TensorFlow Probability distributions](https://www.tensorflow.org/probability/api_docs/python/tfp/distributions) or, for more customized mass shapes, the [zfit pdfs](https://zfit.readthedocs.io/en/stable/user_api/zfit.pdf.html) (currently an *experimental feature* is needed, contact the [zfit developers](https://github.com/zfit/zfit) to learn more).
 
 Following with the same example as above, and approximating the resonance shape by a gaussian, we could write the $B^{0}\to K^{*}\gamma$ decay chain as (more details can be found in [`tests/helpers/decays.py`](https://github.com/zfit/phasespace/blob/main/tests/helpers/decays.py)):
 

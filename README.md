@@ -7,14 +7,14 @@
 [![Tests](https://github.com/zfit/phasespace/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/zfit/phasespace/actions/workflows/ci.yml?query=branch%3Amain)
 [![Codecov](https://codecov.io/gh/zfit/phasespace/branch/main/graph/badge.svg)](https://codecov.io/gh/zfit/phasespace)
 [![Documentation Status](https://readthedocs.org/projects/phasespace/badge/?version=stable)](https://phasespace.readthedocs.io/en/stable)
-[![Gitter chat](https://badges.gitter.im/zfit/phasespace.svg)](https://gitter.im/zfit/phasespace)
+[![Gitter chat](https://badges.gitter.im/zfit/phasespace.svg)](https://app.gitter.im/#/room/#zfit_phasespace:gitter.im)
 [![PyPI version](https://badge.fury.io/py/phasespace.svg)](https://badge.fury.io/py/phasespace)
 
 Python implementation of the Raubold and Lynch method for *n*-body events with support for multiple computational backends (TensorFlow, NumPy, JAX).
 
 The code is based on the GENBOD function (W515 from CERNLIB), documented in [^1] and tries to follow it as closely as possible.
 
-Detailed documentation, including the API, can be found in <https://phasespace.readthedocs.io>. Don't hesitate to join our [gitter](https://gitter.im/zfit/phasespace) channel for questions and comments.
+Detailed documentation, including the API, can be found in <https://phasespace.readthedocs.io>. Don't hesitate to join our [gitter](https://app.gitter.im/#/room/#zfit_phasespace:gitter.im) channel for questions and comments.
 
 If you use phasespace in a scientific publication we would appreciate citations to the [JOSS](https://joss.theoj.org/papers/10.21105/joss.01570) publication:
 
