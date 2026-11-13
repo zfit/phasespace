@@ -130,8 +130,8 @@ class GenMultiDecay:
                 dst_gen = GenMultiDecay.from_dict(dst_chain, mass_converter={"custom_gauss": custom_gauss})
 
         Notes:
-            For a more in-depth tutorial, see the tutorial on GenMultiDecay in the
-            `documentation <https://phasespace.readthedocs.io/en/stable/GenMultiDecay_Tutorial.html>`__.
+            :doc:`documentation </fromdecay>`.
+            `documentation <https://phasespace.readthedocs.io/en/stable/fromdecay.html>`__.
         """
         if tolerance is None:
             tolerance = cls.MASS_WIDTH_TOLERANCE

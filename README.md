@@ -91,7 +91,7 @@ Custom mass functions should use operations that work with the selected backend.
 
 ## How to use
 
-Phasespace can directly be used to generate from a DecayChain using the [DecayLanguage](https://github.com/scikit-hep/decaylanguage) package as [explained in the tutorial](https://phasespace.readthedocs.io/en/stable/GenMultiDecay_Tutorial.html).
+Phasespace can directly be used to generate from a DecayChain using the [DecayLanguage](https://github.com/scikit-hep/decaylanguage) package as [explained in the tutorial](https://phasespace.readthedocs.io/en/stable/fromdecay.html).
 
 The generation of simple *n*-body decays can be done using the `nbody_decay` shortcut to create a decay chain with a very simple interface: one needs to pass the mass of the top particle and the masses of the children particle as a list, optionally giving the names of the particles. Then, the `generate` method can be used to produce the desired sample. For example, to generate $B^0\to K\pi$, we would do:
 

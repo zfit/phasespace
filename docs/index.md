@@ -6,7 +6,7 @@
 :maxdepth: 1
 
 usage
-DecayChain <GenMultiDecay_Tutorial>
+DecayChain <fromdecay>
 API <phasespace>
 contributing
 history

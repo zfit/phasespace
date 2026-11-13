@@ -61,7 +61,7 @@ Added `tf` and `tensorflow` extra to requirements. If you intend to use phasespa
 ### Major Features and Improvements
 
 - Improved GenMultiDecay to have better control on the decay mass of non-stable particles.
-- Added a `particle_model_map` argument to the `GenMultiDecay` class. This is a dict where the key is a particle name and the value is a mass function name. The feature can be seen in the [GenMultiDecay Tutorial](https://phasespace.readthedocs.io/en/stable/GenMultiDecay_Tutorial.html).
+- Added a `particle_model_map` argument to the `GenMultiDecay` class. This is a dict where the key is a particle name and the value is a mass function name. The feature can be seen in the [GenMultiDecay Tutorial](https://phasespace.readthedocs.io/en/stable/fromdecay.html).
 
 ## 1.5.0 (27 Nov 2021)
 
