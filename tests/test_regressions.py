@@ -3,8 +3,18 @@
 import numpy as np
 import pytest
 
+from .helpers import AVAILABLE_BACKENDS
 
-@pytest.mark.parametrize("backend_name", ["numpy", "tensorflow"])
+NUMPY_AND_TF = [name for name in ("numpy", "tensorflow") if name in AVAILABLE_BACKENDS]
+
+from .helpers import AVAILABLE_BACKENDS
+
+NUMPY_AND_TENSORFLOW = [
+    name for name in ("numpy", "tensorflow") if name in AVAILABLE_BACKENDS
+]
+
+
+@pytest.mark.parametrize("backend_name", NUMPY_AND_TENSORFLOW)
 def test_resonance_uses_generation_seed(backend_name, backend_context):
     backend_context(backend_name)
     import phasespace
@@ -26,7 +36,7 @@ def test_resonance_uses_generation_seed(backend_name, backend_context):
         np.testing.assert_allclose(parts[name], first_parts[name])
 
 
-@pytest.mark.parametrize("backend_name", ["numpy", "tensorflow"])
+@pytest.mark.parametrize("backend_name", NUMPY_AND_TENSORFLOW)
 def test_zero_and_nonzero_boosts(backend_name, backend_context):
     backend_context(backend_name)
     from phasespace import kinematics

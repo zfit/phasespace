@@ -17,6 +17,7 @@
 
 ### Requirement changes
 
+- Support Python 3.14 and 3.15 with the NumPy and JAX backends. The TensorFlow backend and the `fromdecay` extra remain limited to the Python versions that TensorFlow supports.
 - NumPy is the only required dependency. TensorFlow and TensorFlow Probability move to the `tf` extra, which the `fromdecay` extra includes.
 - Developer dependencies are now defined as dependency groups (`test`, `doc`, `dev`) instead of the `test`, `doc` and `dev` extras. Install them with `pip install -e .[all] --group dev` (pip 25.1 or newer) or `uv sync --extra all`.
 

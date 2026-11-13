@@ -126,6 +126,14 @@ jobs:
           - os: ubuntu-26.04
             python-version: "3.13"
             backend: jax
+          - os: ubuntu-26.04
+            python-version: "3.15"
+            backend: numpy
+            extras: vector
+          - os: ubuntu-26.04
+            python-version: "3.15"
+            backend: jax
+            extras: jax,vector
           - os: macos-26
             python-version: "3.13"
             backend: tensorflow
@@ -171,7 +179,8 @@ jobs:
         if: runner.os == 'Windows'
         run: choco install graphviz -y
       - name: Install dependencies
-        run: uv pip install -e .[all] --group test --system
+        run: uv pip install -e '.[${{ matrix.extras || 'all' }}]' --group test --system
+        shell: bash
       - name: Test with pytest
         env:
           PHASESPACE_BACKEND: ${{ matrix.backend }}
