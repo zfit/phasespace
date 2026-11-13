@@ -1,25 +1,26 @@
-phasespace package
-====================
+# API
 
-phasespace.phasespace module
---------------------------------
+## phasespace.phasespace module
 
+```{eval-rst}
 .. automodule:: phasespace.phasespace
     :members:
     :undoc-members:
     :show-inheritance:
+```
 
-phasespace.kinematics module
-------------------------------
+## phasespace.kinematics module
 
+```{eval-rst}
 .. automodule:: phasespace.kinematics
     :members:
     :undoc-members:
     :show-inheritance:
+```
 
-phasespace.fromdecay module
-------------------------------
+## phasespace.fromdecay module
 
+```{eval-rst}
 .. automodule:: phasespace.fromdecay.genmultidecay
     :members:
     :undoc-members:
@@ -29,3 +30,4 @@ phasespace.fromdecay module
     :members:
     :undoc-members:
     :show-inheritance:
+```

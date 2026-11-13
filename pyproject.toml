@@ -36,8 +36,8 @@ dependencies = [
 dynamic = ["version"]
 
 [project.readme]
-file = "README.rst"
-content-type = "text/x-rst"
+file = "README.md"
+content-type = "text/markdown"
 
 [project.optional-dependencies]
 jax = ["jax>=0.4.18"]
@@ -65,7 +65,6 @@ test = [
     "coverage",
     "flaky",
     "matplotlib",
-    "nbval",
     "pytest",
     "pytest-xdist",
     "scipy",
@@ -76,9 +75,8 @@ doc = [
     "graphviz",
     "Sphinx",
     "myst-nb",
+    "myst-parser",
     "pydata-sphinx-theme",
-    "jupyter_sphinx",
-    "sphinx-math-dollar",
 ]
 dev = [
     { include-group = "doc" },
