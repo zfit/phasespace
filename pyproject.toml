@@ -62,14 +62,11 @@ all = [
 
 [dependency-groups]
 test = [
-    "awkward>=2.7",
     "coverage",
     "flaky",
     "matplotlib",
     "nbval",
-    "numpy",
     "pytest",
-    "pytest-cov",
     "pytest-xdist",
     "scipy",
     "uproot>=5.5.0",
