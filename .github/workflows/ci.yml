@@ -53,6 +53,9 @@ jobs:
 
   codecov:
     needs: download-data
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -83,7 +86,8 @@ jobs:
         run: coverage xml
       - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
-          file: ./coverage.xml
+          files: ./coverage.xml
+          use_oidc: true
 
   pytest:
     needs: download-data

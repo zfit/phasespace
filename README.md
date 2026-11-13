@@ -6,7 +6,7 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/phasespace.svg)](https://pypi.org/project/phasespace/)
 [![Tests](https://github.com/zfit/phasespace/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/zfit/phasespace/actions/workflows/ci.yml?query=branch%3Amain)
 [![Codecov](https://codecov.io/gh/zfit/phasespace/branch/main/graph/badge.svg)](https://codecov.io/gh/zfit/phasespace)
-[![Documentation Status](https://readthedocs.org/projects/phasespace/badge/?version=stable)](https://phasespace.readthedocs.io/en/stable)
+[![Documentation Status](https://app.readthedocs.org/projects/phasespace/badge/?version=stable)](https://phasespace.readthedocs.io/en/stable)
 [![Gitter chat](https://badges.gitter.im/zfit/phasespace.svg)](https://app.gitter.im/#/room/#zfit_phasespace:gitter.im)
 [![PyPI version](https://badge.fury.io/py/phasespace.svg)](https://badge.fury.io/py/phasespace)
 
