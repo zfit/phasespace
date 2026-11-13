@@ -81,8 +81,9 @@ html_theme_options = {
     ],
     "show_toc_level": 2,
     # Footer configuration
-    "footer_start": ["copyright"],
-    "footer_center": ["sphinx-version"],
+    "footer_start": [],
+    "footer_center": ["copyright"],
+    "footer_end": [],
     # Navigation options
     "navigation_with_keys": True,
     "show_nav_level": 3,
