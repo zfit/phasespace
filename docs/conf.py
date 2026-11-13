@@ -71,10 +71,6 @@ exclude_patterns = [
     "GEMINI.md",
     "Thumbs.db",
 ]
-suppress_warnings = [
-    "misc.highlighting_failure",
-]
-pygments_style = "sphinx"
 
 # -- Options for HTML output -------------------------------------------
 html_theme = "pydata_sphinx_theme"
@@ -93,8 +89,6 @@ html_theme_options = {
     "footer_end": [],
     # Navigation options
     "navigation_with_keys": True,
-    "show_nav_level": 3,
-    "navigation_depth": 3,
     # External links
     "icon_links": [
         {
