@@ -170,8 +170,14 @@ Events are generated with TensorFlow by default, but NumPy and JAX can be select
 ```{code-cell} ipython3
 phasespace.set_backend("numpy")
 weights, particles = decay.generate(n_events=N_EVENTS, seed=42)
-print(phasespace.get_backend(), type(weights))
+phasespace.get_backend()
+```
 
+```{code-cell} ipython3
+type(weights)
+```
+
+```{code-cell} ipython3
 phasespace.set_backend("tensorflow")
 ```
 
