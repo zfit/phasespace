@@ -11,6 +11,7 @@
 ### Bug fixes and small changes
 
 - Pass the generation random stream to seeded resonance mass functions, avoid division by zero for zero Lorentz boosts, and accept equality in NumPy mass checks.
+- `GenMultiDecay` now has a readable representation that lists its decay modes and their probabilities.
 
 ### Requirement changes
 

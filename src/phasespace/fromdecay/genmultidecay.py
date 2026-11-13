@@ -23,6 +23,13 @@ class GenMultiDecay:
         """
         self.gen_particles = gen_particles
 
+    def __repr__(self):
+        modes = "".join(
+            f"\n    {probability:.4g}: {particle!r},"
+            for probability, particle in self.gen_particles
+        )
+        return f"<phasespace.fromdecay.GenMultiDecay: decay modes=[{modes}\n]>"
+
     @classmethod
     def from_dict(
         cls,
