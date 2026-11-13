@@ -1,12 +1,11 @@
 version: 2
 
-formats:
-  - htmlzip
-
 build:
-  os: ubuntu-lts-latest
+  os: ubuntu-26.04
   tools:
     python: "3.13"
+  apt_packages:
+    - graphviz
 
 python:
   install:
@@ -19,6 +18,5 @@ python:
         - doc
 
 sphinx:
-  builder: html
   configuration: docs/conf.py
-#  fail_on_warning: true
+  fail_on_warning: true

@@ -22,10 +22,9 @@ on:
       - "docs/*"
       - "doc/*"
 
-
 jobs:
   download-data:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Cache test data
@@ -38,7 +37,7 @@ jobs:
         if: steps.cache-data.outputs.cache-hit != 'true'
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
-          python-version: '3.10'
+          python-version: "3.10"
       - name: Install wget
         if: steps.cache-data.outputs.cache-hit != 'true'
         run: pip install wget
@@ -54,7 +53,10 @@ jobs:
 
   codecov:
     needs: download-data
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
@@ -77,32 +79,73 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt install graphviz -y
-          uv pip install -e .[all] --group dev --system
+          uv pip install -e .[all] --group test --system
       - name: Run pytest-cov
-        run: PYTHONPATH=src coverage run -m pytest
+        run: PYTHONPATH=src coverage run -m pytest tests
       - name: Create XML report
         run: coverage xml
       - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
-          file: ./coverage.xml
+          files: ./coverage.xml
+          use_oidc: true
 
   pytest:
     needs: download-data
     runs-on: ${{ matrix.os }}
-    name: tests ${{ matrix.os }}, ${{ matrix.python-version }}, eager=${{ matrix.eager }}
+    name: >-
+      tests ${{ matrix.os }}, ${{ matrix.python-version }}, ${{ matrix.backend }}${{ matrix.eager == 1 && ' (eager)' || '' }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        python-version: ["3.10", "3.13"]
-        eager: [0, 1]
         include:
-          - os: macos-latest  # Apple silicon runner
-            python-version: '3.13'
+          - os: ubuntu-26.04
+            python-version: "3.10"
+            backend: tensorflow
+            eager: 0
+          - os: ubuntu-26.04
+            python-version: "3.10"
+            backend: tensorflow
+            eager: 1
+          - os: ubuntu-26.04
+            python-version: "3.10"
+            backend: numpy
+          - os: ubuntu-26.04
+            python-version: "3.10"
+            backend: jax
+          - os: ubuntu-26.04
+            python-version: "3.13"
+            backend: tensorflow
+            eager: 0
+          - os: ubuntu-26.04
+            python-version: "3.13"
+            backend: tensorflow
+            eager: 1
+          - os: ubuntu-26.04
+            python-version: "3.13"
+            backend: numpy
+          - os: ubuntu-26.04
+            python-version: "3.13"
+            backend: jax
+          - os: macos-26
+            python-version: "3.13"
+            backend: tensorflow
+            eager: 0
+          - os: macos-26
+            python-version: "3.13"
+            backend: numpy
+          - os: macos-26
+            python-version: "3.13"
+            backend: jax
+          - os: windows-latest
+            python-version: "3.13"
+            backend: tensorflow
             eager: 0
           - os: windows-latest
-            python-version: '3.13'
-            eager: 0
+            python-version: "3.13"
+            backend: numpy
+          - os: windows-latest
+            python-version: "3.13"
+            backend: jax
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Download test data
@@ -118,9 +161,6 @@ jobs:
         uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
           enable-cache: true
-      - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@97330871fe1b7d3529392ea000e3d2c4b357e403 # v3.0.0
-        id: cpu-cores
       - name: Install graphviz (Ubuntu)
         if: runner.os == 'Linux'
         run: sudo apt install graphviz -y
@@ -131,23 +171,10 @@ jobs:
         if: runner.os == 'Windows'
         run: choco install graphviz -y
       - name: Install dependencies
-        run: uv pip install -e .[all] --group dev --system
-      - name: Test with pytest (TensorFlow backend), eager=${{ matrix.eager }}
+        run: uv pip install -e .[all] --group test --system
+      - name: Test with pytest
         env:
-          PHASESPACE_BACKEND: tensorflow
-          PHASESPACE_EAGER: ${{ matrix.eager }}
-        run: |
-          pytest -n auto tests
-          cd docs
-          pytest --dist loadscope --nbval-lax --ignore=.ipynb_checkpoints -n${{ steps.cpu-cores.outputs.count }}
-        shell: bash
-      - name: Test with pytest (NumPy backend)
-        env:
-          PHASESPACE_BACKEND: numpy
-        run: pytest -n auto tests
-        shell: bash
-      - name: Test with pytest (JAX backend)
-        env:
-          PHASESPACE_BACKEND: jax
+          PHASESPACE_BACKEND: ${{ matrix.backend }}
+          PHASESPACE_EAGER: ${{ matrix.eager || 0 }}
         run: pytest -n auto tests
         shell: bash

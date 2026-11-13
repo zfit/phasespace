@@ -62,12 +62,12 @@ def pdk(a, b, c):
     Based on Eq. (9.17) in CERN 68-15 (1968).
 
     Args:
-        a (``~tf.Tensor``): :math:`M_{i+1}` in Eq. (9.17).
-        b (``~tf.Tensor``): :math:`M_{i}` in Eq. (9.17).
-        c (``~tf.Tensor``): :math:`m_{i+1}` in Eq. (9.17).
+        a (`~tf.Tensor`): :math:`M_{i+1}` in Eq. (9.17).
+        b (`~tf.Tensor`): :math:`M_{i}` in Eq. (9.17).
+        c (`~tf.Tensor`): :math:`m_{i+1}` in Eq. (9.17).
 
     Returns:
-        ``~tf.Tensor``
+        `~tf.Tensor`
     """
     x = (a - b - c) * (a + b + c) * (a - b + c) * (a + b - c)
     return xp.sqrt(x) / (xp.asarray(2.0, dtype=xp.float64) * a)
@@ -77,20 +77,19 @@ class GenParticle:
     """Representation of a particle.
 
     Instances of this class can be combined with each other to build decay chains,
-    which can then be used to generate phase space events through the ``generate``
-    or ``generate_tensor`` method.
+    which can then be used to generate phase space events through the :meth:`generate` method.
 
-    A ``GenParticle`` must have
+    A `GenParticle` must have
         - a ``name``, which is ensured not to clash with any others in
             the decay chain.
         - a ``mass``, which can be either a number or a function to generate it according to
             a certain distribution. The returned array needs to have shape ``(nevents,)``.
             In this case, the particle is not considered as having a
-            fixed mass and the ``has_fixed_mass`` method will return False.
+            fixed mass and the `has_fixed_mass` property will be False.
 
     It may also have:
 
-        - Children, ie, decay products, which are also ``GenParticle`` instances.
+        - Children, ie, decay products, which are also `GenParticle` instances.
 
 
     Args:
@@ -197,9 +196,9 @@ class GenParticle:
 
         Raises:
             ValueError: If there is an inconsistency in the parent/children relationship, ie,
-            if children were already set, if their parent was or if less than two children were given.
+                if children were already set, if their parent was or if less than two children were given.
             KeyError: If there is a particle name clash.
-            RuntimeError: If ``generate`` was already called before.
+            RuntimeError: If :meth:`generate` was already called before.
         """
         # self._set_cache_validity(False)
         if self._generate_called:
@@ -247,7 +246,7 @@ class GenParticle:
 
         Raises:
             tf.errors.InvalidArgumentError: If the number of events deduced from the
-            shape of ``momentum`` is inconsistent with ``n_events``.
+                shape of ``momentum`` is inconsistent with ``n_events``.
         """
         momentum = process_list_to_tensor(momentum)
 
@@ -525,7 +524,7 @@ class GenParticle:
                 using all the particles of the tree? This is necessary for the top particle of a decay,
                 otherwise the maximum weight calculation is going to be wrong (particles from subdecays
                 would not be taken into account). Defaults to False.
-            rng (``SeedLike``): The seed can be a number or a ``tf.random.Generator`` that are used
+            rng (``SeedLike``): The seed can be a number or a `tf.random.Generator` that are used
                 as a seed to create a random number generator inside the function or directly as
                 the random number generator instance, respectively.
 
@@ -536,7 +535,6 @@ class GenParticle:
         Raises:
             tf.errors.InvalidArgumentError: If the decay is kinematically forbidden.
             ValueError: If ``n_events`` and the size of ``boost_to`` don't match.
-            See ``GenParticle.generate_unnormalized``.
         """
         if boost_to is not None:
             momentum = boost_to
@@ -643,7 +641,7 @@ class GenParticle:
     ) -> tuple[backend.Tensor, dict[str, backend.Tensor]]:
         """Generate normalized n-body phase space with the selected backend.
 
-        Use ``numpy.asarray`` to convert returned arrays to NumPy.
+        Use :func:`numpy.asarray` to convert returned arrays to NumPy.
 
         Events are generated in the rest frame of the particle, unless ``boost_to`` is given.
 
@@ -675,7 +673,6 @@ class GenParticle:
         Raises:
             tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
             ValueError: If ``n_events`` and the size of ``boost_to`` don't match.
-            See ``GenParticle.generate_unnormalized``.
         """
         rng = get_rng(seed)
         if boost_to is not None:
@@ -755,7 +752,6 @@ class GenParticle:
         Raises:
             tf.errors.InvalidArgumentError: If the the decay is kinematically forbidden.
             ValueError: If ``n_events`` and the size of ``boost_to`` don't match.
-            See ``GenParticle.generate_unnormalized``.
         """
         # Run generation
         raise RuntimeError(
@@ -780,7 +776,7 @@ class Particle:
 def nbody_decay(
     mass_top: float, masses: list, top_name: str = "", names: list | None = None
 ):
-    """Shortcut to build an n-body decay of a GenParticle.
+    """Shortcut to build an n-body decay of a `GenParticle`.
 
     If the particle names are not given, the top particle is called 'top' and the
     children 'p_{i}', where i corresponds to their position in the ``masses`` sequence.
@@ -794,7 +790,7 @@ def nbody_decay(
             'p_{i}', where i is given by their ordering in the ``masses`` list.
 
     Returns:
-        ``GenParticle``: Particle decay.
+        GenParticle: Particle decay.
 
     Raises:
         ValueError: If the length of ``masses`` and ``names`` doesn't match.
@@ -819,14 +815,14 @@ def generate_decay(*args, **kwargs):
 
 
 def to_vectors(particles: dict[str, backend.Tensor]) -> dict[str, vector.Momentum]:
-    """Convert a dictionary of particles to a dictionary of ``vector.Momentum`` instances.
+    """Convert a dictionary of particles to a dictionary of `vector.MomentumNumpy4D` instances.
 
     Args:
         particles (dict): Dictionary of particles, with the keys being the particle names and the
             values being the momenta.
 
     Returns:
-        dict: Dictionary of ``vector.Momentum`` instances with numpy arrays
+        dict: Dictionary of `vector.MomentumNumpy4D` instances with numpy arrays
     """
     try:
         import vector

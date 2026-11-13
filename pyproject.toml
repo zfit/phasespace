@@ -32,8 +32,8 @@ dependencies = ["numpy"]
 dynamic = ["version"]
 
 [project.readme]
-file = "README.rst"
-content-type = "text/x-rst"
+file = "README.md"
+content-type = "text/markdown"
 
 [project.optional-dependencies]
 jax = ["jax>=0.4.18"]
@@ -59,14 +59,10 @@ all = [
 
 [dependency-groups]
 test = [
-    "awkward>=2.7",
     "coverage",
     "flaky",
     "matplotlib",
-    "nbval",
-    "numpy",
     "pytest",
-    "pytest-cov",
     "pytest-xdist",
     "scipy",
     "uproot>=5.5.0",
@@ -76,9 +72,9 @@ doc = [
     "graphviz",
     "Sphinx",
     "myst-nb",
+    "myst-parser",
     "pydata-sphinx-theme",
-    "jupyter_sphinx",
-    "sphinx-math-dollar",
+    "sphinx-copybutton",
 ]
 dev = [
     { include-group = "doc" },
