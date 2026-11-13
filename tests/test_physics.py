@@ -1,8 +1,3 @@
-# =============================================================================
-# @file   test_physics.py
-# @author Albert Puig (albert.puig@cern.ch)
-# @date   27.02.2019
-# =============================================================================
 """Test physics output."""
 
 import platform
@@ -74,11 +69,11 @@ def create_ref_histos(n_pions):
 
 def run_test(n_particles, test_prefix):
     from phasespace import phasespace
-    from phasespace.backend import tnp
+    from phasespace.backend import array_api as xp
 
     first_run_n_events = 100
     main_run_n_events = 100000
-    n_events = tnp.asarray(first_run_n_events, dtype=tnp.int64)
+    n_events = xp.asarray(first_run_n_events, dtype=xp.int64)
 
     decay = phasespace.nbody_decay(decays.B0_MASS, [decays.PION_MASS] * n_particles)
     generate = decay.generate(n_events)
@@ -86,7 +81,7 @@ def run_test(n_particles, test_prefix):
     assert len(weights1) == first_run_n_events
 
     # change n_events and run again
-    n_events = tnp.asarray(main_run_n_events, dtype=tnp.int64)
+    n_events = xp.asarray(main_run_n_events, dtype=xp.int64)
     weights, particles = decay.generate(n_events)
     parts = np.concatenate(
         [np.asarray(particles[f"p_{part_num}"]) for part_num in range(n_particles)],
@@ -449,5 +444,3 @@ if __name__ == "__main__":
     test_k1gamma_kstarnonresonant_at_rest()
     test_k1gamma_kstarnonresonant_lhc()
     test_k1gamma_resonant_at_rest()
-
-# EOF

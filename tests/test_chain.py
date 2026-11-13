@@ -1,8 +1,3 @@
-# =============================================================================
-# @file   test_chain.py
-# @author Albert Puig (albert.puig@cern.ch)
-# @date   01.03.2019
-# =============================================================================
 """Test decay chain tools."""
 
 import os
@@ -167,5 +162,3 @@ if __name__ == "__main__":
     test_name_clashes()
     test_kstargamma()
     test_k1gamma()
-
-# EOF

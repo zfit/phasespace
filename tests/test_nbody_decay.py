@@ -1,8 +1,3 @@
-# =============================================================================
-# @file   test_nbody_decay.py
-# @author Albert Puig (albert.puig@cern.ch)
-# @date   14.06.2019
-# =============================================================================
 """Test n-body decay generator."""
 
 import pytest
@@ -58,6 +53,3 @@ def test_mismatching_names():
     children_names = [f"pion_{i}" for i in range(4)]
     with pytest.raises(ValueError):
         nbody_decay(B0_MASS, [PION_MASS, PION_MASS, PION_MASS], names=children_names)
-
-
-# EOF

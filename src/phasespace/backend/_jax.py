@@ -1,15 +1,32 @@
-__all__ = [
-    "Generator",
-    "default_rng",
-    "from_seed",
-    "uniform",
-]
+"""JAX implementation of the backend interface."""
 
 import secrets
 from numbers import Integral
 
 import jax
 import jax.numpy as jnp
+import numpy as np
+
+from ._numpy import assert_equal, assert_greater_equal
+from ._types import Implementation, Random
+
+
+def create_implementation() -> Implementation:
+    jax.config.update("jax_enable_x64", True)
+    return Implementation(
+        array=jnp,
+        random=Random(
+            Generator=Generator,
+            default_rng=default_rng,
+            from_seed=Generator,
+            uniform=uniform,
+        ),
+        Tensor=jax.Array,
+        Variable=jax.Array,
+        shape=np.shape,
+        assert_equal=assert_equal,
+        assert_greater_equal=assert_greater_equal,
+    )
 
 
 class Generator:
@@ -35,9 +52,6 @@ class Generator:
         return jax.random.uniform(
             key, shape=shape, dtype=jnp.float64, minval=low, maxval=high
         )
-
-
-from_seed = Generator
 
 
 def default_rng(seed=None):

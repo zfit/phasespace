@@ -1,8 +1,3 @@
-# =============================================================================
-# @file   rapidsim.py
-# @author Albert Puig (albert.puig@cern.ch)
-# @date   07.03.2019
-# =============================================================================
 """Utils to crossheck against RapidSim."""
 
 import os
@@ -105,6 +100,3 @@ def get_tree_in_b_rest_frame(file_name, top_particle, particles):
         part_name: lorentz_boost(part, top_parts)
         for part_name, part in part_dict.items()
     }
-
-
-# EOF

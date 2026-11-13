@@ -1,7 +1,5 @@
 """Random number generation for the selected computational backend."""
 
-from __future__ import annotations
-
 from typing import Protocol
 
 from . import backend
@@ -34,5 +32,5 @@ def generate_uniform(
     rng: RandomGenerator, shape: tuple[int, ...], minval=0, maxval=1, dtype=None
 ):
     if dtype is None:
-        dtype = backend.tnp.float64
+        dtype = backend.array_api.float64
     return backend.random.uniform(rng, shape, minval, maxval, dtype)

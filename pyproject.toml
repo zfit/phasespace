@@ -5,8 +5,11 @@ build-backend = "hatchling.build"
 [project]
 name = "phasespace"
 description = "Raubold and Lynch n-body phase space generation with TensorFlow, NumPy, and JAX"
-authors = [{ name = "Albert Puig Navarro", email = "apuignav@gmail.com" }]
-maintainers = [{ name = "zfit", email = "zfit@physik.uzh.ch" }]
+authors = [
+    { name = "Albert Puig Navarro" },
+    { name = "Jonas Eschle" },
+    { name = "Remco de Boer" },
+]
 license = "BSD-3-Clause"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -121,13 +124,6 @@ show_missing = true
 addopts = """
 --color=yes
 --ignore=setup.py"""
+markers = ["tf_only: mark test as TensorFlow-only (skip for other backends)"]
 filterwarnings = ["ignore:.*the imp module is deprecated in favour of importlib.*:DeprecationWarning"]
 norecursedirs = ["tests/helpers"]
-
-[tool.tombi.format.rules]
-indent-width = 4
-trailing-comment-space-width = 1
-
-# Avoid schema-driven reordering and network access (for pre-commit.ci)
-[tool.tombi.schema]
-enabled = false

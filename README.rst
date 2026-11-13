@@ -106,9 +106,7 @@ The default installation only depends on NumPy. TensorFlow and JAX support are a
 Backend Selection
 =================
 
-Phasespace supports **NumPy** (default), **TensorFlow**, and **JAX**. Applications that rely on TensorFlow tensors or TensorFlow random generators should install the ``tf`` extra and select the TensorFlow backend explicitly.
-
-Use the public API to switch backends, including for decay objects you have already created:
+Phasespace supports **NumPy** (default), **TensorFlow**, and **JAX**. The backend can be selected at runtime using the public API:
 
 .. code-block:: python
 
@@ -124,18 +122,16 @@ Use the public API to switch backends, including for decay objects you have alre
     jax_weights, jax_particles = decay.generate(n_events=1000, seed=42)
     print(phasespace.get_backend())  # BackendType.JAX
 
-The initial backend can also be selected through an environment variable:
+Alternatively, the initial backend can also be selected through an environment variable:
 
 .. code-block:: bash
 
     export PHASESPACE_BACKEND=tensorflow
     # Other choices: numpy (default), jax
 
-Backend selection is process-wide. Switch outside user-compiled functions and while no other thread is generating events. Previously returned arrays keep their original type. Existing random generators also belong to their original backend; pass an integer seed or create a new generator after switching. The same integer seed reproduces a stream within a backend, but streams differ between backends.
+The backend applies to the whole program, so avoid switching it while events are being generated. Arrays you already generated keep their original type. A random generator belongs to the backend it was created with, so after switching, pass an integer seed or create a new generator. The same seed gives the same events within one backend, but different backends produce different events.
 
-NumPy executes without compilation. TensorFlow compiles generation graphs. JAX uses double precision and compiles the numerical kernels, including the particle rotations, with the particle count treated as a static argument. Decay-tree traversal and random-key advancement stay outside JAX compilation so mutable particles and random state are not captured by a cached trace.
-
-Custom mass functions should use operations compatible with the selected backend. Functions that accept a ``seed`` parameter receive the current random generator. The supplied ``fromdecay`` mass distributions use TensorFlow and zfit; use the TensorFlow backend for that integration.
+Custom mass functions should use operations that work with the selected backend. The mass distributions in ``phasespace.fromdecay`` are built on zfit, so use the TensorFlow backend with them.
 
 
 How to use
