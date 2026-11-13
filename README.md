@@ -56,22 +56,25 @@ This is the preferred method to install `phasespace`, as it will always install 
 pip install "phasespace[fromdecay]"
 ```
 
-TensorFlow remains installed by default. For JAX support, install the optional extra:
+The default installation only depends on NumPy. TensorFlow and JAX support are available through optional extras (the `fromdecay` extra already includes TensorFlow):
 
 ```shell
+pip install "phasespace[tf]"
 pip install "phasespace[jax]"
 ```
 
 ## Backend Selection
 
-Phasespace supports **TensorFlow** (default), **NumPy**, and **JAX**. The backend can be selected at runtime using the public API:
+Phasespace supports **NumPy** (default), **TensorFlow**, and **JAX**. The backend can be selected at runtime using the public API:
 
 ```python
 import phasespace
 
 decay = phasespace.nbody_decay(5279, [139, 493])
-phasespace.set_backend("numpy")
 numpy_weights, numpy_particles = decay.generate(n_events=1000, seed=42)
+
+phasespace.set_backend("tensorflow")
+tf_weights, tf_particles = decay.generate(n_events=1000, seed=42)
 
 phasespace.set_backend("jax")
 jax_weights, jax_particles = decay.generate(n_events=1000, seed=42)
@@ -81,8 +84,8 @@ print(phasespace.get_backend())  # BackendType.JAX
 Alternatively, the initial backend can also be selected through an environment variable:
 
 ```shell
-export PHASESPACE_BACKEND=numpy
-# Other choices: tensorflow, jax
+export PHASESPACE_BACKEND=tensorflow
+# Other choices: numpy (default), jax
 ```
 
 The backend applies to the whole program, so avoid switching it while events are being generated. Arrays you already generated keep their original type. A random generator belongs to the backend it was created with, so after switching, pass an integer seed or create a new generator. The same seed gives the same events within one backend, but different backends produce different events.

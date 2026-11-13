@@ -45,10 +45,10 @@ def set_backend(
 ) -> None:
     """Select the backend for subsequent calls, including existing decay objects.
 
-    The initial backend is taken from the ``PHASESPACE_BACKEND`` environment variable and defaults to
-    TensorFlow. JAX requires the optional ``jax`` extra and uses double precision. Backend selection is
-    process-wide; switch outside compiled user functions and do not switch while another thread is generating
-    events. Existing arrays and random generators retain their original backend.
+    The initial backend is taken from the ``PHASESPACE_BACKEND`` environment variable and defaults to NumPy.
+    TensorFlow and JAX require the optional ``tf`` and ``jax`` extras; JAX uses double precision. Backend
+    selection is process-wide; switch outside compiled user functions and do not switch while another thread
+    is generating events. Existing arrays and random generators retain their original backend.
     """
     backend_type = (
         BackendType.from_string(backend) if isinstance(backend, str) else backend
@@ -74,12 +74,12 @@ class BackendType(Enum):
     @staticmethod
     def from_string(backend: str) -> BackendType:
         backend = backend.lower().strip()
-        if backend in {"", "tf", "tensorflow"}:
-            return BackendType.TENSORFLOW
-        if backend in {"np", "numpy"}:
+        if backend in {"", "np", "numpy"}:
             return BackendType.NUMPY
         if backend == "jax":
             return BackendType.JAX
+        if backend in {"tf", "tensorflow"}:
+            return BackendType.TENSORFLOW
         raise NotImplementedError(f'No backend implemented for "{backend}"')
 
 
@@ -232,7 +232,7 @@ class _ActiveBackend:
 
 
 _initial_backend = BackendType.from_string(
-    os.environ.get("PHASESPACE_BACKEND", "tensorflow")
+    os.environ.get("PHASESPACE_BACKEND", "numpy")
 )
 _active = _ActiveBackend(_initial_backend, _initialize_backend(_initial_backend))
 """Single source of the active backend type and its implementation, changed by `set_backend`.
