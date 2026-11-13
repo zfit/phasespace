@@ -9,6 +9,5 @@ usage
 DecayChain <GenMultiDecay_Tutorial>
 API <phasespace>
 contributing
-authors
 history
 ```
