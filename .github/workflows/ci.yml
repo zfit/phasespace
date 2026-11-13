@@ -24,7 +24,7 @@ on:
 
 jobs:
   download-data:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Cache test data
@@ -56,7 +56,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
@@ -98,42 +98,42 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-26.04
             python-version: "3.10"
             backend: tensorflow
             eager: 0
-          - os: ubuntu-latest
+          - os: ubuntu-26.04
             python-version: "3.10"
             backend: tensorflow
             eager: 1
-          - os: ubuntu-latest
+          - os: ubuntu-26.04
             python-version: "3.10"
             backend: numpy
-          - os: ubuntu-latest
+          - os: ubuntu-26.04
             python-version: "3.10"
             backend: jax
-          - os: ubuntu-latest
+          - os: ubuntu-26.04
             python-version: "3.13"
             backend: tensorflow
             eager: 0
-          - os: ubuntu-latest
+          - os: ubuntu-26.04
             python-version: "3.13"
             backend: tensorflow
             eager: 1
-          - os: ubuntu-latest
+          - os: ubuntu-26.04
             python-version: "3.13"
             backend: numpy
-          - os: ubuntu-latest
+          - os: ubuntu-26.04
             python-version: "3.13"
             backend: jax
-          - os: macos-latest
+          - os: macos-26
             python-version: "3.13"
             backend: tensorflow
             eager: 0
-          - os: macos-latest
+          - os: macos-26
             python-version: "3.13"
             backend: numpy
-          - os: macos-latest
+          - os: macos-26
             python-version: "3.13"
             backend: jax
           - os: windows-latest
