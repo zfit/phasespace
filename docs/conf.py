@@ -98,10 +98,8 @@ html_theme_options = {
     ],
 }
 
-# Sidebar configuration using glob patterns
-html_sidebars = {
-    "**": ["sidebar-nav-bs"],
-}
+# The pages have no subpages, so the section navigation sidebar would be empty
+html_sidebars = {"**": []}
 
 # Configure navigation links in the navbar
 html_context = {
