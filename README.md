@@ -12,7 +12,7 @@
 
 Python implementation of the Raubold and Lynch method for *n*-body events with support for multiple computational backends (TensorFlow, NumPy, JAX).
 
-The code is based on the GENBOD function (W515 from CERNLIB), documented in [1] and tries to follow it as closely as possible.
+The code is based on the GENBOD function (W515 from CERNLIB), documented in [^1] and tries to follow it as closely as possible.
 
 Detailed documentation, including the API, can be found in <https://phasespace.readthedocs.io>. Don't hesitate to join our [gitter](https://gitter.im/zfit/phasespace) channel for questions and comments.
 
@@ -33,7 +33,7 @@ If you use phasespace in a scientific publication we would appreciate citations 
 
 Free software: BSD-3-Clause.
 
-[1]  F. James, Monte Carlo Phase Space, CERN 68-15 (1968)
+[^1]: F. James, [Monte-Carlo phase space](https://doi.org/10.5170/CERN-1968-015), CERN Yellow Report CERN-68-15 (1968)
 
 ## Why?
 Lately, data analysis in High Energy Physics (HEP), traditionally performed within the [ROOT](https://root.cern.ch) ecosystem, has been moving more and more towards Python. The possibility of carrying out purely Python-based analyses has become real thanks to the development of many open source Python packages, which have allowed to replace most ROOT functionality with Python-based packages.
