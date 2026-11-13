@@ -13,6 +13,8 @@ import phasespace
 
 # -- General configuration ---------------------------------------------
 
+default_role = "py:obj"
+
 # use for classes the class and the __init__ docs combined
 autoclass_content = "both"
 
@@ -30,6 +32,10 @@ napoleon_numpy_docstring = False  # docstrings use Google style
 intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable", None),
     "python": ("https://docs.python.org/3", None),
+    "tensorflow": (
+        "https://www.tensorflow.org/api_docs/python",
+        "https://raw.githubusercontent.com/GPflow/tensorflow-intersphinx/master/tf2_py_objects.inv",
+    ),
     "vector": ("https://vector.readthedocs.io/en/latest", None),
 }
 

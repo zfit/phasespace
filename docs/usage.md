@@ -11,7 +11,7 @@ kernelspec:
 
 # Usage
 
-The base of `phasespace` is the `GenParticle` object. This object, which represents a particle, either stable or decaying, has only one mandatory argument, its name.
+The base of `phasespace` is the {class}`.GenParticle` object. This object, which represents a particle, either stable or decaying, has only one mandatory argument, its name.
 
 In most cases (except for the top particle of a decay), one wants to also specify its mass, which can be either be array-like, or a function. Functions are used to specify the mass of particles such as resonances, which are not fixed but vary according to a broad distribution. These mass functions get three arguments, and must return an array-like object of the same shape as the input arguments.
 
@@ -23,7 +23,7 @@ This function signature allows to handle threshold effects cleanly, giving enoug
 
 ## A simple example
 
-With these considerations in mind, one can build a decay chain by using the `set_children` method of the {py:class}`~phasespace.GenParticle` class. As an example, to build the $B^{0}\to K^{*}\gamma$ decay in which $K^*\to K\pi$ with a fixed mass, one would write:
+With these considerations in mind, one can build a decay chain by using the {meth}`~.GenParticle.set_children` method of the {class}`.GenParticle` class. As an example, to build the $B^{0}\to K^{*}\gamma$ decay in which $K^*\to K\pi$ with a fixed mass, one would write:
 
 ```{code-cell} ipython3
 import numpy as np
@@ -44,10 +44,10 @@ gamma = GenParticle("gamma", 0)
 bz = GenParticle("B0", B0_MASS).set_children(kstar, gamma)
 ```
 
-Phasespace events can be generated using the `generate` method, which gets the number of events to generate as input. The method returns:
+Phasespace events can be generated using the {meth}`~.GenParticle.generate` method, which gets the number of events to generate as input. The method returns:
 
 - The normalized weights of each event, as an array of dimension `(n_events,)`.
-- The 4-momenta of the generated particles as values of a dictionary with the particle name as key. These momenta are *either* expressed as arrays of dimension `(n_events, 4)` or {py:class}`~vector.Momentum` objects, depending on the `as_vectors` flag given to `generate`.
+- The 4-momenta of the generated particles as values of a dictionary with the particle name as key. These momenta are *either* expressed as arrays of dimension `(n_events, 4)` or {class}`~vector.MomentumNumpy4D` objects, depending on the `as_vectors` flag given to `generate`.
 
 ```{code-cell} ipython3
 N_EVENTS = 1000
@@ -63,7 +63,7 @@ weights, particles = bz.generate(n_events=N_EVENTS)
 
 The particles are generated in the rest frame of the top particle. To produce them at a given momentum of the top particle, one can pass these momenta with the `boost_to` argument in `generate`. This latter approach can be useful if the momentum of the top particle is generated according to some distribution, for example the kinematics of the LHC (see `test_kstargamma_kstarnonresonant_lhc` and `test_k1gamma_kstarnonresonant_lhc` in `tests/test_physics.py` to see how this could be done).
 
-The `boost_to` argument can be a 4-momentum array of shape `(n_events, 4)` with `(px, py, pz, energy)` or a {py:class}`~vector.Momentum` (both a momentum and a Lorentz vector).
+The `boost_to` argument can be a 4-momentum array of shape `(n_events, 4)` with `(px, py, pz, energy)` or a [`vector`](https://vector.readthedocs.io) momentum Lorentz vector (both a momentum and a Lorentz vector).
 
 ```{code-cell} ipython3
 N_EVENTS = 1000
@@ -137,7 +137,7 @@ bz.generate(n_events=500)
 
 ## Shortcut for simple decays
 
-The generation of simple *n*-body decay chains can be done using the `nbody_decay` function of `phasespace`, which takes
+The generation of simple *n*-body decay chains can be done using the {func}`.nbody_decay` function of `phasespace`, which takes
 
 - The mass of the top particle.
 - The mass of children particles as a list.
@@ -161,11 +161,11 @@ decay = phasespace.nbody_decay(B0_MASS, [PION_MASS, KAON_MASS], top_name="B0", n
 weights, particles = decay.generate(n_events=N_EVENTS)
 ```
 
-In this example, `decay` is simply a `GenParticle` with the corresponding children.
+In this example, `decay` is simply a {class}`.GenParticle` with the corresponding children.
 
 ## Choosing a backend
 
-Events are generated with TensorFlow by default, but NumPy and JAX can be selected with {func}`phasespace.set_backend`. Decay objects that already exist, such as `decay` above, can be reused after switching, and the returned arrays are of the selected backend's type:
+Events are generated with TensorFlow by default, but NumPy and JAX can be selected with {func}`.set_backend`. Decay objects that already exist, such as `decay` above, can be reused after switching, and the returned arrays are of the selected backend's type:
 
 ```{code-cell} ipython3
 phasespace.set_backend("numpy")
@@ -181,12 +181,12 @@ The selection is process-wide and can also be made through the `PHASESPACE_BACKE
 
 By default, `phasespace` uses JIT (*just-in-time*) compilation of TensorFlow to greatly speed up the generation of events. Simplified, this means that the first time a decay is generated, a symbolic array *without a concrete value* is used and the computation is remembered. As a user calling the function, you will not notice this, the output will be the same as if the function was executed eagerly. The consequence is two-fold: on one hand the initial overhead is higher with a significant speedup for subsequent generations, on the other hand, the values of the generated particles *inside the function* are not available in pure Python (e.g. for debugging basically).
 
-If you need to debug the internals, using `tf.config.run_functions_eagerly(True)` (or the environment variable `PHASESPACE_EAGER=1`) will make everything run numpy-like.
+If you need to debug the internals, using {func}`tf.config.run_functions_eagerly` with `True` (or the environment variable `PHASESPACE_EAGER=1`) will make everything run numpy-like.
 
 ## Random numbers
 
 The random number generation inside `phasespace` is transparent in order to allow for deterministic behavior if desired. A function that uses random number generation inside always takes a `seed` (or `rng`) argument. The behavior is as follows
 
-- if no seed is given, the global random number generator of TensorFlow will be used. Setting this instance explicitly or by setting the seed via `tf.random.set_seed` allows for a deterministic execution of a whole *script*.
+- if no seed is given, the global random number generator of TensorFlow will be used. Setting this instance explicitly or by setting the seed via {func}`tf.random.set_seed` allows for a deterministic execution of a whole *script*.
 - if the seed is a number it will be used to create a random number generator from this. Using the same seed again will result in the same output.
-- if the seed is an instance of {py:class}`tf.random.Generator`, this instance will directly be used and advances an undefined number of steps.
+- if the seed is an instance of {class}`tf.random.Generator`, this instance will directly be used and advances an undefined number of steps.

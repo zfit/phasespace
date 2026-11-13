@@ -1,5 +1,17 @@
 # API
 
+## Backend selection
+
+```{eval-rst}
+.. autofunction:: phasespace.set_backend
+
+.. autofunction:: phasespace.get_backend
+
+.. autoclass:: phasespace.backend.BackendType
+    :members:
+    :undoc-members:
+```
+
 ## phasespace.phasespace module
 
 ```{eval-rst}
