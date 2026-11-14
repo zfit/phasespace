@@ -15,13 +15,20 @@ class GenMultiDecay:
     DEFAULT_MASS_FUNC = "relbw"
 
     def __init__(self, gen_particles: list[tuple[float, GenParticle]]):
-        """A ``GenParticle``-type container that can handle multiple decays.
+        """A `.GenParticle`-type container that can handle multiple decays.
 
         Args:
             gen_particles: All the GenParticles and their corresponding probabilities.
                 The list must be of the format [[probability, GenParticle instance], [probability, ...
         """
         self.gen_particles = gen_particles
+
+    def __repr__(self):
+        modes = "".join(
+            f"\n    {probability:.4g}: {particle!r},"
+            for probability, particle in self.gen_particles
+        )
+        return f"<phasespace.fromdecay.GenMultiDecay: decay modes=[{modes}\n]>"
 
     @classmethod
     def from_dict(
@@ -31,7 +38,7 @@ class GenMultiDecay:
         tolerance: float | None = None,
         particle_model_map: dict[str, str] | None = None,
     ):
-        """Create a ``GenMultiDecay`` instance from a dict in the ``DecayLanguage`` package format.
+        """Create a `GenMultiDecay` instance from a dict in the ``DecayLanguage`` package format.
 
         Args:
             dec_dict: The input dict from which the GenMultiDecay object will be created from.
@@ -43,7 +50,7 @@ class GenMultiDecay:
                 See the Example below or the tutorial for how to use this parameter.
             tolerance: Minimum mass width of the particle to use a mass function instead of
                 assuming the mass to be constant. If None, the default value, defined by the class variable
-                ``MASS_WIDTH_TOLERANCE``, will be used. This value can be customized if desired.
+                `MASS_WIDTH_TOLERANCE`, will be used. This value can be customized if desired.
             particle_model_map: A dict where the key is a particle name and the value is a mass function name.
                 If a particle is specified in the particle_model_map, then all appearances of this particle
                 in dec_dict will get the same mass function. This way, one doesn't have to manually add the
@@ -80,7 +87,7 @@ class GenMultiDecay:
             **Using particle_model_map**
 
             If the D0 particle should have a mass distribution of a gaussian when it decays, one can pass
-            the ``particle_model_map`` parameter to ``from_dict``:
+            the ``particle_model_map`` parameter to :meth:`from_dict`:
 
             .. code-block:: python
 
@@ -130,8 +137,8 @@ class GenMultiDecay:
                 dst_gen = GenMultiDecay.from_dict(dst_chain, mass_converter={"custom_gauss": custom_gauss})
 
         Notes:
-            For a more in-depth tutorial, see the tutorial on GenMultiDecay in the
-            `documentation <https://phasespace.readthedocs.io/en/stable/GenMultiDecay_Tutorial.html>`__.
+            :doc:`documentation </fromdecay>`.
+            `documentation <https://phasespace.readthedocs.io/en/stable/fromdecay.html>`__.
         """
         if tolerance is None:
             tolerance = cls.MASS_WIDTH_TOLERANCE
@@ -163,10 +170,10 @@ class GenMultiDecay:
             n_events: Total number of events combined, for all the decays.
             normalize_weights: Normalize weights according to all events generated.
                 This also changes the return values. See the phasespace documentation for more details.
-            kwargs: Additional parameters passed to all calls of ``GenParticle.generate``
+            kwargs: Additional parameters passed to all calls of :meth:`.GenParticle.generate`
 
         Returns:
-            The arguments returned by ``GenParticle.generate`` are returned. See the phasespace documentation for
+            The arguments returned by :meth:`.GenParticle.generate` are returned. See the phasespace documentation for
             details. However, instead of being 2 or 3 tensors, it is 2 or 3 lists of tensors,
             each entry in the lists corresponding to the return arguments from the corresponding GenParticle
             instances in ``self.gen_particles``. Note that when ``normalize_weights`` is True,

@@ -1,14 +1,13 @@
-include AUTHORS.rst
-include CONTRIBUTING.rst
-include CHANGELOG.rst
+include CONTRIBUTING.md
+include CHANGELOG.md
 include LICENSE
-include README.rst
+include README.md
 include pyproject.toml
-include *.rst
+include *.md
 include *.txt
 
 recursive-include tests *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 
-recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif
+recursive-include docs *.md *.ipynb conf.py Makefile make.bat *.jpg *.png *.gif

@@ -1,25 +1,38 @@
-phasespace package
-====================
+# API
 
-phasespace.phasespace module
---------------------------------
+## Backend selection
 
+```{eval-rst}
+.. autofunction:: phasespace.set_backend
+
+.. autofunction:: phasespace.get_backend
+
+.. autoclass:: phasespace.backend.BackendType
+    :members:
+    :undoc-members:
+```
+
+## phasespace.phasespace module
+
+```{eval-rst}
 .. automodule:: phasespace.phasespace
     :members:
     :undoc-members:
     :show-inheritance:
+```
 
-phasespace.kinematics module
-------------------------------
+## phasespace.kinematics module
 
+```{eval-rst}
 .. automodule:: phasespace.kinematics
     :members:
     :undoc-members:
     :show-inheritance:
+```
 
-phasespace.fromdecay module
-------------------------------
+## phasespace.fromdecay module
 
+```{eval-rst}
 .. automodule:: phasespace.fromdecay.genmultidecay
     :members:
     :undoc-members:
@@ -29,3 +42,4 @@ phasespace.fromdecay module
     :members:
     :undoc-members:
     :show-inheritance:
+```
