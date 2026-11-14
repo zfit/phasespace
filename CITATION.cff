@@ -10,6 +10,8 @@ authors:
   - given-names: Jonas
     family-names: Eschle
     affiliation: University of Zurich
+  - given-names: Remco
+    family-names: de Boer
 keywords:
   - Python
   - Simulation
