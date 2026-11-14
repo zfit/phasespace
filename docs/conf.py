@@ -57,7 +57,7 @@ nb_merge_streams = True
 nb_output_stderr = "remove"
 
 project = "phasespace"
-copyright = "2019-2026, Albert Puig Navarro, Jonas Eschle"
+copyright = "2019-2026, Albert Puig Navarro, Jonas Eschle, Remco de Boer"
 author = "Albert Puig Navarro"
 version = phasespace.__version__
 release = phasespace.__version__
