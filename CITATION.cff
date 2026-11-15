@@ -7,9 +7,15 @@ date-released: 2019-10-29
 authors:
   - given-names: Albert
     family-names: Navarro
+    orcid: https://orcid.org/0000-0001-8868-2947
   - given-names: Jonas
     family-names: Eschle
     affiliation: University of Zurich
+    orcid: https://orcid.org/0000-0002-7312-3699
+  - given-names: Remco E.
+    family-names: de Boer
+    affiliation: Ruhr University Bochum
+    orcid: https://orcid.org/0000-0001-5846-2206
 keywords:
   - Python
   - Simulation
