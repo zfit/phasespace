@@ -268,15 +268,16 @@ def test_resonance_seed(backend_name, backend_context):
 
 @pytest.mark.parametrize("backend_name", AVAILABLE_BACKENDS)
 def test_forbidden_decay(backend_name, backend_context):
-    import tensorflow as tf
-
     import phasespace
 
+    expected_errors = (AssertionError,)
+    if backend_name == "tensorflow":
+        import tensorflow as tf
+
+        expected_errors += (tf.errors.InvalidArgumentError,)
     backend_context(backend_name)
     decay = phasespace.nbody_decay(1.0, [1.0, 1.0])
-    with pytest.raises(
-        (AssertionError, tf.errors.InvalidArgumentError), match="Forbidden decay"
-    ):
+    with pytest.raises(expected_errors, match="Forbidden decay"):
         decay.generate(10, seed=42)
 
 
@@ -296,7 +297,10 @@ def test_invalid_backend_preserves_selection(backend_name, backend_context):
 def test_foreign_random_generator(backend_name, backend_context):
     import phasespace
 
-    backend_context("numpy" if backend_name != "numpy" else "tensorflow")
+    other_backends = [name for name in AVAILABLE_BACKENDS if name != backend_name]
+    if not other_backends:
+        pytest.skip("Requires a second backend")
+    backend_context(other_backends[0])
     rng = phasespace.random.get_rng(42)
     backend_context(backend_name)
     with pytest.raises(ValueError, match="does not belong to the current backend"):
@@ -304,7 +308,7 @@ def test_foreign_random_generator(backend_name, backend_context):
 
 
 def test_tensorflow_variable_after_switch(backend_context):
-    import tensorflow as tf
+    tf = pytest.importorskip("tensorflow")
 
     import phasespace
 
