@@ -71,7 +71,7 @@ Add support for Python 3.11, drop support for 3.7
 - upgrade to zfit >= 0.10.0 and zfit-physics >= 0.3.0
 - pinning uproot and awkward to ~4 and ~1, respectively
 
-## 1.7.0 (1. Sep 2022)
+## 1.7.0 (1 Sep 2022)
 
 Upgraded Python and TensorFlow version.
 
@@ -103,25 +103,25 @@ Added `tf` and `tensorflow` extra to requirements. If you intend to use phasespa
 
 - to Simon Thor for contributing the `fromdecay` subpackage.
 
-## 1.4.2 (5.11.2021)
+## 1.4.2 (5 Nov 2021)
 
 ### Requirement changes
 
 - Losen restriction on TensorFlow, allow version 2.7 (and 2.5, 2.6)
 
-## 1.4.1 (27.08.2021)
+## 1.4.1 (27 Aug 2021)
 
 ### Requirement changes
 
 - Losen restriction on TensorFlow, allow version 2.6 (and 2.5)
 
-## 1.4.0 (11.06.2021)
+## 1.4.0 (11 Jun 2021)
 
 ### Requirement changes
 
 - require TensorFlow 2.5 as 2.4 breaks some functionality
 
-## 1.3.0 (28.05.2021)
+## 1.3.0 (28 May 2021)
 
 ### Major Features and Improvements
 
@@ -134,7 +134,7 @@ Added `tf` and `tensorflow` extra to requirements. If you intend to use phasespa
 
 - Remco de Boer for many commits and cleanups
 
-## 1.2.0 (17.12.20)
+## 1.2.0 (17 Dec 2020)
 
 ### Major Features and Improvements
 
@@ -155,7 +155,7 @@ Added `tf` and `tensorflow` extra to requirements. If you intend to use phasespa
 
 - Remco de Boer and Stefan Pflüger for discussions on random number genration
 
-## 1.1.0 (27.1.2020)
+## 1.1.0 (27 Jan 2020)
 
 This release switched to TensorFlow 2.0 eager mode. Please upgrade your TensorFlow installation if possible and change your code (minimal changes) as described under "Behavioral changes". In case this is currently impossible to do, please downgrade to < 1.1.0.
 
@@ -176,7 +176,7 @@ This release switched to TensorFlow 2.0 eager mode. Please upgrade your TensorFl
 
 ### Thanks
 
-## 1.0.4 (13-10-2019)
+## 1.0.4 (13 Oct 2019)
 
 ### Major Features and Improvements
 
