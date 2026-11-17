@@ -30,7 +30,7 @@
 
 ## 1.11.0 (15 Nov 2026)
 
-### Major Features and Improvements
+### Major features and improvements
 
 - Add NumPy and optional JAX backends alongside TensorFlow, with runtime backend selection through `phasespace.set_backend` and `phasespace.get_backend`. Existing decay objects can be reused after switching. TensorFlow remains the default backend in this release.
 
@@ -52,7 +52,7 @@
 
 Add support for Python 3.12, drop support for 3.8
 
-### Major Features and Improvements
+### Major features and improvements
 
 - integrating [vector](https://vector.readthedocs.io/en/latest/index.html) support for `generate`: `boost_to` can be a Momentum Lorentz vector and return the boosted particles as a vector using `as_vectors=True`.
 
@@ -84,14 +84,14 @@ Added `tf` and `tensorflow` extra to requirements. If you intend to use phasespa
 
 ## 1.6.0 (14 Apr 2022)
 
-### Major Features and Improvements
+### Major features and improvements
 
 - Improved GenMultiDecay to have better control on the decay mass of non-stable particles.
 - Added a `particle_model_map` argument to the `GenMultiDecay` class. This is a dict where the key is a particle name and the value is a mass function name. The feature can be seen in the [GenMultiDecay Tutorial](https://phasespace.readthedocs.io/en/stable/fromdecay.html).
 
 ## 1.5.0 (27 Nov 2021)
 
-### Major Features and Improvements
+### Major features and improvements
 
 - add support to generate from a DecayChain using [the decaylanguage](https://github.com/scikit-hep/decaylanguage) package from Scikit-HEP. This is in the new subpackage "fromdecay" and can be used by installing the extra with `pip install phasespace[fromdecay]`.
 
@@ -123,7 +123,7 @@ Added `tf` and `tensorflow` extra to requirements. If you intend to use phasespa
 
 ## 1.3.0 (28 May 2021)
 
-### Major Features and Improvements
+### Major features and improvements
 
 - Support Python 3.9
 - Support TensorFlow 2.5
@@ -136,7 +136,7 @@ Added `tf` and `tensorflow` extra to requirements. If you intend to use phasespa
 
 ## 1.2.0 (17 Dec 2020)
 
-### Major Features and Improvements
+### Major features and improvements
 
 - Python 3.8 support
 - Allow eager execution by setting with `tf.config.run_functions_eagerly(True)` or the environment variable "PHASESPACE_EAGER"
@@ -159,7 +159,7 @@ Added `tf` and `tensorflow` extra to requirements. If you intend to use phasespa
 
 This release switched to TensorFlow 2.0 eager mode. Please upgrade your TensorFlow installation if possible and change your code (minimal changes) as described under "Behavioral changes". In case this is currently impossible to do, please downgrade to < 1.1.0.
 
-### Major Features and Improvements
+### Major features and improvements
 
 - full TF2 compatibility
 
@@ -178,6 +178,6 @@ This release switched to TensorFlow 2.0 eager mode. Please upgrade your TensorFl
 
 ## 1.0.4 (13 Oct 2019)
 
-### Major Features and Improvements
+### Major features and improvements
 
 Release to conda-forge, thanks to Chris Burr
