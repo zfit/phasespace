@@ -1,14 +1,38 @@
 # Changelog
 
-## Develop
-
-### Major Features and Improvements
-
-- Add NumPy and optional JAX backends alongside TensorFlow, with runtime backend selection through `phasespace.set_backend` and `phasespace.get_backend`. Existing decay objects can be reused after switching.
+## 2.0.0 (17 Nov 2026)
 
 ### Behavioral changes
 
-- NumPy is now the default backend. Select TensorFlow with `phasespace.set_backend("tensorflow")` or `PHASESPACE_BACKEND=tensorflow`.
+- NumPy is now the default backend. Select TensorFlow in Python with
+
+  ```python
+  import phasespace
+
+  phasespace.set_backend("tensorflow")
+  ```
+
+  or through the environment with
+
+  ```shell
+  export PHASESPACE_BACKEND=tensorflow
+  ```
+
+### Requirement changes
+
+- NumPy is the only required dependency. TensorFlow and TensorFlow Probability move to the `tf` extra, which the `fromdecay` extra includes. Install it to keep using the TensorFlow backend:
+
+  ```shell
+  pip install "phasespace[tf]"
+  ```
+
+- Support Python 3.14 and 3.15 with the NumPy and JAX backends. The TensorFlow backend and the `fromdecay` extra remain limited to the Python versions that TensorFlow supports.
+
+## 1.11.0 (15 Nov 2026)
+
+### Major Features and Improvements
+
+- Add NumPy and optional JAX backends alongside TensorFlow, with runtime backend selection through `phasespace.set_backend` and `phasespace.get_backend`. Existing decay objects can be reused after switching. TensorFlow remains the default backend in this release.
 
 ### Bug fixes and small changes
 
@@ -17,15 +41,12 @@
 
 ### Requirement changes
 
-- Support Python 3.14 and 3.15 with the NumPy and JAX backends. The TensorFlow backend and the `fromdecay` extra remain limited to the Python versions that TensorFlow supports.
-- NumPy is the only required dependency. TensorFlow and TensorFlow Probability move to the `tf` extra, which the `fromdecay` extra includes.
+- The `fromdecay` extra now requires `particle>=0.25.0` and `decaylanguage>=0.19.0`.
 - Developer dependencies are now defined as dependency groups (`test`, `doc`, `dev`) instead of the `test`, `doc` and `dev` extras. Install them with `pip install -e .[all] --group dev` (pip 25.1 or newer) or `uv sync --extra all`.
 
 ### Documentation
 
 - The documentation is now written in MyST Markdown and executed with MyST-NB. Read the Docs builds it with uv and creates previews for pull requests.
-
-### Thanks
 
 ## 1.10.0 (16 Apr 2024)
 
