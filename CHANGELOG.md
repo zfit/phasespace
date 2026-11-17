@@ -166,10 +166,6 @@ The `tf` and `tensorflow` extras are added to the requirements. If you intend to
 - Eager execution can be enabled with `tf.config.run_functions_eagerly(True)` or the environment variable `PHASESPACE_EAGER`.
 - Random number generation is deterministic via a seed or a `tf.random.Generator` instance.
 
-### Behavioral changes
-
-### Bug fixes and small changes
-
 ### Requirement changes
 
 - TensorFlow is restricted to 2.3/2.4.
@@ -196,17 +192,11 @@ This release switched to TensorFlow 2.0 eager mode. Please upgrade your TensorFl
 - `generate` now returns an eager Tensor. This is basically a numpy array wrapped by TensorFlow. To explicitly convert it to a numpy array, use the `numpy()` method of the eager Tensor.
 - `generate_tensor` is now deprecated, `generate` can directly be used instead.
 
-### Bug fixes and small changes
-
 ### Requirement changes
 
 - TensorFlow 2.0.0 or newer is required.
 
-### Thanks
-
 ## 1.0.4 (13 Oct 2019)
-
-### Major features and improvements
 
 Release to conda-forge, thanks to Chris Burr.
 
