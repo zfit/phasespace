@@ -48,6 +48,31 @@
 
 - The documentation is now written in MyST Markdown and executed with MyST-NB. Read the Docs builds it with uv and creates previews for pull requests.
 
+## 1.10.4 (16 Apr 2026)
+
+### Requirement changes
+
+- Support Python 3.10 to 3.13 and drop support for Python 3.9.
+- Require TensorFlow 2.19 or newer and TensorFlow Probability 0.25 or newer.
+
+### Documentation
+
+- Switch the documentation to the PyData Sphinx theme and fix its layout.
+
+## 1.10.3 (23 Apr 2024)
+
+### Bug fixes and small changes
+
+- `vector` was imported unconditionally and was therefore a required dependency. It is optional again and available through the `vector` extra.
+
+## 1.10.2 (16 Apr 2024)
+
+Technical release to fix the build and deployment. No changes to the package.
+
+## 1.10.1 (16 Apr 2024)
+
+Technical release to fix the deployment. No changes to the package.
+
 ## 1.10.0 (16 Apr 2024)
 
 Add support for Python 3.12, drop support for 3.8
@@ -155,6 +180,10 @@ Added `tf` and `tensorflow` extra to requirements. If you intend to use phasespa
 
 - Remco de Boer and Stefan Pflüger for discussions on random number genration
 
+## 1.1.1 (17 Feb 2020)
+
+Technical release to switch to manual versioning. No changes to the package.
+
 ## 1.1.0 (27 Jan 2020)
 
 This release switched to TensorFlow 2.0 eager mode. Please upgrade your TensorFlow installation if possible and change your code (minimal changes) as described under "Behavioral changes". In case this is currently impossible to do, please downgrade to < 1.1.0.
@@ -181,3 +210,15 @@ This release switched to TensorFlow 2.0 eager mode. Please upgrade your TensorFl
 ### Major features and improvements
 
 Release to conda-forge, thanks to Chris Burr
+
+## 1.0.3 (13 Oct 2019)
+
+Release to conda-forge, thanks to Chris Burr. This release cannot be installed with pip; use 1.0.4 instead.
+
+## 1.0.2 (3 Jun 2019)
+
+Add the JOSS paper and fix a problem with Zenodo.
+
+## 1.0.1 (20 May 2019)
+
+First stable release of phasespace.
