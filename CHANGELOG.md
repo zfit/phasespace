@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.0 (17 Nov 2026)
+## [2.0.0](https://github.com/zfit/phasespace/releases/tag/2.0.0) (17 Nov 2026)
 
 ### Behavioral changes
 
@@ -28,7 +28,7 @@
 
 - Python 3.14 and 3.15 are supported with the NumPy and JAX backends. The TensorFlow backend and the `fromdecay` extra remain limited to the Python versions that TensorFlow supports.
 
-## 1.11.0 (15 Nov 2026)
+## [1.11.0](https://github.com/zfit/phasespace/releases/tag/1.11.0) (15 Nov 2026)
 
 ### Major features and improvements
 
@@ -48,7 +48,7 @@
 
 - The documentation is now written in MyST Markdown and executed with MyST-NB. Read the Docs builds it with uv and creates previews for pull requests.
 
-## 1.10.4 (16 Apr 2026)
+## [1.10.4](https://github.com/zfit/phasespace/releases/tag/1.10.4) (16 Apr 2026)
 
 ### Requirement changes
 
@@ -59,17 +59,17 @@
 
 - The documentation uses the PyData Sphinx theme, which fixes its layout.
 
-## 1.10.3 (23 Apr 2024)
+## [1.10.3](https://github.com/zfit/phasespace/releases/tag/1.10.3) (23 Apr 2024)
 
 ### Bug fixes and small changes
 
 - `vector` was imported unconditionally and was therefore a required dependency. It is optional again and available through the `vector` extra.
 
-## 1.10.2 (16 Apr 2024)
+## [1.10.2](https://github.com/zfit/phasespace/releases/tag/1.10.2) (16 Apr 2024)
 
 Technical release that fixes the build and deployment. No changes to the package.
 
-## 1.10.1 (16 Apr 2024)
+## [1.10.1](https://github.com/zfit/phasespace/releases/tag/1.10.1) (16 Apr 2024)
 
 Technical release that fixes the deployment. No changes to the package.
 
@@ -84,20 +84,20 @@ Technical release that fixes the deployment. No changes to the package.
 - Python 3.12 is supported. Support for Python 3.8 is dropped.
 - TensorFlow 2.16 or newer is required.
 
-## 1.9.0 (20 Jul 2023)
+## [1.9.0](https://github.com/zfit/phasespace/releases/tag/1.9.0) (20 Jul 2023)
 
 ### Requirement changes
 
 - Python 3.11 is supported. Support for Python 3.7 is dropped.
 
-## 1.8.0 (27 Jan 2023)
+## [1.8.0](https://github.com/zfit/phasespace/releases/tag/1.8.0) (27 Jan 2023)
 
 ### Requirement changes
 
 - zfit 0.10.0 or newer and zfit-physics 0.3.0 or newer are required.
 - uproot and awkward are pinned to ~4 and ~1, respectively.
 
-## 1.7.0 (1 Sep 2022)
+## [1.7.0](https://github.com/zfit/phasespace/releases/tag/1.7.0) (1 Sep 2022)
 
 The `tf` and `tensorflow` extras are added to the requirements. If you intend to use phasespace with TensorFlow in the future (and not only NumPy), always install with `phasespace[tf]`.
 
@@ -106,14 +106,14 @@ The `tf` and `tensorflow` extras are added to the requirements. If you intend to
 - TensorFlow 2.7 or newer is required.
 - Python 3.7 to 3.10 are supported.
 
-## 1.6.0 (14 Apr 2022)
+## [1.6.0](https://github.com/zfit/phasespace/releases/tag/1.6.0) (14 Apr 2022)
 
 ### Major features and improvements
 
 - `GenMultiDecay` gives better control over the decay mass of non-stable particles.
 - `GenMultiDecay` has a new `particle_model_map` argument. This is a dict where the key is a particle name and the value is a mass function name. The feature is shown in the [GenMultiDecay Tutorial](https://phasespace.readthedocs.io/en/stable/fromdecay.html).
 
-## 1.5.0 (27 Nov 2021)
+## [1.5.0](https://github.com/zfit/phasespace/releases/tag/1.5.0) (27 Nov 2021)
 
 ### Major features and improvements
 
@@ -127,25 +127,25 @@ The `tf` and `tensorflow` extras are added to the requirements. If you intend to
 
 - To Simon Thor for contributing the `fromdecay` subpackage.
 
-## 1.4.2 (5 Nov 2021)
+## [1.4.2](https://github.com/zfit/phasespace/releases/tag/1.4.2) (5 Nov 2021)
 
 ### Requirement changes
 
 - The restriction on TensorFlow is loosened to allow version 2.7 (and 2.5, 2.6).
 
-## 1.4.1 (27 Aug 2021)
+## [1.4.1](https://github.com/zfit/phasespace/releases/tag/1.4.1) (27 Aug 2021)
 
 ### Requirement changes
 
 - The restriction on TensorFlow is loosened to allow version 2.6 (and 2.5).
 
-## 1.4.0 (11 Jun 2021)
+## [1.4.0](https://github.com/zfit/phasespace/releases/tag/1.4.0) (11 Jun 2021)
 
 ### Requirement changes
 
 - TensorFlow 2.5 is required, as 2.4 breaks some functionality.
 
-## 1.3.0 (28 May 2021)
+## [1.3.0](https://github.com/zfit/phasespace/releases/tag/1.3.0) (28 May 2021)
 
 ### Major features and improvements
 
@@ -158,7 +158,7 @@ The `tf` and `tensorflow` extras are added to the requirements. If you intend to
 
 - Remco de Boer for many commits and cleanups.
 
-## 1.2.0 (17 Dec 2020)
+## [1.2.0](https://github.com/zfit/phasespace/releases/tag/1.2.0) (17 Dec 2020)
 
 ### Major features and improvements
 
@@ -175,11 +175,11 @@ The `tf` and `tensorflow` extras are added to the requirements. If you intend to
 
 - Remco de Boer and Stefan Pflüger for discussions on random number generation.
 
-## 1.1.1 (17 Feb 2020)
+## [1.1.1](https://github.com/zfit/phasespace/releases/tag/1.1.1) (17 Feb 2020)
 
 Technical release that switches to manual versioning. No changes to the package.
 
-## 1.1.0 (27 Jan 2020)
+## [1.1.0](https://github.com/zfit/phasespace/releases/tag/1.1.0) (27 Jan 2020)
 
 This release switched to TensorFlow 2.0 eager mode. Please upgrade your TensorFlow installation if possible and change your code (minimal changes) as described under "Behavioral changes". In case this is currently impossible to do, please downgrade to < 1.1.0.
 
@@ -196,18 +196,18 @@ This release switched to TensorFlow 2.0 eager mode. Please upgrade your TensorFl
 
 - TensorFlow 2.0.0 or newer is required.
 
-## 1.0.4 (13 Oct 2019)
+## [1.0.4](https://github.com/zfit/phasespace/releases/tag/1.0.4) (13 Oct 2019)
 
 Release to conda-forge, thanks to Chris Burr.
 
-## 1.0.3 (13 Oct 2019)
+## [1.0.3](https://github.com/zfit/phasespace/releases/tag/1.0.3) (13 Oct 2019)
 
 Release to conda-forge, thanks to Chris Burr. This release cannot be installed with pip; use 1.0.4 instead.
 
-## 1.0.2 (3 Jun 2019)
+## [1.0.2](https://github.com/zfit/phasespace/releases/tag/1.0.2) (3 Jun 2019)
 
 The JOSS paper is added and a problem with Zenodo is fixed.
 
-## 1.0.1 (20 May 2019)
+## [1.0.1](https://github.com/zfit/phasespace/releases/tag/1.0.1) (20 May 2019)
 
 First stable release of phasespace.
