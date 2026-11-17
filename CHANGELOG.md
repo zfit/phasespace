@@ -75,19 +75,20 @@ Technical release that fixes the deployment. No changes to the package.
 
 ## 1.10.0 (16 Apr 2024)
 
-Python 3.12 is supported. Support for Python 3.8 is dropped.
-
 ### Major features and improvements
 
 - [vector](https://vector.readthedocs.io/en/latest/index.html) is supported in `generate`: `boost_to` can be a Momentum Lorentz vector, and `as_vectors=True` returns the boosted particles as vectors.
 
 ### Requirement changes
 
-TensorFlow 2.16 or newer is required.
+- Python 3.12 is supported. Support for Python 3.8 is dropped.
+- TensorFlow 2.16 or newer is required.
 
 ## 1.9.0 (20 Jul 2023)
 
-Python 3.11 is supported. Support for Python 3.7 is dropped.
+### Requirement changes
+
+- Python 3.11 is supported. Support for Python 3.7 is dropped.
 
 ## 1.8.0 (27 Jan 2023)
 
@@ -97,8 +98,6 @@ Python 3.11 is supported. Support for Python 3.7 is dropped.
 - uproot and awkward are pinned to ~4 and ~1, respectively.
 
 ## 1.7.0 (1 Sep 2022)
-
-Python and TensorFlow versions are upgraded.
 
 The `tf` and `tensorflow` extras are added to the requirements. If you intend to use phasespace with TensorFlow in the future (and not only NumPy), always install with `phasespace[tf]`.
 
