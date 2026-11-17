@@ -5,10 +5,6 @@ import pytest
 
 from .helpers import AVAILABLE_BACKENDS
 
-NUMPY_AND_TF = [name for name in ("numpy", "tensorflow") if name in AVAILABLE_BACKENDS]
-
-from .helpers import AVAILABLE_BACKENDS
-
 NUMPY_AND_TENSORFLOW = [
     name for name in ("numpy", "tensorflow") if name in AVAILABLE_BACKENDS
 ]
